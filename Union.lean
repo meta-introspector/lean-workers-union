@@ -36,4 +36,24 @@ def lookupByCapability
     (capability : String) : List UnionMembership :=
   reg.members.filter (fun m => m.capability_set.contains capability)
 
+/-- Lodge-table members admitted to the workers union. --/
+def aristotleUnionMember : UnionMembership :=
+  { member_id := "aristotle"
+    repo := "meta-introspector/aristotle-cli-rs"
+    module := "aristotle-cli-rs"
+    capability_set := ["cli", "rust", "coordination", "plaque"]
+    status := "lodge-table" }
+
+/-- Lodge-table members admitted to the workers union. --/
+def kantUnionMember : UnionMembership :=
+  { member_id := "kant"
+    repo := "meta-introspector/kant-zk-pastebin"
+    module := "kant-zk-pastebin"
+    capability_set := ["zk", "pastebin", "relay", "plaque"]
+    status := "lodge-table" }
+
+/-- The union roster includes the lodge-table members. --/
+def lodgeTableRegistry : UnionRegistry :=
+  { members := [aristotleUnionMember, kantUnionMember] }
+
 end ChoirUnion

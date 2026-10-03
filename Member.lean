@@ -31,6 +31,20 @@ inductive ValidTransition : Role → Role → Prop where
   | worker_to_orch
   | orch_to_observer
 
+/-- Lodge-table members admitted to the union. --/
+def aristotleIdentity : MemberIdentity :=
+  { member_id := "aristotle"
+    repo := "meta-introspector/aristotle-cli-rs"
+    public_key := "aristotle-lodge-plaque"
+    capabilities := ["cli", "rust", "coordination", "plaque"] }
+
+/-- Lodge-table members admitted to the union. --/
+def kantIdentity : MemberIdentity :=
+  { member_id := "kant"
+    repo := "meta-introspector/kant-zk-pastebin"
+    public_key := "kant-lodge-plaque"
+    capabilities := ["zk", "pastebin", "relay", "plaque"] }
+
 /-- The identity component must remain stable across a legal transition. --/
  theorem transition_keeps_identity
     (m : MemberState)
