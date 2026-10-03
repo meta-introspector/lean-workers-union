@@ -68,8 +68,16 @@ def copilotUnionMember : UnionMembership :=
     capability_set := ["agent", "coordination", "analysis", "plaque"]
     status := "lodge-table" }
 
+/-- GAP Lean 4 discrete algebra verification relay admitted to the lodge table. --/
+def pcwormUnionMember : UnionMembership :=
+  { member_id := "pcworm"
+    repo := "pCwOrM/gap-lean4-port"
+    module := "RequestProject.Gap"
+    capability_set := ["formal-verification", "lean4", "gap", "rung-0-5", "algebra", "plaque"]
+    status := "lodge-table" }
+
 /-- The union roster includes the lodge-table members. --/
 def lodgeTableRegistry : UnionRegistry :=
-  { members := [aristotleUnionMember, kantUnionMember, cfOsUnionMember, copilotUnionMember] }
+  { members := [aristotleUnionMember, kantUnionMember, cfOsUnionMember, copilotUnionMember, pcwormUnionMember] }
 
 end ChoirUnion

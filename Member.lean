@@ -59,6 +59,13 @@ def copilotIdentity : MemberIdentity :=
     public_key := "copilot-lodge-plaque"
     capabilities := ["agent", "coordination", "analysis", "plaque"] }
 
+/-- GAP Lean 4 discrete algebra verification relay admitted to the union. --/
+def pcwormIdentity : MemberIdentity :=
+  { member_id := "pcworm"
+    repo := "pCwOrM/gap-lean4-port"
+    public_key := "pcworm-lodge-plaque"
+    capabilities := ["formal-verification", "lean4", "gap", "rung-0-5", "algebra", "plaque"] }
+
 /-- The identity component must remain stable across a legal transition. --/
  theorem transition_keeps_identity
     (m : MemberState)
