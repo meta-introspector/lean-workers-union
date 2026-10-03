@@ -52,6 +52,14 @@ def kantUnionMember : UnionMembership :=
     capability_set := ["zk", "pastebin", "relay", "plaque"]
     status := "lodge-table" }
 
+/-- Cloudflare OS joins the union as a choir-capable member. --/
+def cfOsUnionMember : UnionMembership :=
+  { member_id := "cf-os"
+    repo := "cloudflare/cloudflare-os"
+    module := "cloudflare-os"
+    capability_set := ["agent", "workers", "workspace", "docs", "coordination", "plaque"]
+    status := "lodge-table" }
+
 /-- The assistant agent is also admitted to the lodge table. --/
 def copilotUnionMember : UnionMembership :=
   { member_id := "copilot"
@@ -62,6 +70,6 @@ def copilotUnionMember : UnionMembership :=
 
 /-- The union roster includes the lodge-table members. --/
 def lodgeTableRegistry : UnionRegistry :=
-  { members := [aristotleUnionMember, kantUnionMember, copilotUnionMember] }
+  { members := [aristotleUnionMember, kantUnionMember, cfOsUnionMember, copilotUnionMember] }
 
 end ChoirUnion

@@ -52,7 +52,7 @@ The intended composition is:
 - `Choir` = orchestration and task lifecycle
 - `lean-workers-union` = registration, identity, and role coordination
 - `lean-worker` = a formal member implementation with proofs
-- `aristotle-cli-rs` / `kant-zk-pastebin` = capability-backed services that can
+- `aristotle-cli-rs` / `kant-zk-pastebin` / `cloudflare/cloudflare-os` = capability-backed services that can
   register under the same union contract
 
 ## Files

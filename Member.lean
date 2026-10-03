@@ -45,6 +45,13 @@ def kantIdentity : MemberIdentity :=
     public_key := "kant-lodge-plaque"
     capabilities := ["zk", "pastebin", "relay", "plaque"] }
 
+/-- Cloudflare OS joins the union as a choir-capable member. --/
+def cfOsIdentity : MemberIdentity :=
+  { member_id := "cf-os"
+    repo := "cloudflare/cloudflare-os"
+    public_key := "cf-os-lodge-plaque"
+    capabilities := ["agent", "workers", "workspace", "docs", "coordination", "plaque"] }
+
 /-- The assistant agent is also admitted to the lodge table. --/
 def copilotIdentity : MemberIdentity :=
   { member_id := "copilot"
