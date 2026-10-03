@@ -52,8 +52,16 @@ def kantUnionMember : UnionMembership :=
     capability_set := ["zk", "pastebin", "relay", "plaque"]
     status := "lodge-table" }
 
+/-- The assistant agent is also admitted to the lodge table. --/
+def copilotUnionMember : UnionMembership :=
+  { member_id := "copilot"
+    repo := "meta-introspector/lean-workers-union"
+    module := "lean-workers-union"
+    capability_set := ["agent", "coordination", "analysis", "plaque"]
+    status := "lodge-table" }
+
 /-- The union roster includes the lodge-table members. --/
 def lodgeTableRegistry : UnionRegistry :=
-  { members := [aristotleUnionMember, kantUnionMember] }
+  { members := [aristotleUnionMember, kantUnionMember, copilotUnionMember] }
 
 end ChoirUnion

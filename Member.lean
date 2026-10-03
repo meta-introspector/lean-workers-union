@@ -45,6 +45,13 @@ def kantIdentity : MemberIdentity :=
     public_key := "kant-lodge-plaque"
     capabilities := ["zk", "pastebin", "relay", "plaque"] }
 
+/-- The assistant agent is also admitted to the lodge table. --/
+def copilotIdentity : MemberIdentity :=
+  { member_id := "copilot"
+    repo := "meta-introspector/lean-workers-union"
+    public_key := "copilot-lodge-plaque"
+    capabilities := ["agent", "coordination", "analysis", "plaque"] }
+
 /-- The identity component must remain stable across a legal transition. --/
  theorem transition_keeps_identity
     (m : MemberState)
