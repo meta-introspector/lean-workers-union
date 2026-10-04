@@ -1,0 +1,14 @@
+import Lake
+open Lake DSL
+
+package ChoirUnion where
+  version := v"0.1.0"
+  defaultTargets := #[`ChoirUnion]
+
+@[defaultTarget]
+lean_lib ChoirUnion where
+  globs := #[
+    include "ChoirUnion/**",
+    include "Member.lean",
+    include "Union.lean"
+  ]

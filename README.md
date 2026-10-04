@@ -1,78 +1,38 @@
 # lean-workers-union
 
-A registry and coordination layer for Lean workers and Choir members.
-
-## Purpose
-
-This repository defines the shared membership and role contract for distributed
-formal agents. The union is intentionally not a task runner: it names the
-identity, role, and capability model a member advertises, while Choir remains
-responsible for orchestration and lifecycle decisions.
-
-## Core design
-
-A member is not permanently bound to a single role. The same runtime can act as:
-
-- an orchestrator at one time
-- a worker at another time
-- a relay or observer in other phases
-
-The registry records the identity of each member and enforces the valid role
-transitions that preserve membership invariants.
-
-## Membership contract
-
-A member advertises:
-
-- member id
-- repo or runtime identity
-- public key or signing identity
-- capabilities
-- current role
-- credit / heartbeat / lease state
-
-The registry stores members in a uniform shape so that downstream integrations
-can query them without depending on a specific implementation.
-
-## Role model
-
-The union defines four fundamental roles:
-
-- `Orchestrator`
-- `Worker`
-- `Relay`
-- `Observer`
-
-The same member may move between these states, but only via valid transitions.
-
-## Integration story
-
-The intended composition is:
-
-- `Choir` = orchestration and task lifecycle
-- `lean-workers-union` = registration, identity, and role coordination
-- `lean-worker` = a formal member implementation with proofs
-- `aristotle-cli-rs` / `kant-zk-pastebin` / `cloudflare/cloudflare-os` = capability-backed services that can
-  register under the same union contract
-
-## Files
-
-- `Member.lean` — the core Lean definition of member identity, states, and
-  transitions
-- `Union.lean` — the registry contract for union membership and lookup
-
-## Invariants
-
-The union enforces the following concepts:
-
-- member identity is stable across role transitions
-- role changes are explicit and valid
-- capabilities are part of the public member contract
-- change in role is logged as a transition, not an implicit mutation
-- each member can be looked up by identity, repo, or capability
+A minimal scaffold for the `ChoirUnion` registry and authority vocabulary.
 
 ## Status
 
-This repository is intentionally small and protocol-first. The aim is to define
-shared semantics before deciding how the adapters and worker implementations use
-those semantics in their own repositories.
+This repository is intentionally a small, shared trust vocabulary package. It keeps the existing
+`Member.lean` and `Union.lean` files in place, while providing a common authority layer that is
+portable and reusable by integrating Lean projects.
+
+## Authority package
+
+The `ChoirUnion.Authority` namespace provides common, pure data definitions for:
+
+- `Subject`: repository identity, immutable commit hash, and toolchain
+- `Claim`: exact Lean declaration identity as a `Lean.Name`
+- `AxiomProfile`: standard profiles such as empty, constructive, and classical
+- `ReplayWitness`: declaration status, theorem-vs-def status, sorry flag, and used axioms
+- `Receipt`: shared envelope metadata for a claim and evidence summary
+- `GateCondition`: expected subject, expected claim, and allowed axioms
+- `ReplayProvenance`: build/replay provenance for CI or local verification
+- `ReceiptAuthorizationPolicy`: pure policy metadata for issuer/member authorization
+
+These structures are deliberately portable and do not perform Lean metaprogramming or environment
+inspection. Fresh local witness synthesis, local policy construction, and independent `lean4checker`
+replay remain the responsibility of the consuming project or build pipeline.
+
+## Design boundary
+
+The shared union library does not claim that a receipt, witness, or provenance record is authoritative
+by itself. A deserialized or transmitted receipt is still a claim until it is re-evaluated in a trusted
+local environment or verified with a valid trust-rooted signature scheme.
+
+## Notes
+
+- `lean-toolchain` is pinned to `leanprover/lean4:v4.22.0`.
+- The existing `Member.lean` and `Union.lean` files remain the source of registry and role truth.
+- The authority layer is intentionally separate from the registry and does not replace it.
