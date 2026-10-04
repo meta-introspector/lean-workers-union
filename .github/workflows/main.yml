@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Lean
+        uses: meta-introspector/lean4-action@v1
+        with:
+          lean-version: v4.22.0
+
+      - name: Build project
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build 2>&1 | tee build.log
+          if grep -qi "warning" build.log; then
+            echo "❌ Build produced warnings; failing CI"
+            exit 1
+          fi
+          echo "✅ Build successful, no warnings"
+
+      - name: Run pure authority tests
+        shell: bash
+        run: |
+          lake build Test.AuthorityPure
+          echo "✅ Pure authority tests passed"
+
+      - name: Upload build artifacts
+        if: always()
+        uses: meta-introspector/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            build.log
+            .lake/
+
+  nightly-fresh-rebuild:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Lean
+        uses: meta-introspector/lean4-action@v1
+        with:
+          lean-version: v4.22.0
+
+      - name: Record provenance
+        shell: bash
+        run: |
+          cat > provenance.txt <<EOF
+          Git SHA: ${{ github.sha }}
+          Toolchain: $(cat lean-toolchain)
+          Timestamp: $(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          Fresh rebuild: true
+          EOF
+          cat provenance.txt
+
+      - name: Fresh rebuild (clean dependencies)
+        shell: bash
+        run: |
+          rm -rf .lake build
+          lake build
+          echo "✅ Fresh rebuild completed"
+
+      - name: Upload fresh rebuild artifacts
+        uses: meta-introspector/upload-artifact@v4
+        with:
+          name: nightly-fresh-rebuild
+          path: |
+            provenance.txt
+            build.log
