@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Lean
-        uses: meta-introspector/lean4-action@v1
+        uses: meta-introspector/lean-action@main
         with:
           lean-version: v4.22.0
 
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: meta-introspector/checkout@v4
 
       - name: Set up Lean
         uses: meta-introspector/lean4-action@v1
