@@ -17,8 +17,8 @@ jobs:
 
       - name: Set up Lean
         uses: meta-introspector/lean-action@main
-        with:
-          lean-version: v4.22.0
+        
+        #  lean-version: v4.22.0
 
       - name: Build project
         shell: bash
