@@ -1,0 +1,169 @@
+:root {
+  --color-primary: #315b4a;
+  --color-primary-contrast: #fff9ed;
+  --color-bg: #f3ecdd;
+  --color-surface: #fffaf0;
+  --color-text: #282b25;
+  --color-muted: #6b6d61;
+  --color-line: rgba(61, 52, 39, 0.14);
+  --color-line-strong: rgba(61, 52, 39, 0.25);
+  --color-overlay: rgba(255, 250, 240, 0.78);
+  --color-overlay-soft: rgba(49, 91, 74, 0.08);
+  --color-shadow: rgba(48, 38, 24, 0.16);
+  --color-glow-primary: rgba(98, 125, 83, 0.16);
+  --color-glow-secondary: rgba(174, 126, 73, 0.12);
+  --color-gridline: rgba(86, 70, 48, 0.06);
+  --color-wood: #5a3928;
+  --color-brass: #a77b3f;
+  --color-paper: #e8dfcc;
+  --font-heading: Georgia, 'Times New Roman', serif;
+  --font-body: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --radius: 1.15rem;
+}
+
+:root[data-contrast="high"] {
+  --color-primary: #39ff14;
+  --color-primary-contrast: #031006;
+  --color-bg: #020904;
+  --color-surface: #07150a;
+  --color-text: #d5ffd5;
+  --color-muted: #a1e6a3;
+  --color-line: rgba(113, 255, 122, 0.38);
+  --color-line-strong: rgba(113, 255, 122, 0.72);
+  --color-overlay: rgba(5, 20, 8, 0.96);
+  --color-overlay-soft: rgba(57, 255, 20, 0.14);
+  --color-shadow: rgba(0, 0, 0, 0.75);
+  --color-glow-primary: rgba(57, 255, 20, 0.18);
+  --color-glow-secondary: rgba(95, 255, 133, 0.1);
+  --color-gridline: rgba(57, 255, 20, 0.1);
+  --color-wood: #06210b;
+  --color-brass: #77ff6b;
+  --color-paper: #0b2910;
+}
+
+:root[data-contrast="high"] body {
+  text-shadow: 0 0 0.45em rgba(57, 255, 20, 0.18);
+}
+
+:root[data-contrast="high"] button,
+:root[data-contrast="high"] a,
+:root[data-contrast="high"] input,
+:root[data-contrast="high"] select,
+:root[data-contrast="high"] textarea {
+  outline-color: var(--color-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+.display-font {
+  font-family: var(--font-heading);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.page-glow {
+  background:
+    radial-gradient(ellipse at 82% 0%, var(--color-glow-primary), transparent 36rem),
+    radial-gradient(ellipse at 0% 28%, var(--color-glow-secondary), transparent 34rem),
+    var(--color-bg);
+}
+
+.grid-texture {
+  background-image:
+    linear-gradient(var(--color-gridline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-gridline) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.surface-border {
+  border: 1px solid var(--color-line);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+.lodge-hero {
+  background:
+    radial-gradient(ellipse at 50% 12%, var(--color-glow-primary), transparent 58%),
+    linear-gradient(145deg, var(--color-surface), var(--color-paper));
+}
+
+.lodge-plaque {
+  border: 1px solid var(--color-brass);
+  background: var(--color-wood);
+  color: var(--color-primary-contrast);
+  box-shadow: 0 1rem 2.5rem var(--color-shadow);
+}
+
+.tea-steam {
+  animation: tea-drift 3.4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes tea-drift {
+
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translateY(5px);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

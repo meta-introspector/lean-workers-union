@@ -306,7 +306,7 @@ def Json.render : Json → String
   | .null => "null"
   | .bool true => "true"
   | .bool false => "false"
-  | .str s => Json.escape s
+  | .str s => "\"" ++ Json.escape s ++ "\""
   | .arr items => "[" ++ Json.renderList items ++ "]"
   | .obj fields => "{" ++ Json.renderFields fields ++ "}"
 
@@ -319,9 +319,9 @@ def Json.renderList : List Json → String
 /-- Render an object's fields, comma-separated. -/
 def Json.renderFields : List (String × Json) → String
   | [] => ""
-  | [(k, v)] => Json.escape k ++ "\": " ++ Json.render v
+  | [(k, v)] => "\"" ++ Json.escape k ++ "\": " ++ Json.render v
   | (k, v) :: rest =>
-    Json.escape k ++ "\": " ++ Json.render v ++ ", " ++ Json.renderFields rest
+    "\"" ++ Json.escape k ++ "\": " ++ Json.render v ++ ", " ++ Json.renderFields rest
 end
 
 /-- A build renders to the same JSON the site stores. -/

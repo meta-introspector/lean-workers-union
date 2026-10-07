@@ -13,3 +13,7 @@ roots = ["Test.LodgeApi"]
 [[lean_lib]]
 name = "AuthorityPureTest"
 roots = ["Test.AuthorityPure"]
+
+[[lean_exe]]
+name = "lodge-gen"
+root = "LodgeHouse.Gen"
