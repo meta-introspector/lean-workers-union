@@ -9,18 +9,12 @@ structure ReceiptAuthorizationPolicy where
   requiredCapabilities : List String
   permittedRoles : List String
 
-instance : Repr ReceiptAuthorizationPolicy := ⟨fun p =>
-  "{ issuerMemberId := " ++ repr p.issuerMemberId ++
-  ", requiredCapabilities := " ++ repr p.requiredCapabilities ++
-  ", permittedRoles := " ++ repr p.permittedRoles ++ " }"⟩
+deriving instance DecidableEq for ReceiptAuthorizationPolicy
 
-instance : DecidableEq ReceiptAuthorizationPolicy := by
-  intro a b
-  cases a with
-  | mk issuerA requiredA rolesA =>
-      cases b with
-      | mk issuerB requiredB rolesB =>
-          simp [issuerA, requiredA, rolesA, issuerB, requiredB, rolesB]
+instance : Repr ReceiptAuthorizationPolicy := ⟨fun p _ =>
+  "{ issuerMemberId := " ++ reprStr p.issuerMemberId ++
+  ", requiredCapabilities := " ++ toString p.requiredCapabilities ++
+  ", permittedRoles := " ++ toString p.permittedRoles ++ " }"⟩
 
 def mayRequestReceipt
     (memberId : String)

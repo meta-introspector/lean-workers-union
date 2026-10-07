@@ -34,9 +34,8 @@ def claimMatches (condition : GateCondition) (receipt : Receipt) : Bool :=
     A missing witness fails this check.
 --/
 def witnessAllows (condition : GateCondition) (receipt : Receipt) : Bool :=
-  match receipt.witness with
-  | some w => clean w condition.allowedAxioms
-  | none => false
+  receipt.witness.isSome &&
+  receipt.witness.all (fun w => clean w condition.allowedAxioms)
 
 /-- evaluateGate is a pure predicate that checks whether a receipt passes
     the syntactic acceptance criteria of a condition.
@@ -74,12 +73,11 @@ theorem evaluateGate_sound (condition : GateCondition) (receipt : Receipt) :
       receipt.status == ReceiptStatus.kernelChecked ∧
       receipt.subject == condition.expectedSubject ∧
       receipt.claim == condition.expectedClaim ∧
-      (match receipt.witness with
-       | some w => clean w condition.allowedAxioms = true
-       | none => False) := by
+      receipt.witness.isSome ∧
+      ∀ w ∈ receipt.witness, clean w condition.allowedAxioms = true := by
   intro h
   unfold evaluateGate subjectMatches claimMatches witnessAllows at h
-  simp at h
-  exact h
+  simp only [Bool.and_eq_true, Option.all_eq_true, and_assoc] at h
+  simpa using h
 
 end ChoirUnion.Authority

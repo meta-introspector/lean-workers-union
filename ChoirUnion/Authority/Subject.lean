@@ -2,19 +2,15 @@ import Lean
 
 namespace ChoirUnion.Authority
 
+/-- Provenance: where a build happened. -/
 structure Subject where
   repository : String
   commitHash : String
   toolchain : String
+  deriving DecidableEq
 
-instance : Repr Subject := ⟨fun s => "{ repository := " ++ repr s.repository ++ ", commitHash := " ++ repr s.commitHash ++ ", toolchain := " ++ repr s.toolchain ++ " }"⟩
-
-instance : DecidableEq Subject := by
-  intro a b
-  cases a with
-  | mk repoA hashA toolA =>
-      cases b with
-      | mk repoB hashB toolB =>
-          simp [repoA, hashA, toolA, repoB, hashB, toolB]
+instance : Repr Subject :=
+  ⟨fun s _ => "{ repository := " ++ reprStr s.repository ++ ", commitHash := "
+    ++ reprStr s.commitHash ++ ", toolchain := " ++ reprStr s.toolchain ++ " }"⟩
 
 end ChoirUnion.Authority

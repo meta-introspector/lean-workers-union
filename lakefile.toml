@@ -1,14 +1,15 @@
-import Lake
-open Lake DSL
+name = "ChoirUnion"
+version = "0.1.0"
+defaultTargets = ["ChoirUnion", "LodgeApiTest"]
 
-package ChoirUnion where
-  version := v"0.1.0"
-  defaultTargets := #[`ChoirUnion]
+[[lean_lib]]
+name = "ChoirUnion"
+globs = ["ChoirUnion.*", "Member", "Union", "LodgeHouse.*", "LodgeHouse"]
 
-@[defaultTarget]
-lean_lib ChoirUnion where
-  globs := #[
-    include "ChoirUnion/**",
-    include "Member.lean",
-    include "Union.lean"
-  ]
+[[lean_lib]]
+name = "LodgeApiTest"
+roots = ["Test.LodgeApi"]
+
+[[lean_lib]]
+name = "AuthorityPureTest"
+roots = ["Test.AuthorityPure"]
