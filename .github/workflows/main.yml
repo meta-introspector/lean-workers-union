@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, api/lodge-house-v1 ]
   pull_request:
     branches: [ main ]
   schedule:
@@ -36,6 +36,12 @@ jobs:
           lake build Test.AuthorityPure
           echo "✅ Pure authority tests passed"
 
+      - name: Run Lodge House API tests
+        shell: bash
+        run: |
+          lake build Test.LodgeApi
+          echo "✅ Lodge House API tests passed"
+
       - name: Upload build artifacts
         if: always()
         uses: meta-introspector/upload-artifact@v4
@@ -53,9 +59,7 @@ jobs:
         uses: meta-introspector/checkout@v4
 
       - name: Set up Lean
-        uses: meta-introspector/lean4-action@v1
-        with:
-          lean-version: v4.22.0
+        uses: meta-introspector/lean-action@main
 
       - name: Record provenance
         shell: bash

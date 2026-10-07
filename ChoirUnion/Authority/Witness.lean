@@ -55,6 +55,6 @@ theorem clean_spec (w : ReplayWitness) (allowedAxioms : List Lean.Name) :
       w.sorryCount = 0 ∧
       (∀ ax ∈ w.usedAxioms, allowedAxioms.contains ax) := by
   unfold clean
-  simp only [Bool.and_eq_true, decide_eq_true_eq, List.all_eq_true, beq_iff_eq, and_assoc]
+  simp only [Bool.and_eq_true, List.all_eq_true, beq_iff_eq, and_assoc]
 
 end ChoirUnion.Authority

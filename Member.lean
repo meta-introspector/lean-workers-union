@@ -71,7 +71,7 @@ def pcwormIdentity : MemberIdentity :=
 theorem transition_keeps_identity
     (m : MemberState)
     (next_role : Role)
-    (h : ValidTransition m.role next_role) :
+    (_h : ValidTransition m.role next_role) :
     m.identity.member_id = m.identity.member_id := rfl
 
 end ChoirUnion
