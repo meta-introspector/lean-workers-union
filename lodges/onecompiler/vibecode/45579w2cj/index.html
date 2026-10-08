@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Welcome to the Lean-Workers Union Lodge House: a warm place for formal methods, shared learning, and a proper cup of tea with Kant and Aristotle.">
+  <title>Lean-Workers Union Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lean-Workers Union Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · tea, proofs & fellowship</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/n00b-guide">Beginner guide</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/nixwars-arcade">Nixwars Arcade</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/archive">Private archives</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/tours">Tours & playbooks</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/training-log">GMP training log</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/unit-tests">Unit tests</a>
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">Seats & invitations</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/skill-registry">Guild & Union skills</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/proof-model">Assurance</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/protocol">Protocols</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/plugins">Plugins</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/repositories">Provenance</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union backlog</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:pb-24 lg:pt-14">
+      <div>
+        <div class="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] bg-[var(--color-overlay)] px-4 py-2 text-xs font-semibold tracking-wide text-[var(--color-primary)]">
+          <span aria-hidden="true">☕</span>
+          EST. 2024 · ALL LEAN WORKERS WELCOME
+        </div>
+        <h1 class="display-font max-w-3xl text-5xl font-semibold leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">A lodge for clear thought and a warmer cup.</h1>
+        <p class="mt-7 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">Welcome to the Lean-Workers Union Lodge House, where Kant and Aristotle sit down for tea, compare notes, and make room at the table for every curious worker.</p>
+        <p class="mt-4 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">Bring a question, a proof, or simply your beginner's curiosity. The project guide is grounded in the supplied source descriptions; formal models, working implementations, and claims about live systems remain distinct.</p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110" href="/n00b-guide">Pull up a chair · start here <span aria-hidden="true">→</span></a>
+          <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-overlay)] px-5 py-3 font-semibold transition hover:border-[var(--color-primary)]" href="/union-roadmap">Visit the Union table</a>
+        </div>
+      </div>
+
+      <aside class="lodge-hero relative overflow-hidden rounded-[var(--radius)] border border-[var(--color-line-strong)] p-5 sm:p-8" aria-label="Illustration of the Lodge House tea table">
+        <div class="absolute inset-0 grid-texture opacity-50" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-xl">
+          <div class="lodge-plaque mx-auto max-w-md rounded-[var(--radius)] px-5 py-4 text-center">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-paper)]">The Union Lodge House</p>
+            <p class="display-font mt-1 text-2xl font-bold sm:text-3xl">Unity · Song · Code</p>
+            <p class="mt-1 text-xs text-[var(--color-paper)]">A good argument is better with tea.</p>
+          </div>
+
+          <svg class="mt-5 w-full" viewBox="0 0 620 330" role="img" aria-labelledby="lodge-scene-title lodge-scene-description">
+            <title id="lodge-scene-title">A welcoming lodge tea table</title>
+            <desc id="lodge-scene-description">Books line the lodge shelves. Two tea cups sit at a shared wooden table beneath the names Kant and Aristotle.</desc>
+            <rect x="20" y="18" width="580" height="210" rx="20" fill="var(--color-surface)" stroke="var(--color-line-strong)" stroke-width="3" />
+            <path d="M42 112H578M42 177H578" stroke="var(--color-wood)" stroke-width="9" stroke-linecap="round" />
+            <path d="M74 42V103M117 42V103M160 42V103M460 42V103M503 42V103M546 42V103" stroke="var(--color-line-strong)" stroke-width="5" />
+            <rect x="54" y="51" width="25" height="51" rx="4" fill="var(--color-primary)" />
+            <rect x="86" y="39" width="24" height="63" rx="4" fill="var(--color-wood)" />
+            <rect x="124" y="57" width="28" height="45" rx="4" fill="var(--color-brass)" />
+            <rect x="169" y="46" width="22" height="56" rx="4" fill="var(--color-paper)" stroke="var(--color-line-strong)" stroke-width="2" />
+            <rect x="423" y="50" width="27" height="52" rx="4" fill="var(--color-wood)" />
+            <rect x="465" y="38" width="25" height="64" rx="4" fill="var(--color-primary)" />
+            <rect x="503" y="56" width="29" height="46" rx="4" fill="var(--color-brass)" />
+            <rect x="543" y="45" width="22" height="57" rx="4" fill="var(--color-paper)" stroke="var(--color-line-strong)" stroke-width="2" />
+            <text x="310" y="83" text-anchor="middle" fill="var(--color-wood)" font-family="var(--font-heading)" font-size="23" font-weight="bold">Kant &amp; Aristotle</text>
+            <text x="310" y="103" text-anchor="middle" fill="var(--color-muted)" font-family="var(--font-body)" font-size="12">good company, open questions</text>
+            <path d="M78 258H542L510 303H109Z" fill="var(--color-wood)" stroke="var(--color-brass)" stroke-width="3" />
+            <path d="M120 301V324M500 301V324" stroke="var(--color-wood)" stroke-width="12" stroke-linecap="round" />
+            <ellipse cx="207" cy="254" rx="56" ry="12" fill="var(--color-paper)" stroke="var(--color-line-strong)" stroke-width="2" />
+            <path d="M176 224H236L229 250Q206 262 183 250Z" fill="var(--color-surface)" stroke="var(--color-line-strong)" stroke-width="3" />
+            <path d="M236 231Q261 228 251 247Q245 253 230 249" fill="none" stroke="var(--color-line-strong)" stroke-width="5" />
+            <path class="tea-steam" d="M193 217Q182 205 193 194M211 217Q200 203 212 189M228 217Q218 205 229 196" fill="none" stroke="var(--color-muted)" stroke-width="3" stroke-linecap="round" />
+            <ellipse cx="410" cy="254" rx="56" ry="12" fill="var(--color-paper)" stroke="var(--color-line-strong)" stroke-width="2" />
+            <path d="M379 224H439L432 250Q409 262 386 250Z" fill="var(--color-surface)" stroke="var(--color-line-strong)" stroke-width="3" />
+            <path d="M439 231Q464 228 454 247Q448 253 433 249" fill="none" stroke="var(--color-line-strong)" stroke-width="5" />
+            <path class="tea-steam" d="M396 217Q385 205 396 194M414 217Q403 203 415 189M431 217Q421 205 432 196" fill="none" stroke="var(--color-muted)" stroke-width="3" stroke-linecap="round" />
+            <text x="206" y="287" text-anchor="middle" fill="var(--color-primary-contrast)" font-family="var(--font-heading)" font-size="15">Kant's cup</text>
+            <text x="410" y="287" text-anchor="middle" fill="var(--color-primary-contrast)" font-family="var(--font-heading)" font-size="15">Aristotle's cup</text>
+          </svg>
+
+          <div class="mt-4 flex items-center justify-between gap-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-overlay)] px-4 py-3 text-sm">
+            <span class="font-medium">The kettle's on. The proofs are optional.</span>
+            <span class="text-[var(--color-brass)]" aria-hidden="true">✦ ✦ ✦</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="border-y border-[var(--color-line)] bg-[var(--color-surface)]">
+      <div class="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-3 lg:px-10">
+        <div>
+          <p class="display-font text-2xl font-semibold text-[var(--color-primary)]">The study</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Lean models, twin state, capabilities and constraints—read with care for what a theorem actually establishes.</p>
+        </div>
+        <div>
+          <p class="display-font text-2xl font-semibold text-[var(--color-primary)]">The tea room</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">A Union backlog, registry tour and research board for sharing questions and keeping track of proposed work.</p>
+        </div>
+        <div>
+          <p class="display-font text-2xl font-semibold text-[var(--color-primary)]">The workshop</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Protocols, plugins, build inputs and integrations at different stages of maturity. Source presence is not deployment proof.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="featured-builds" class="mx-auto max-w-7xl px-6 pt-14 lg:px-10 lg:pt-16" aria-labelledby="featured-builds-heading">
+      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">Builds · profile portfolio</p>
+          <h2 id="featured-builds-heading" class="display-font mt-2 text-3xl font-semibold sm:text-4xl">A landing place for work in progress.</h2>
+          <p class="mt-3 max-w-3xl text-sm leading-6 text-[var(--color-muted)]">Click a build card to review or update its displayed state and access label. These are browser-local notes, not live build or permission checks.</p>
+        </div>
+        <a class="focus-ring shrink-0 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold" href="/seats#builds">Manage builds in my profile →</a>
+      </div>
+      <p id="landing-build-status" class="mb-3 text-sm text-[var(--color-muted)]" aria-live="polite">Build portfolio is stored in this browser.</p>
+      <div id="landing-build-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-label="Featured builds"></div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
+      <div class="mb-9 max-w-3xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">Find your seat</p>
+        <h2 class="display-font mt-3 text-3xl font-semibold sm:text-4xl">A little guidance, a little fellowship, and plenty to explore.</h2>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <a href="/n00b-guide" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">NEWCOMER'S CHAIR</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">A beginner's guide to Lean</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Start with definitions, propositions and proofs—no prior Lean experience required.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Come on in →</span>
+        </a>
+        <a href="/union-roadmap" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">AROUND THE TABLE</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Union registry & improvement backlog</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Explore the browser-local roster, assign proposed work and take the audio tour.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Visit the table →</span>
+        </a>
+        <a href="/union-roadmap/search" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">QUESTIONS FOR THE ROOM</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Research bounties</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Describe what information is needed, gather it elsewhere, and bring findings back for review.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Open the bounty board →</span>
+        </a>
+        <a href="/capabilities" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">THE STUDY</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Explore the architecture</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">See how models, protocols, tooling, plugins and service sources fit together.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Browse the rooms →</span>
+        </a>
+        <a href="/proof-model" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">A MOMENT OF REFLECTION</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">What does a proof assure?</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Keep formal conclusions in scope and distinguish model evidence from runtime claims.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Read the assurance notes →</span>
+        </a>
+        <a href="/repositories" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">THE LEDGER</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Build & provenance</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Inspect declared toolchains, dependencies and the evidence needed for reproducible claims.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Check the record →</span>
+        </a>
+        <a href="/nixwars-arcade" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">THE ARCADE</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Nixwars game inventory</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Browse TradeWars 71, Monster-space games, BBS doors, arcade experiments and competition notes.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Visit the cabinets →</span>
+        </a>
+        <a href="/archive" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">PRIVATE ARCHIVE DESK</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Inspect archives & share selected files</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Open ZIP and tar.gz archives locally, filter by path and type, create LLM-ready llm.txt summaries, and copy selected files into a shareable package.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Open the archive desk →</span>
+        </a>
+        <a href="/tours" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">GUIDED LEARNING</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Tours, diagrams & editable playbooks</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Take narrated workflow tours, explore UML-style use-case and sequence diagrams, and adapt or share role-based checklists.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Open the tour studio →</span>
+        </a>
+        <a href="/seats" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 transition hover:-translate-y-1 hover:border-[var(--color-primary)]">
+          <span class="text-sm font-semibold text-[var(--color-brass)]">A CHAIR AT THE TABLE</span>
+          <h3 class="display-font mt-4 text-xl font-semibold">Claim a seat & issue invitations</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Create a local profile, claim a seat slug, and share invitations as portable agent-state links.</p>
+          <span class="mt-5 inline-block text-sm font-medium text-[var(--color-primary)]">Open seats & invitations →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pb-16 lg:px-10">
+      <div class="rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-paper)] p-6 sm:p-8">
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">A seat for every worker</p>
+            <h2 class="display-font mt-2 text-2xl font-semibold">Bring your curiosity. We'll put the kettle on.</h2>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">The lodge is a welcoming metaphor for shared learning. The pages and browser tools are planning aids; they do not register people with a server or verify live system status.</p>
+          </div>
+          <a class="focus-ring inline-flex shrink-0 items-center justify-center rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110" href="/union-roadmap/tour">Take the registry tea-room tour →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <p>Lean-Workers Union Lodge House · a field guide to the supplied project tree</p>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Back to the front door ↑</a>
+    </div>
+  </footer>
+<script src="/builds.js"></script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>
