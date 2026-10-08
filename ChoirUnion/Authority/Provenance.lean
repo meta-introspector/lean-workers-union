@@ -17,7 +17,7 @@ structure ReplayProvenance where
 deriving instance DecidableEq for ReplayProvenance
 
 instance : Repr ReplayProvenance := ⟨fun p _ =>
-  "{ subject := " ++ reprStr p.subject.repository ++
+  "{ subject := " ++ repr p.subject ++
   ", checker := " ++ reprStr p.checker ++
   ", checkerVersion := " ++ reprStr p.checkerVersion ++
   ", result := " ++ toString p.result ++

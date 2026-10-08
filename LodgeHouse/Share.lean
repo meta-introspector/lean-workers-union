@@ -141,7 +141,7 @@ def scheduleJson (s : Schedule) : Json :=
     ("taskId", .str s.taskId),
     ("date", .str s.date),
     ("time", .str s.time),
-    ("duration", .str (toString s.duration)),
+    ("duration", .num s.duration),
     ("notes", .str s.notes),
     ("participants", .arr (s.participants.map .str)),
     ("createdAt", .str s.createdAt)
@@ -150,13 +150,18 @@ def scheduleJson (s : Schedule) : Json :=
 /-- Render the whole workspace as the `lean-worker-seats-tasks-v3` backup JSON. -/
 def workspaceJson (w : Workspace) : Json :=
   .obj [
-    ("formatVersion", .str (toString w.formatVersion)),
+    ("formatVersion", .num w.formatVersion),
     ("profile", match w.profile with
       | some p => profileJson p
       | none => .null),
     ("people", .arr (w.people.map personJson)),
+    ("invitations", .arr (w.invitations.map (fun i =>
+      .obj [("id", .str i.id), ("person", .str i.person), ("note", .str i.note),
+            ("status", .str (match i.status with | .draft => "draft" | .sent => "sent" | .accepted => "accepted")),
+            ("createdAt", .str i.createdAt)]))),
     ("tasks", .arr (w.tasks.map taskJson)),
-    ("schedules", .arr (w.schedules.map scheduleJson))
+    ("schedules", .arr (w.schedules.map scheduleJson)),
+    ("document", match w.document with | some d => .str d | none => .null)
   ]
 
 end LodgeHouse

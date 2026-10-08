@@ -51,6 +51,7 @@ def b64Value (c : Char) : Option Nat :=
 
 /-- Assemble a group of four (or fewer) 6-bit values into up to three bytes. -/
 def groupsToBytes : List Nat → List UInt8
+  | [a] => [UInt8.ofNat (a <<< 2)] -- lone group: 6 bits -> 1 byte (truncated)
   | [a, b] => [UInt8.ofNat ((a <<< 2) ||| (b >>> 4))]
   | [a, b, c] => [UInt8.ofNat ((a <<< 2) ||| (b >>> 4)),
                   UInt8.ofNat (((b &&& 15) <<< 4) ||| (c >>> 2))]

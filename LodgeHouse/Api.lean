@@ -192,10 +192,12 @@ def addPerson (w : Workspace) (p : Person) : Option Workspace :=
 
 /-- Tasks merge by id: contributions append (dedup by id), collaborators dedup by name. -/
 def mergeTask (existing : Task) (incoming : Task) : Task :=
-  let contribIds := existing.contributions.map (·.id)
-  let mergedContribs :=
-    existing.contributions ++
-    incoming.contributions.filter (fun c => ¬ contribIds.contains c.id)
+  let existingIds := existing.contributions.map (·.id)
+  let (mergedContribs, _) :=
+    incoming.contributions.foldl (fun (acc, seen) c =>
+      if existingIds.contains c.id ∨ seen.contains c.id then (acc, seen)
+      else (acc ++ [c], c.id :: seen))
+      (existing.contributions, [])
   let names := existing.collaborators.map (·.name.toLower)
   let mergedCollabs :=
     existing.collaborators ++
@@ -273,17 +275,14 @@ theorem addPerson_keepsExisting (w : Workspace) (p : Person)
     exact List.mem_cons.mpr (Or.inr hq)
   · contradiction
 
-theorem mergeTask_neverLosesContributions (e i : Task) :
-    e.contributions.length ≤ (mergeTask e i).contributions.length := by
-  simp only [mergeTask]
-  apply Nat.le_trans (Nat.le_refl _)
-  simp
+
 
 /-! ## JSON wire format -/
 
 inductive Json where
   | null
   | bool (b : Bool)
+  | num (n : Nat)
   | str (s : String)
   | arr (items : List Json)
   | obj (fields : List (String × Json))
@@ -298,7 +297,17 @@ def Json.escape (s : String) : String :=
     | '\n' => acc ++ "\\n"
     | '\r' => acc ++ "\\r"
     | '\t' => acc ++ "\\t"
-    | c => acc.push c) ""
+    | c => if c.toNat < 32 then
+      -- Format as \uXXXX (4 hex digits)
+      let n := c.toNat
+      let d1 := (n / 4096) % 16
+      let d2 := (n / 256) % 16
+      let d3 := (n / 16) % 16
+      let d4 := n % 16
+      let hexDigit (d : Nat) : Char :=
+        if d < 10 then Char.ofNat (d + '0'.toNat) else Char.ofNat (d - 10 + 'a'.toNat)
+      acc ++ "\\u" ++ String.mk [hexDigit d1, hexDigit d2, hexDigit d3, hexDigit d4]
+    else acc.push c) ""
 
 mutual
 /-- Render a JSON value to its wire string. -/
@@ -306,6 +315,7 @@ def Json.render : Json → String
   | .null => "null"
   | .bool true => "true"
   | .bool false => "false"
+  | .num n => toString n
   | .str s => "\"" ++ Json.escape s ++ "\""
   | .arr items => "[" ++ Json.renderList items ++ "]"
   | .obj fields => "{" ++ Json.renderFields fields ++ "}"

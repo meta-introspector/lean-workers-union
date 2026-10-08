@@ -38,14 +38,21 @@ def htmlEscape (s : String) : String :=
     | '"' => acc ++ "&quot;"
     | c => acc.push c) ""
 
+/-- Generate the "../" prefix for a given depth. -/
+def upPrefix (depth : Nat) : String :=
+  match depth with
+  | 0 => ""
+  | n + 1 => "../" ++ upPrefix n
+
 /-- Wrap a page in the site's document shell. -/
-def pageShell (title : String) (body : String) : String :=
+def pageShell (depth : Nat) (title : String) (body : String) : String :=
+  let up := upPrefix depth
   "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n" ++
   "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" ++
   "<title>" ++ htmlEscape title ++ " — Lodge House</title>\n" ++
-  "<link rel=\"stylesheet\" href=\"theme.css\">\n</head>\n" ++
+  "<link rel=\"stylesheet\" href=\"" ++ up ++ "theme.css\">\n</head>\n" ++
   "<body>\n<main>\n" ++ body ++ "\n</main>\n" ++
-  "<p><a href=\"index.html\">Back to the hall</a></p>\n" ++
+  "<p><a href=\"" ++ up ++ "index.html\">Back to the hall</a></p>\n" ++
   "</body>\n</html>\n"
 
 /-- Concatenate a list of strings. -/
@@ -53,28 +60,28 @@ def join (xs : List String) : String :=
   xs.foldl (fun acc s => acc ++ s) ""
 
 /-- Render a room's navigation list item. -/
-def roomNavItem (depth : String) : Room → String
-  | .page file title _ => "<li><a href=\"" ++ depth ++ htmlEscape file ++ "\">" ++ htmlEscape title ++ "</a></li>"
-  | .wing dir title _ => "<li>" ++ htmlEscape title ++ " (<code>" ++ htmlEscape dir ++ "/</code>)</li>"
+def roomNavItem (depth : Nat) : Room → String
+  | .page file title _ => "<li><a href=\"" ++ upPrefix depth ++ htmlEscape file ++ "\">" ++ htmlEscape title ++ "</a></li>"
+  | .wing dir title _ => "<li><a href=\"" ++ upPrefix depth ++ htmlEscape dir ++ "/index.html\">" ++ htmlEscape title ++ "</a> (<code>" ++ htmlEscape dir ++ "/</code>)</li>"
 
 /-- Render a room to (path, contents) file pairs. -/
-def renderRoom (depth : String) : Room → List (String × String)
+def renderRoom (depth : Nat) (pathPrefix : String) : Room → List (String × String)
   | .page file title body =>
-    [(depth ++ file, pageShell title body)]
+    [(pathPrefix ++ file, pageShell depth title body)]
   | .wing dir _ rooms =>
-    (rooms.flatMap (renderRoom (depth ++ dir ++ "/")))
-    ++ [(depth ++ dir ++ "/index.html",
-        pageShell dir ("<h1>" ++ dir ++ "</h1>" ++
-          "<ul>" ++ join (rooms.map (roomNavItem "")) ++ "</ul>"))]
+    (rooms.flatMap (renderRoom (depth + 1) (pathPrefix ++ dir ++ "/")))
+    ++ [(pathPrefix ++ dir ++ "/index.html",
+        pageShell (depth + 1) dir ("<h1>" ++ htmlEscape dir ++ "</h1>" ++
+          "<ul>" ++ join (rooms.map (roomNavItem 0)) ++ "</ul>"))]
 
 /-- Render the whole lodge to (path, contents) file pairs. -/
 def renderLodge : Lodge → List (String × String)
   | .hall title rooms =>
     [("index.html",
-      pageShell title ("<h1>" ++ htmlEscape title ++ "</h1>" ++
+      pageShell 0 title ("<h1>" ++ htmlEscape title ++ "</h1>" ++
         "<p>The Lodge House: browser-local, link-shareable, now generated from recursive Lean.</p>" ++
-        "<ul>" ++ join (rooms.map (roomNavItem "")) ++ "</ul>"))]
-    ++ rooms.flatMap (renderRoom "")
+        "<ul>" ++ join (rooms.map (roomNavItem 0)) ++ "</ul>"))]
+    ++ rooms.flatMap (renderRoom 0 "")
   | .deeper lodge => renderLodge lodge
 
 end LodgeHouse

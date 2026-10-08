@@ -16,7 +16,7 @@ jobs:
         uses: meta-introspector/checkout@v4
 
       - name: Set up Lean
-        uses: meta-introspector/lean-action@main
+        uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
         
 
       - name: Build project
@@ -59,7 +59,7 @@ jobs:
         uses: meta-introspector/checkout@v4
 
       - name: Set up Lean
-        uses: meta-introspector/lean-action@main
+        uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
 
       - name: Record provenance
         shell: bash
