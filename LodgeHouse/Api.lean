@@ -306,7 +306,7 @@ def Json.escape (s : String) : String :=
       let d4 := n % 16
       let hexDigit (d : Nat) : Char :=
         if d < 10 then Char.ofNat (d + '0'.toNat) else Char.ofNat (d - 10 + 'a'.toNat)
-      acc ++ "\\u" ++ String.mk [hexDigit d1, hexDigit d2, hexDigit d3, hexDigit d4]
+      acc ++ "\\u" ++ String.ofList [hexDigit d1, hexDigit d2, hexDigit d3, hexDigit d4]
     else acc.push c) ""
 
 mutual
