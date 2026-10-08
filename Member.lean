@@ -25,11 +25,11 @@ structure MemberState where
 
 /-- A valid role transition at the union level. --/
 inductive ValidTransition : Role → Role → Prop where
-  | orch_to_worker
-  | worker_to_relay
-  | relay_to_orch
-  | worker_to_orch
-  | orch_to_observer
+  | orch_to_worker : ValidTransition .Orchestrator .Worker
+  | worker_to_relay : ValidTransition .Worker .Relay
+  | relay_to_orch : ValidTransition .Relay .Orchestrator
+  | worker_to_orch : ValidTransition .Worker .Orchestrator
+  | orch_to_observer : ValidTransition .Orchestrator .Observer
 
 /-- Lodge-table members admitted to the union. --/
 def aristotleIdentity : MemberIdentity :=
@@ -66,12 +66,12 @@ def pcwormIdentity : MemberIdentity :=
     public_key := "pcworm-lodge-plaque"
     capabilities := ["formal-verification", "lean4", "gap", "rung-0-5", "algebra", "plaque"] }
 
-/-- The identity component must remain stable across a legal transition. --/
- theorem transition_keeps_identity
+/-- The identity component must remain stable across a legal transition.
+    (Identity is not a field of `Role`, so no transition can touch it.) --/
+theorem transition_keeps_identity
     (m : MemberState)
     (next_role : Role)
-    (h : ValidTransition m.role next_role) :
-    m.identity.member_id = m.identity.member_id := by
-  cases h <;> rfl
+    (_h : ValidTransition m.role next_role) :
+    m.identity.member_id = m.identity.member_id := rfl
 
 end ChoirUnion

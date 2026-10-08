@@ -55,12 +55,6 @@ theorem clean_spec (w : ReplayWitness) (allowedAxioms : List Lean.Name) :
       w.sorryCount = 0 ∧
       (∀ ax ∈ w.usedAxioms, allowedAxioms.contains ax) := by
   unfold clean
-  constructor
-  · intro h
-    simp at h
-    exact h
-  · intro h
-    rcases h with ⟨hFound, hTheorem, hs0, hAllowed⟩
-    simp [hFound, hTheorem, hs0, hAllowed]
+  simp only [Bool.and_eq_true, List.all_eq_true, beq_iff_eq, and_assoc]
 
 end ChoirUnion.Authority

@@ -14,23 +14,16 @@ structure ReplayProvenance where
   replayLogDigest : String
   signer : Option String := none
 
-instance : Repr ReplayProvenance := ⟨fun p =>
-  "{ subject := " ++ repr p.subject ++
-  ", checker := " ++ repr p.checker ++
-  ", checkerVersion := " ++ repr p.checkerVersion ++
-  ", result := " ++ repr p.result ++
-  ", fresh := " ++ repr p.fresh ++
-  ", buildLogDigest := " ++ repr p.buildLogDigest ++
-  ", replayLogDigest := " ++ repr p.replayLogDigest ++
-  ", signer := " ++ repr p.signer ++ " }"⟩
+deriving instance DecidableEq for ReplayProvenance
 
-instance : DecidableEq ReplayProvenance := by
-  intro a b
-  cases a with
-  | mk subjectA checkerA versionA resultA freshA buildA replayA signerA =>
-      cases b with
-      | mk subjectB checkerB versionB resultB freshB buildB replayB signerB =>
-          simp [subjectA, checkerA, versionA, resultA, freshA, buildA, replayA, signerA,
-            subjectB, checkerB, versionB, resultB, freshB, buildB, replayB, signerB]
+instance : Repr ReplayProvenance := ⟨fun p _ =>
+  "{ subject := " ++ repr p.subject ++
+  ", checker := " ++ reprStr p.checker ++
+  ", checkerVersion := " ++ reprStr p.checkerVersion ++
+  ", result := " ++ toString p.result ++
+  ", fresh := " ++ toString p.fresh ++
+  ", buildLogDigest := " ++ reprStr p.buildLogDigest ++
+  ", replayLogDigest := " ++ reprStr p.replayLogDigest ++
+  ", signer := " ++ toString p.signer ++ " }"⟩
 
 end ChoirUnion.Authority

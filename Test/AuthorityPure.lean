@@ -16,7 +16,7 @@ def sampleSubject : Subject :=
     toolchain := "leanprover/lean4:v4.22.0" }
 
 def sampleClaim : Claim :=
-  { declaration := ``ChoirUnion.TestAuthority.sampleClaim }
+  { declaration := `ChoirUnion.TestAuthority.sampleClaim }
 
 def sampleWitness : ReplayWitness :=
   { declarationFound := true
