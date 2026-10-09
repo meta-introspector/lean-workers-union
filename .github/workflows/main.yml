@@ -1,4 +1,4 @@
-name: CI
+name: CI & Deploy Lodge House
 
 on:
   push:
@@ -7,6 +7,15 @@ on:
     branches: [ main ]
   schedule:
     - cron: '0 2 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-test:
@@ -18,7 +27,6 @@ jobs:
       - name: Set up Lean
         uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
         
-
       - name: Build project
         shell: bash
         run: |
@@ -50,6 +58,97 @@ jobs:
           path: |
             build.log
             .lake/
+
+  generate-site:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: meta-introspector/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Lean
+        uses: meta-introspector/fetch-lean@v1
+        with:
+          lean-toolchain: leanprover/lean4:v4.22.0
+
+      - name: Build project
+        shell: bash
+        working-directory: .
+        env:
+          LEAN_TOOLCHAIN: leanprover/lean4:v4.22.0
+        run: |
+          set -euo pipefail
+          echo "=== Building ChoirUnion ==="
+          lake build 2>&1 | tee build.log
+          if grep -qi "warning" build.log; then
+            echo "❌ Build produced warnings; failing CI"
+            exit 1
+          fi
+          echo "✅ Build successful, no warnings"
+
+      - name: Generate site
+        shell: bash
+        working-directory: .letta/worktrees/lodge-house-api
+        env:
+          LEAN_TOOLCHAIN: leanprover/lean4:v4.22.0
+        run: |
+          set -euo pipefail
+          echo "=== Generating Lodge House site ==="
+          
+          # Run lodge-gen to generate site-out/
+          lake exe lodge-gen -- site-out https://lean-workers-union.github.io 2>&1 | tee generate.log
+          
+          # Verify site was generated
+          if [ ! -f site-out/index.html ]; then
+            echo "❌ site-out/index.html not found - generation failed"
+            exit 1
+          fi
+
+          # Ensure GitHub Pages doesn't run Jekyll on our static site
+          touch site-out/.nojekyll
+
+          echo "✅ Site generated successfully"
+
+      - name: Upload site artifact
+        uses: meta-introspector/upload-artifact@v4
+        with:
+          name: lodge-house-site
+          path: .letta/worktrees/lodge-house-api/site-out
+          retention-days: 1
+
+  deploy-to-pages:
+    needs: generate-site
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: meta-introspector/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lodge-house-site
+          path: ./site-out
+
+      - name: Setup Pages
+        uses: meta-introspector/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: meta-introspector/upload-pages-artifact@v3
+        with:
+          path: ./site-out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: meta-introspector/deploy-pages@v5
 
   nightly-fresh-rebuild:
     if: github.event_name == 'schedule'
