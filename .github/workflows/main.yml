@@ -70,15 +70,11 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Lean
-        uses: meta-introspector/fetch-lean@v1
-        with:
-          lean-toolchain: leanprover/lean4:v4.22.0
+        uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
 
       - name: Build project
         shell: bash
         working-directory: .
-        env:
-          LEAN_TOOLCHAIN: leanprover/lean4:v4.22.0
         run: |
           set -euo pipefail
           echo "=== Building ChoirUnion ==="
@@ -92,8 +88,6 @@ jobs:
       - name: Generate site
         shell: bash
         working-directory: .
-        env:
-          LEAN_TOOLCHAIN: leanprover/lean4:v4.22.0
         run: |
           set -euo pipefail
           echo "=== Generating Lodge House site ==="
