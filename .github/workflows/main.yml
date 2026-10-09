@@ -91,7 +91,7 @@ jobs:
 
       - name: Generate site
         shell: bash
-        working-directory: .letta/worktrees/lodge-house-api
+        working-directory: .
         env:
           LEAN_TOOLCHAIN: leanprover/lean4:v4.22.0
         run: |
@@ -116,7 +116,7 @@ jobs:
         uses: meta-introspector/upload-artifact@v4
         with:
           name: lodge-house-site
-          path: .letta/worktrees/lodge-house-api/site-out
+          path: site-out
           retention-days: 1
 
   deploy-to-pages:
