@@ -99,7 +99,7 @@ jobs:
           echo "=== Generating Lodge House site ==="
           
           # Run lodge-gen to generate site-out/
-          lake exe lodge-gen -- site-out https://lean-workers-union.github.io 2>&1 | tee generate.log
+          lake exe lodge-gen site-out https://lean-workers-union.github.io 2>&1 | tee generate.log
           
           # Verify site was generated
           if [ ! -f site-out/index.html ]; then
