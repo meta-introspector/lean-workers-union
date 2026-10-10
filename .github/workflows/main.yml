@@ -57,8 +57,42 @@ jobs:
             build.log
             .lake/
 
-  generate-site:
+  build-cli:
     needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Lean
+        uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
+
+      - name: Build CLI
+        shell: bash
+        working-directory: lean-cli
+        run: |
+          set -euo pipefail
+          echo "=== Building Lean Workers Union CLI ==="
+          lake build 2>&1 | tee cli-build.log
+          if grep -qi "warning" cli-build.log; then
+            echo "⚠️ CLI build produced warnings (continuing)"
+          fi
+          echo "✅ CLI build completed"
+
+      - name: Upload CLI artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-workers-cli
+          path: |
+            lean-cli/.lake/
+            lean-cli/cli-build.log
+
+  generate-site:
+    needs: [build-and-test, build-cli]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
     steps:
@@ -141,6 +175,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   nightly-fresh-rebuild:
     if: github.event_name == 'schedule'
