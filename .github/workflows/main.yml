@@ -18,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: meta-introspector/checkout@v4
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Lean
         uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
@@ -48,7 +50,7 @@ jobs:
 
       - name: Upload build artifacts
         if: always()
-        uses: meta-introspector/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
@@ -61,7 +63,7 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
     steps:
       - name: Checkout
-        uses: meta-introspector/checkout@v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -103,7 +105,7 @@ jobs:
           echo "✅ Site generated successfully"
 
       - name: Upload site artifact
-        uses: meta-introspector/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: lodge-house-site
           path: site-out
@@ -118,7 +120,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: meta-introspector/checkout@v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -129,23 +131,23 @@ jobs:
           path: ./site-out
 
       - name: Setup Pages
-        uses: meta-introspector/configure-pages@v5
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
-        uses: meta-introspector/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./site-out
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: meta-introspector/deploy-pages@v5
+        uses: actions/deploy-pages@v5
 
   nightly-fresh-rebuild:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: meta-introspector/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Set up Lean
         uses: meta-introspector/lean-action@a4bbb468c23eefa44826beb478dbc524b7c4038e
@@ -169,7 +171,7 @@ jobs:
           echo "✅ Fresh rebuild completed"
 
       - name: Upload fresh rebuild artifacts
-        uses: meta-introspector/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: nightly-fresh-rebuild
           path: |
