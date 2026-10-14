@@ -1,6 +1,8 @@
-name = "lean-workers-cli"
+name = "lean-cli"
 version = "0.1.0"
+srcDir = "src"
+defaultTargets = ["lean-workers-cli"]
 
 [[lean_exe]]
 name = "lean-workers-cli"
-root = "src/main.lean"
+root = "main"
