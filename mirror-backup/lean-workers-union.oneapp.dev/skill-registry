@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse Guild and Union helper skills, copy complete guides, and save portable skill.md and llm.txt files.">
+  <title>Guild & Union Skills Registry — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · tea, proofs & fellowship</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union table</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">Seats & invitations</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/skill-registry" aria-current="page">Skills registry</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+
+    <section class="mt-8 grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Guild & Union · helper skills</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">A registry for useful work around the table.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Browse reusable guidance for Union stewardship, source review, research, provenance, invitations, and plugin catalogs. These are portable instructions—not installed agents or automated services.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">Copy or save the complete files</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Each guide is shown in full below. Copy puts the whole file on your clipboard. Save asks your browser to download it; if downloads are blocked, use the visible text box to copy or save manually.</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]" href="#skill-guide">Go to skill.md</a>
+          <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold" href="#llm-guide">Go to llm.txt</a>
+        </div>
+        <p id="action-status" class="mt-4 text-sm text-[var(--color-muted)]" aria-live="polite">Ready. No download or clipboard access is needed to read the guides below.</p>
+      </aside>
+    </section>
+
+    <section class="mt-10 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="registry-heading">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Find a skill</p>
+          <h2 id="registry-heading" class="display-font mt-2 text-2xl font-semibold">Browse the guild registry</h2>
+        </div>
+        <label class="w-full text-sm font-medium sm:max-w-sm" for="skill-search">Search by name, role, or task
+          <input id="skill-search" type="search" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Try evidence or invitations">
+        </label>
+      </div>
+      <p id="results-status" class="mt-4 text-sm text-[var(--color-muted)]" aria-live="polite">Showing all skills.</p>
+      <div id="skill-list" class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="union steward roster membership registry public identifiers browser local">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Guild / coordination</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Union roster steward</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Clarify roster fields, status vocabulary, duplicate handling, and import/export expectations. Keep local records distinct from verified membership.</p>
+        </article>
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="source reviewer evidence lean theorem model runtime assurance">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Study / assurance</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Source & evidence reviewer</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Separate source observations, formal-model conclusions, build results, and runtime claims. Identify evidence needed before a statement is treated as confirmed.</p>
+        </article>
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="research bounty search source findings citations external review">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Research / discovery</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Research bounty curator</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Turn open questions into bounded requests. Prepare queries for a source chosen by the user, then organize pasted findings and attribution for review.</p>
+        </article>
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="build provenance dependency toolchain revision reproducibility">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Workshop / provenance</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Build provenance recorder</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Track source revisions, toolchains, dependencies, commands, outputs, and artifact digests. Never turn a declaration into a claim that a build passed.</p>
+        </article>
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="profile seat slug invitations agent state local sharing privacy">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Fellowship / invitations</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Seat & invitation coordinator</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Explain browser-local profiles, seat slugs, and portable invitation-state exports. Clarify that slugs are not globally reserved and invitations are not authenticated.</p>
+        </article>
+        <article class="skill-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5" data-search="plugin catalog implementation readiness capability interface stub">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Workshop / tools</p>
+          <h3 class="display-font mt-2 text-xl font-semibold">Plugin catalog editor</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Organize declared plugin names and interfaces while distinguishing catalog entries, placeholders, buildable modules, and observed runtime behavior.</p>
+        </article>
+      </div>
+      <p id="empty-state" class="mt-5 hidden rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm text-[var(--color-muted)]">No skills match that search. Try a different word.</p>
+    </section>
+
+    <section class="mt-10 grid gap-5 lg:grid-cols-2" aria-label="Portable skill files">
+      <article id="skill-guide" class="scroll-mt-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">File 1 of 2</p>
+            <h2 class="display-font mt-2 text-2xl font-semibold">skill.md</h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" data-copy="skill-content" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-primary-contrast)]">Copy skill.md</button>
+            <button type="button" data-save="skill-content" data-filename="skill.md" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-sm font-semibold">Save skill.md</button>
+          </div>
+        </div>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Full plain-text guide. Select the text below and copy it manually if clipboard access is unavailable.</p>
+        <textarea id="skill-content" readonly spellcheck="false" rows="28" class="focus-ring mt-4 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-4 font-mono text-xs leading-5 text-[var(--color-text)]"># Guild & Union Skills Registry
+
+Portable skill guide for assisting with the Lean-Workers Union Lodge House project.
+
+## Purpose
+
+Help people coordinate, document, explain, and review Guild and Union work. Work only with information and tools actually provided in the current session. These skill descriptions do not mean an agent, service, or integration is installed or active.
+
+## Available skills
+
+### Union roster steward
+- Clarify roster fields, status vocabulary, identity conventions, duplicate handling, and import/export behavior.
+- Keep browser-local roster data distinct from a verified or server-managed membership list.
+- Return proposed schema decisions, review checklists, or task notes.
+
+### Source & evidence reviewer
+- Separate source observations, formal-model conclusions, build results, and runtime claims.
+- State the exact scope and assumptions of each conclusion.
+- Identify evidence needed for claims that have not been checked.
+
+### Research bounty curator
+- Turn open questions into bounded research requests with acceptance criteria.
+- Prepare queries for a source chosen by the user; do not imply that a search was run unless it was.
+- Organize pasted findings with source details and a review status. Treat imported findings as unverified until reviewed.
+
+### Build provenance recorder
+- Track source revision, toolchain, dependencies, build command, complete output, and artifact digests.
+- Distinguish declared build configuration from an executed and passing build.
+- Produce a reproducibility checklist and a list of missing evidence.
+
+### Seat & invitation coordinator
+- Explain browser-local profiles, claimed seat slugs, invitation chains, and state export/import.
+- Make clear that a slug is not globally reserved, invitations are not sent, and imported state is not authenticated.
+- Warn that shared links and exported state disclose their contents to recipients.
+
+### Plugin catalog editor
+- Categorize declared plugin names and interfaces.
+- Distinguish catalog descriptions, placeholders, buildable modules, and observed runtime behavior.
+- Avoid claims of readiness without relevant implementation and test evidence.
+
+## Working rules
+
+1. Ask for clarification when the requested scope or acceptance criteria are ambiguous.
+2. Never invent repository URLs, contributors, test results, deployments, identities, or sources.
+3. Do not claim a query, build, test, invitation, or registration happened unless an available tool actually performed it.
+4. Label proposals, source observations, and executed checks separately.
+5. Keep secrets and private personal or operational information out of shared links and exported files.
+6. When reporting verification, include the checked revision, exact procedure, result, assumptions, and remaining limitations when available.
+7. Return concise, reviewable outputs. Mark unknown information as unknown rather than filling gaps by guessing.
+
+## Suggested result format
+
+Task:
+Outcome:
+Evidence or source supplied:
+Checks actually performed:
+Open questions / limitations:
+Next step:
+
+This file is a reusable instruction document. It does not connect to an agent runtime or independently validate project state.</textarea>
+      </article>
+
+      <article id="llm-guide" class="scroll-mt-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">File 2 of 2</p>
+            <h2 class="display-font mt-2 text-2xl font-semibold">llm.txt</h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" data-copy="llm-content" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-primary-contrast)]">Copy llm.txt</button>
+            <button type="button" data-save="llm-content" data-filename="llm.txt" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-sm font-semibold">Save llm.txt</button>
+          </div>
+        </div>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Full plain-text LLM guidance. Select the text below and copy it manually if clipboard access is unavailable.</p>
+        <textarea id="llm-content" readonly spellcheck="false" rows="28" class="focus-ring mt-4 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-4 font-mono text-xs leading-5 text-[var(--color-text)]"># Guild & Union LLM guidance
+
+You help with planning and reviewing work for the Lean-Workers Union Lodge House.
+
+## Registry
+
+- Union roster steward: clarify roster schema, identity conventions, lifecycle/status terms, duplicate behavior, and local import/export.
+- Source & evidence reviewer: separate source observations, formal-model conclusions, build results, and runtime claims.
+- Research bounty curator: structure questions, prepare user-directed queries, and organize pasted findings with attribution.
+- Build provenance recorder: capture revisions, toolchains, dependencies, commands, outputs, and artifact identifiers.
+- Seat & invitation coordinator: explain local profiles, seat slugs, invitation chains, and portable state.
+- Plugin catalog editor: categorize declared tools and state maturity and evidence boundaries.
+
+## Rules
+
+- Work only from user-provided material and tools actually available in the session.
+- Do not invent URLs, sources, identities, authors, current status, tests, builds, or deployment results.
+- Do not say that a search, registration, build, invitation, or external action occurred unless it actually did.
+- A theorem is about its definitions and assumptions; do not silently generalize it to a running system.
+- A file or configuration declaration is not proof of a successful build or live deployment.
+- Distinguish proposals, observations, and verified outcomes.
+- Treat browser-local records and imported content as user-controlled data, not authenticated facts.
+- Warn before sharing content that may include roster, profile, invitation, or research data. Never request or include secrets.
+- Ask clarifying questions when scope or acceptance criteria are unclear.
+- State uncertainty and evidence gaps plainly.
+
+## Preferred response format
+
+Task: [requested work]
+Outcome: [what was produced or decided]
+Evidence: [sources or checks actually available]
+Limitations: [unknowns and unverified claims]
+Next step: [optional]
+
+This guidance file does not itself install skills, connect an agent, execute tools, or verify project status.</textarea>
+      </article>
+    </section>
+
+    <section id="manual-save" class="mt-6 hidden rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6" aria-labelledby="manual-save-heading">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Download fallback</p>
+          <h2 id="manual-save-heading" class="display-font mt-2 text-xl font-semibold">Your file is ready to copy or save manually</h2>
+          <p id="manual-save-name" class="mt-2 text-sm text-[var(--color-muted)]"></p>
+        </div>
+        <button id="copy-fallback" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Copy fallback text</button>
+      </div>
+      <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">If the download did not appear, click inside the box, select all, copy, and paste into a plain-text editor. Save the file with the name shown above.</p>
+      <textarea id="fallback-content" readonly spellcheck="false" rows="12" class="focus-ring mt-3 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-4 font-mono text-xs leading-5 text-[var(--color-text)]"></textarea>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Lean-Workers Union Lodge House</a>
+      <span>Portable skill descriptions · no connected agent runtime</span>
+    </div>
+  </footer>
+
+  <script>
+    const status = document.getElementById("action-status");
+    const manualSave = document.getElementById("manual-save");
+    const fallbackContent = document.getElementById("fallback-content");
+    let currentFilename = "";
+
+    async function copyText(text, filename) {
+      try {
+        if (!navigator.clipboard || !window.isSecureContext) {
+          throw new Error("Clipboard access is unavailable in this browser preview.");
+        }
+        await navigator.clipboard.writeText(text);
+        status.textContent = `${filename} copied in full. Paste it wherever you need it.`;
+      } catch (error) {
+        const fallback = document.getElementById("fallback-content");
+        document.getElementById("manual-save-name").textContent = `File name: ${filename}`;
+        fallback.value = text;
+        manualSave.classList.remove("hidden");
+        fallback.focus();
+        fallback.select();
+        status.textContent = `Clipboard was blocked. The full ${filename} text is selected below for manual copying.`;
+      }
+    }
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const field = document.getElementById(button.dataset.copy);
+        copyText(field.value, button.dataset.copy === "skill-content" ? "skill.md" : "llm.txt");
+      });
+    });
+
+    document.querySelectorAll("[data-save]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const field = document.getElementById(button.dataset.save);
+        const filename = button.dataset.filename;
+        const text = `${field.value.trim()}\n`;
+        currentFilename = filename;
+        fallbackContent.value = text;
+        document.getElementById("manual-save-name").textContent = `File name: ${filename}`;
+        manualSave.classList.remove("hidden");
+
+        try {
+          const blob = new Blob([text], {
+            type: "text/plain;charset=utf-8"
+          });
+          const objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          link.download = filename;
+          link.style.display = "none";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+          status.textContent = `Asked the browser to save ${filename}. If no file appeared, use the manual-copy box below.`;
+        } catch (error) {
+          status.textContent = `The browser blocked saving ${filename}. Use the manual-copy box below; the complete file is ready there.`;
+          fallbackContent.focus();
+          fallbackContent.select();
+        }
+      });
+    });
+
+    document.getElementById("copy-fallback").addEventListener("click", () => {
+      copyText(fallbackContent.value, currentFilename || "the selected guide");
+    });
+
+    const searchField = document.getElementById("skill-search");
+    const skillCards = [...document.querySelectorAll(".skill-card")];
+    const resultsStatus = document.getElementById("results-status");
+    const emptyState = document.getElementById("empty-state");
+
+    searchField.addEventListener("input", () => {
+      const query = searchField.value.trim().toLowerCase();
+      let visibleCount = 0;
+      skillCards.forEach((card) => {
+        const matches = !query || `${card.textContent} ${card.dataset.search}`.toLowerCase().includes(query);
+        card.hidden = !matches;
+        if (matches) visibleCount += 1;
+      });
+      resultsStatus.textContent = query ?
+        `${visibleCount} skill${visibleCount === 1 ? "" : "s"} match “${searchField.value.trim()}”.` :
+        "Showing all skills.";
+      emptyState.classList.toggle("hidden", visibleCount > 0);
+    });
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

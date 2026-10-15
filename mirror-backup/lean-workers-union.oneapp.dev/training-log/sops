@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Team workflow and draft standard operating procedures for the Lodge House browser-local workspace.">
+  <title>Team workflows & SOPs — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · team learning</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">My profile & workspace</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/training-log">GMP training log</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/training-log/sops" aria-current="page">Team workflows & SOPs</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <section class="grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Team workflow · draft procedures · training notes</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">A clear path from local work to reviewed sharing.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Use these draft procedures to onboard teammates to the profile workspace, private archives, sharing views, and backup workflow. Adapt each SOP to the team’s actual practice before relying on it.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">Training and records boundary</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Checklist progress, role names, and notes are saved only in this browser. They are editable planning records—not verified training, identity checks, approvals, signatures, or GMP compliance evidence. Do not enter credentials, sensitive personal data, or confidential content.</p>
+      </aside>
+    </section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="workflow-title">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Recommended team workflow</p>
+      <h2 id="workflow-title" class="display-font mt-2 text-2xl font-semibold">Prepare → work locally → review → share deliberately → back up</h2>
+      <ol class="mt-5 grid gap-3 text-sm leading-6 text-[var(--color-muted)] md:grid-cols-2 xl:grid-cols-5">
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">1 · Prepare:</strong> agree who owns the record, what information is public-safe, and where the authoritative source lives.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">2 · Work locally:</strong> create profiles, tasks, schedules, and archive notes in the browser. Treat imported content as unverified.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">3 · Review:</strong> check file names, image choices, task claims, and recipient scope before creating any share link.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">4 · Share deliberately:</strong> send only the selected view or files; tell recipients links contain readable data and do not sync future edits.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">5 · Back up:</strong> export a full browser backup before significant changes and keep it somewhere appropriate for its contents.</li>
+      </ol>
+    </section>
+
+    <section class="mt-8 flex flex-col gap-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-label="Training progress and data tools">
+      <div>
+        <h2 class="font-semibold">Team SOP training progress</h2>
+        <p id="progress-summary" class="mt-1 text-sm text-[var(--color-muted)]" aria-live="polite">Loading saved checklist state…</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="export-training" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Export training notes</button>
+        <label for="import-training" class="focus-ring cursor-pointer rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Import training notes</label>
+        <input id="import-training" type="file" accept="application/json,.json" class="sr-only">
+        <button id="reset-training" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Reset checklist</button>
+      </div>
+    </section>
+    <p id="page-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Training notes stay in this browser unless exported or shared manually.</p>
+
+    <section id="sop-list" class="mt-6 space-y-5" aria-label="Draft standard operating procedures"></section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-paper)] p-5 sm:p-7">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Before calling a procedure approved</p>
+      <h2 class="display-font mt-2 text-2xl font-semibold">Assign ownership and review the real process.</h2>
+      <ul class="mt-4 grid gap-3 text-sm leading-6 text-[var(--color-muted)] md:grid-cols-2">
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4">Name a procedure owner and reviewer, confirm revision and effective date, and document the team’s actual approval method outside this checklist.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4">Test the steps in a non-sensitive browser profile. Confirm that current UI labels and behavior match the written procedure.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4">Use an organization-approved training and recordkeeping process when controlled training evidence is required.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4">Keep formal proof/build claims separate from coordination notes; this website does not execute Lean proofs.</li>
+      </ul>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]" href="/training-log">Open individual training log →</a>
+        <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold" href="/seats#documents">Open profile documents</a>
+        <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold" href="/archive">Open private archives</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Lean-Workers Union Lodge House</a>
+      <span>Draft team procedures · browser-local planning tool</span>
+    </div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "lodge-team-sop-training-v1";
+    const procedures = [{
+        id: "SOP-01",
+        title: "Set up and maintain a local profile",
+        purpose: "Create a consistent profile and seat label without treating it as an account or verified identity.",
+        roles: "Participant; workspace maintainer",
+        steps: [
+          "Open My profile and workspace; agree which name and seat label the team will use.",
+          "Enter only public-safe profile details. Add images only when you have permission to share them.",
+          "Save the profile and confirm the screen says it is stored in this browser.",
+          "Review the profile-sharing choices before creating any link; compact profile links and full profile links disclose different data.",
+          "Export a backup when the profile or workspace becomes important; do not rely on browser storage as the only copy."
+        ],
+        check: "Profile appears in this browser, fields are reviewed, and the user can explain that the seat is not globally reserved."
+      },
+      {
+        id: "SOP-02",
+        title: "Upload, inspect, and promote a private archive",
+        purpose: "Keep source archives local, inspect selected contents, and promote useful files into private documents without publishing them by accident.",
+        roles: "Archive custodian; reviewer",
+        steps: [
+          "Open Private archives and select a ZIP, TGZ, or TAR.GZ file from an approved source.",
+          "Confirm the archive appears in the local shelf. Open it and inspect paths, file types, and previews as needed.",
+          "Use file selection and profiles only to organize candidates; a profile does not publish files.",
+          "For a file needed in the profile workspace, open My profile → My document, refresh the archive list, and promote the archive.",
+          "Confirm the promoted record appears under My private archive documents. Promotion creates a local copy/reference in the private shelf; it does not make a public profile attachment.",
+          "Download important original files separately. Browser storage is local and is not a durable backup."
+        ],
+        check: "A permitted sample archive can be found and promoted; the user can distinguish private local files from public copies."
+      },
+      {
+        id: "SOP-03",
+        title: "Create and distribute a sharing view",
+        purpose: "Share only the workspace sections and matching records needed by intended recipients.",
+        roles: "View owner; reviewer; recipient",
+        steps: [
+          "Agree the audience and purpose before selecting profile, people, invitations, tasks, schedules, or document sections.",
+          "Create a named sharing view and choose only the required sections. Use the optional text filter to narrow included records.",
+          "Generate the link and review the included data locally before copying it.",
+          "Send the link through a channel selected by the team. Tell recipients the URL contains readable data and is not access-controlled.",
+          "Recipient reviews the incoming snapshot before importing it. Updates made later do not synchronize automatically.",
+          "Remove or replace a saved view when it is no longer useful; this does not revoke links already copied by others."
+        ],
+        check: "The view is named, its selected sections and filter are reviewed, and the owner understands links cannot be revoked by deleting the local view."
+      },
+      {
+        id: "SOP-04",
+        title: "Share one document or image",
+        purpose: "Choose an explicit sharing route for a single file and avoid confusing a private shelf with encrypted storage.",
+        roles: "File owner; reviewer; recipient",
+        steps: [
+          "Confirm the file is appropriate to disclose and that the owner has permission to share it.",
+          "From My private archive documents, select the relevant file and choose one route: private-doc handoff, public-profile link, or standalone datagram URL.",
+          "For profile sharing, confirm a saved profile is available and review the profile plus file content before creating the link.",
+          "Copy the generated URL and communicate it manually. No message is sent by the page.",
+          "Tell the recipient the link includes file contents and can be read by anyone who receives it.",
+          "Use a file download or private backup for large items when a URL is too large or unreliable."
+        ],
+        check: "The chosen file and route are correct, the generated link is treated as public-to-recipients, and no secrets are included."
+      },
+      {
+        id: "SOP-05",
+        title: "Create and restore a full browser backup",
+        purpose: "Preserve a portable snapshot and restore it deliberately without confusing it with encryption or an authenticated archive.",
+        roles: "Workspace owner; backup custodian; reviewer",
+        steps: [
+          "Before a major change, open My profile and create a full tar.gz backup.",
+          "Keep the downloaded backup in an appropriate private location; it may contain profiles, notes, tasks, and archive data.",
+          "To restore, choose the backup file and review the displayed date and record counts before proceeding.",
+          "Restore only on the intended browser/device. Matching application data may be replaced; the backup is not authenticated.",
+          "Reload the workspace page after restore and inspect key records and archive entries.",
+          "Keep an unchanged copy of the backup until the restored data has been reviewed."
+        ],
+        check: "The user can create a backup, identify its sensitive contents, and explain the review-before-restore step."
+      },
+      {
+        id: "SOP-06",
+        title: "Record training and review evidence responsibly",
+        purpose: "Use the training log as a planning aid while keeping required controlled records in the organization’s approved system.",
+        roles: "Learner; trainer; quality or process reviewer",
+        steps: [
+          "Confirm the relevant procedure revision and training requirements with the responsible team.",
+          "Use the organization-approved system for required training completion, identity verification, approvals, signatures, and retention.",
+          "If using this local page for planning, enter only appropriate notes and distinguish planned, in-progress, and completed work accurately.",
+          "Do not treat checklist ticks, names, or exports here as proof of qualification or GMP compliance.",
+          "Review the individual Training log page’s limitations before exporting any local record."
+        ],
+        check: "The team identifies its approved training record system and understands that this page is not validated for compliance use."
+      }
+    ];
+
+    const list = document.getElementById("sop-list");
+    const summary = document.getElementById("progress-summary");
+    const status = document.getElementById("page-status");
+    let saved = loadState();
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (parsed && parsed.formatVersion === 1 && Array.isArray(parsed.procedures)) return parsed;
+      } catch (error) {
+        console.warn("Could not restore local SOP training notes.", error);
+      }
+      return {
+        formatVersion: 1,
+        procedures: []
+      };
+    }
+
+    function stateFor(id) {
+      return saved.procedures.find((item) => item.id === id) || {
+        id,
+        owner: "",
+        trainee: "",
+        status: "Not started",
+        completedSteps: [],
+        notes: ""
+      };
+    }
+
+    function persist() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        updateSummary();
+        status.textContent = "Changes saved in this browser only. Export notes if you need to move them to another device.";
+      } catch (error) {
+        status.textContent = `Could not save locally: ${error.message}. Export existing notes if available.`;
+      }
+    }
+
+    function upsert(next) {
+      const index = saved.procedures.findIndex((item) => item.id === next.id);
+      if (index >= 0) saved.procedures[index] = next;
+      else saved.procedures.push(next);
+      persist();
+    }
+
+    function updateSummary() {
+      let complete = 0;
+      let total = 0;
+      procedures.forEach((procedure) => {
+        const entry = stateFor(procedure.id);
+        total += procedure.steps.length;
+        complete += entry.completedSteps.length;
+      });
+      const statuses = saved.procedures.filter((item) => item.status === "Ready for review").length;
+      summary.textContent = `${complete} of ${total} checklist steps marked complete · ${statuses} SOP(s) marked ready for team review · local planning notes only`;
+    }
+
+    function render() {
+      list.replaceChildren();
+      procedures.forEach((procedure) => {
+        const entry = stateFor(procedure.id);
+        const article = document.createElement("article");
+        article.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7";
+
+        const header = document.createElement("div");
+        header.className = "flex flex-wrap items-start justify-between gap-4";
+        const heading = document.createElement("div");
+        heading.className = "max-w-3xl";
+        const kicker = document.createElement("p");
+        kicker.className = "text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]";
+        kicker.textContent = `${procedure.id} · DRAFT SOP`;
+        const title = document.createElement("h2");
+        title.className = "display-font mt-2 text-2xl font-semibold";
+        title.textContent = procedure.title;
+        const purpose = document.createElement("p");
+        purpose.className = "mt-2 text-sm leading-6 text-[var(--color-muted)]";
+        purpose.textContent = procedure.purpose;
+        const roles = document.createElement("p");
+        roles.className = "mt-2 text-xs text-[var(--color-muted)]";
+        roles.textContent = `Suggested roles: ${procedure.roles}`;
+        heading.append(kicker, title, purpose, roles);
+        const selectLabel = document.createElement("label");
+        selectLabel.className = "text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]";
+        selectLabel.textContent = "Local planning status";
+        const select = document.createElement("select");
+        select.className = "focus-ring mt-2 block w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-[var(--color-text)]";
+        ["Not started", "In progress", "Ready for review"].forEach((value) => select.add(new Option(value, value)));
+        select.value = entry.status;
+        select.addEventListener("change", () => upsert({
+          ...stateFor(procedure.id),
+          status: select.value
+        }));
+        selectLabel.appendChild(select);
+        header.append(heading, selectLabel);
+
+        const stepsTitle = document.createElement("h3");
+        stepsTitle.className = "mt-6 text-sm font-semibold";
+        stepsTitle.textContent = "Procedure checklist";
+        const steps = document.createElement("ol");
+        steps.className = "mt-3 grid gap-2 md:grid-cols-2";
+        procedure.steps.forEach((step, index) => {
+          const item = document.createElement("li");
+          item.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3";
+          const label = document.createElement("label");
+          label.className = "flex items-start gap-3 text-sm leading-6 text-[var(--color-muted)]";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = entry.completedSteps.includes(index);
+          checkbox.className = "mt-1 h-4 w-4 shrink-0 accent-[var(--color-primary)]";
+          checkbox.addEventListener("change", () => {
+            const current = stateFor(procedure.id);
+            const completedSteps = new Set(current.completedSteps);
+            if (checkbox.checked) completedSteps.add(index);
+            else completedSteps.delete(index);
+            upsert({
+              ...current,
+              completedSteps: [...completedSteps].sort((a, b) => a - b)
+            });
+          });
+          const text = document.createElement("span");
+          text.textContent = step;
+          label.append(checkbox, text);
+          item.appendChild(label);
+          steps.appendChild(item);
+        });
+
+        const fields = document.createElement("div");
+        fields.className = "mt-5 grid gap-4 sm:grid-cols-2";
+        [{
+            key: "owner",
+            label: "Procedure owner / team",
+            placeholder: "Role or team name"
+          },
+          {
+            key: "trainee",
+            label: "Learner / participant",
+            placeholder: "Role or team name"
+          }
+        ].forEach((field) => {
+          const label = document.createElement("label");
+          label.className = "text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]";
+          label.textContent = field.label;
+          const input = document.createElement("input");
+          input.type = "text";
+          input.maxLength = 100;
+          input.value = entry[field.key] || "";
+          input.placeholder = field.placeholder;
+          input.className = "focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-[var(--color-text)]";
+          input.addEventListener("change", () => upsert({
+            ...stateFor(procedure.id),
+            [field.key]: input.value.trim()
+          }));
+          label.appendChild(input);
+          fields.appendChild(label);
+        });
+
+        const noteLabel = document.createElement("label");
+        noteLabel.className = "mt-4 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]";
+        noteLabel.textContent = "Team notes, local adaptation, or review questions";
+        const notes = document.createElement("textarea");
+        notes.rows = 3;
+        notes.maxLength = 1600;
+        notes.value = entry.notes || "";
+        notes.placeholder = "Record decisions and open questions. Do not use this as a controlled approval record.";
+        notes.className = "focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal normal-case tracking-normal text-[var(--color-text)]";
+        notes.addEventListener("change", () => upsert({
+          ...stateFor(procedure.id),
+          notes: notes.value.trim()
+        }));
+        noteLabel.appendChild(notes);
+
+        const acceptance = document.createElement("p");
+        acceptance.className = "mt-4 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-4 text-sm leading-6";
+        const strong = document.createElement("strong");
+        strong.textContent = "Training check: ";
+        acceptance.append(strong, document.createTextNode(procedure.check));
+        article.append(header, stepsTitle, steps, fields, noteLabel, acceptance);
+        list.appendChild(article);
+      });
+      updateSummary();
+    }
+
+    function download(filename, value) {
+      const payload = {
+        formatVersion: 1,
+        kind: "lodge-house-team-sop-training",
+        exportedAt: new Date().toISOString(),
+        disclaimer: "Editable browser-local planning notes; not verified training, an approval, signature, or compliance record.",
+        procedures: value.procedures
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    document.getElementById("export-training").addEventListener("click", () => {
+      download("lodge-house-team-sop-training.json", saved);
+      status.textContent = "Training notes export prepared. Review its contents before sharing; it contains editable local notes.";
+    });
+
+    document.getElementById("import-training").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const incoming = JSON.parse(await file.text());
+        if (incoming.formatVersion !== 1 || incoming.kind !== "lodge-house-team-sop-training" || !Array.isArray(incoming.procedures)) {
+          throw new Error("This is not a supported team SOP training export.");
+        }
+        const allowed = new Set(procedures.map((procedure) => procedure.id));
+        saved = {
+          formatVersion: 1,
+          procedures: incoming.procedures.filter((item) => item && allowed.has(item.id)).map((item) => ({
+            id: item.id,
+            owner: typeof item.owner === "string" ? item.owner.slice(0, 100) : "",
+            trainee: typeof item.trainee === "string" ? item.trainee.slice(0, 100) : "",
+            status: ["Not started", "In progress", "Ready for review"].includes(item.status) ? item.status : "Not started",
+            completedSteps: Array.isArray(item.completedSteps) ? item.completedSteps.filter((step) => Number.isInteger(step) && step >= 0 && step < (procedures.find((procedure) => procedure.id === item.id)?.steps.length || 0)) : [],
+            notes: typeof item.notes === "string" ? item.notes.slice(0, 1600) : ""
+          }))
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        render();
+        status.textContent = `Imported ${file.name} into this browser. Review all imported notes; they are not authenticated.`;
+      } catch (error) {
+        status.textContent = `Could not import training notes: ${error.message}`;
+      }
+      event.target.value = "";
+    });
+
+    document.getElementById("reset-training").addEventListener("click", () => {
+      if (!window.confirm("Clear local SOP checklist progress, names, and notes? Export a copy first if needed.")) return;
+      saved = {
+        formatVersion: 1,
+        procedures: []
+      };
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.warn("Could not clear local SOP notes.", error);
+      }
+      render();
+      status.textContent = "Local checklist progress and notes cleared.";
+    });
+
+    render();
+
+  </script>
+  <script src="/workspace-nav.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="What the supplied lean-worker Lean theorems prove, what remains an assumption, and where repository claims exceed the shown evidence.">
+  <title>Assurance limits — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a>
+      <a class="text-[var(--color-primary)]" href="/proof-model" aria-current="page">Assurance limits</a>
+      <a class="hover:text-[var(--color-primary)]" href="/protocol">Protocols</a>
+      <a class="hover:text-[var(--color-primary)]" href="/plugins">Plugins</a>
+      <a class="hover:text-[var(--color-primary)]" href="/repositories">Build & provenance</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-10 lg:px-10 lg:pt-16">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+    <div class="mt-8 max-w-4xl">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Formal model · verification scope</p>
+      <h1 class="display-font mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">A theorem proves the model—not the deployment.</h1>
+      <p class="mt-6 text-lg leading-8 text-[var(--color-muted)]">The source contains useful executable definitions and Lean proofs. Their assurance scope depends on the exact proposition, imports, compiler run and assumptions; they do not automatically transfer to a live system.</p>
+    </div>
+
+    <section class="mt-10 grid gap-4 md:grid-cols-3" aria-label="Evidence layers">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">01 · Definition-level</span>
+        <h2 class="display-font mt-4 text-xl font-semibold">Data & predicates</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">For example, `Proxy.Monitor.admits` is a Boolean predicate over a declared policy and request; `step` follows that predicate in its model.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">02 · Kernel-checked theorem</span>
+        <h2 class="display-font mt-4 text-xl font-semibold">Conditional conclusions</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">`Protocol.Soundness` states its kernel-soundness condition explicitly. The theorem connects acceptance to validity only under that supplied assumption.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">03 · External observation</span>
+        <h2 class="display-font mt-4 text-xl font-semibold">Not established by Lean alone</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Actual process traces, cloud state, repository provenance, key handling, builds and network calls need independently collected evidence and verification.</p>
+      </article>
+    </section>
+
+    <section class="mt-12 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Important caveat</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">The README’s strong runtime claims are not established by the supplied excerpt.</h2>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The README says the worker’s actions are proved and that eBPF traces confirm execution. The shown `ExecutionTrace` type accepts a trace as input and derives a profile; the file does not itself capture kernel events or authenticate their origin. Likewise, modeled capability flags are declarations, not a sandbox enforcement mechanism.</p>
+      </aside>
+      <div class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Concrete examples in source</p>
+        <ul class="mt-5 space-y-4 text-sm leading-6 text-[var(--color-muted)]">
+          <li class="border-b border-[var(--color-line)] pb-4"><strong class="text-[var(--color-text)]">P2P tags are idealized.</strong> `Protocol/Core.lean` represents a tag by its signer, key and payload. It is a logic model, not an implementation of AES, HMAC or public-key signatures.</li>
+          <li class="border-b border-[var(--color-line)] pb-4"><strong class="text-[var(--color-text)]">Proxy hash is not cryptographic.</strong> `Proxy/Concrete.lean` uses a 64-bit FNV-style hash and documents that it is not collision-free. The Lean model’s signatures are idealized tags.</li>
+          <li class="border-b border-[var(--color-line)] pb-4"><strong class="text-[var(--color-text)]">Some integrations are placeholders.</strong> Many provider, cloud, ACP and skill execution functions contain `sorry` or placeholder comments in the supplied source.</li>
+          <li><strong class="text-[var(--color-text)]">Some plugin claims conflict with data.</strong> Certain contexts use empty command lists while attempting to prove non-emptiness via `exFalso`; these are not valid evidence of commands.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mt-12 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+      <h2 class="display-font text-2xl font-semibold">A responsible verification statement</h2>
+      <p class="mt-3 max-w-4xl text-sm leading-6 text-[var(--color-muted)]">For a concrete assurance claim, record the exact source revision, compiler/toolchain version, build command, complete output, remaining `sorry` count, imported axioms, action revisions and artifact digests. Then scope the conclusion to the specific model and evidence that were checked. No build has been run for this website update.</p>
+    </section>
+
+    <div class="mt-12 flex flex-wrap gap-3">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]" href="/protocol">Review protocol models →</a>
+      <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-5 py-3 font-semibold" href="/repositories">Check build provenance</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10"><a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a></div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

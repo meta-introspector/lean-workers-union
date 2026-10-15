@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Source-grounded guide to lean-worker's modeled prover protocol, logging proxy, relay rescue source, and pastebin service.">
+  <title>Protocols & runtime — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home"><span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span><span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span></a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a><a class="hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a><a class="hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a><a class="text-[var(--color-primary)]" href="/protocol" aria-current="page">Protocols</a><a class="hover:text-[var(--color-primary)]" href="/plugins">Plugins</a><a class="hover:text-[var(--color-primary)]" href="/repositories">Build & provenance</a></nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-10 lg:px-10 lg:pt-16">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+    <div class="mt-8 max-w-4xl">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Protocol models · included runtime source</p>
+      <h1 class="display-font mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">Models describe behavior. Services perform work.</h1>
+      <p class="mt-6 text-lg leading-8 text-[var(--color-muted)]">The repository puts proof-oriented protocol models next to service code and experimental integration modules. Their presence does not imply the formal model is wired into each runtime component.</p>
+    </div>
+
+    <section class="mt-12 space-y-5">
+      <article class="grid gap-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8 lg:grid-cols-[0.7fr_1fr]">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Lean · `minimal/Protocol/`</p>
+          <h2 class="display-font mt-3 text-2xl font-semibold">Prover request and certificate model</h2>
+        </div>
+        <div>
+          <p class="text-sm leading-6 text-[var(--color-muted)]">The model includes admission, shared-key tags, replay protection via caller/nonce pairs, job allow-lists, fuel ceilings, response binding, and a `KernelSound` hypothesis used in the end-to-end result theorem.</p>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">The protocol’s tag structure is explicitly idealized; no network transport, real MAC, public-key verification, or key provisioning is implemented by these definitions.</p>
+        </div>
+      </article>
+      <article class="grid gap-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8 lg:grid-cols-[0.7fr_1fr]">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Lean · `minimal/Proxy/`</p>
+          <h2 class="display-font mt-3 text-2xl font-semibold">Reference-monitor and receipt chain model</h2>
+        </div>
+        <div>
+          <p class="text-sm leading-6 text-[var(--color-muted)]">The abstract monitor models caller authentication, freshness, path/host/executable policy, byte ceilings, receipt logging, chained hashes and dashboard verification.</p>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">`Proxy/Example.lean` is a computed example against a deterministic stand-in system. `ProxyReport.lean` writes a model trace; it is not a capture of the host’s actual syscalls.</p>
+        </div>
+      </article>
+      <article class="grid gap-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8 lg:grid-cols-[0.7fr_1fr]">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">JavaScript · relay rescue</p>
+          <h2 class="display-font mt-3 text-2xl font-semibold">A mailbox with explicit operational caveats</h2>
+        </div>
+        <div>
+          <p class="text-sm leading-6 text-[var(--color-muted)]">`DeskServer-rescue/` includes a Node HTTP relay, a Cloudflare Worker router, per-room state module, regression tests and Wrangler configuration. Its README says room state is in memory, not archived, and the invite is trust-on-first-use rather than peer identity.</p>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">The rescue documentation also says a separately named patched worker was deployed while the originally named production worker remained inaccessible and unpatched at the time described. That is a source-documented historical status, not a live check.</p>
+        </div>
+      </article>
+      <article class="grid gap-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8 lg:grid-cols-[0.7fr_1fr]">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Rust · `tools/kant-zk-pastebin/`</p>
+          <h2 class="display-font mt-3 text-2xl font-semibold">Paste sharing with content-addressing integrations</h2>
+        </div>
+        <div>
+          <p class="text-sm leading-6 text-[var(--color-muted)]">The Actix application declares paste, browse, upload, IPFS proxy, plugin and gallery routes. `Cargo.toml` lists Actix, serde, SHA-256, CBOR/IPLD and a local `rust-unixfs` path dependency.</p>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">The `README.md` and source differ in maturity and behavior; inspect the actual handler and storage implementation before asserting all API descriptions or IPFS guarantees.</p>
+        </div>
+      </article>
+    </section>
+
+    <aside class="mt-8 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+      <h2 class="font-semibold text-[var(--color-primary)]">Cross-check before relying on runtime status</h2>
+      <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The dump contains historical relay logs and a rescue report, not live service probes. No deployment has been verified in preparing this guide. Use the source files and an independently recorded test/build run as your evidence.</p>
+    </aside>
+    <div class="mt-12 flex flex-wrap gap-3"><a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]" href="/proof-model">Read model assurance limits →</a><a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-5 py-3 font-semibold" href="/repositories">Inspect build sources</a></div>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10"><a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a></div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

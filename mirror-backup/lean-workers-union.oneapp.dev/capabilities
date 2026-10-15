@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Architecture map of the supplied lean-worker repository and the maturity boundaries between formal models and implementations.">
+  <title>Architecture — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home"><span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span><span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span></a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a><a class="text-[var(--color-primary)]" href="/capabilities" aria-current="page">Architecture</a><a class="hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a><a class="hover:text-[var(--color-primary)]" href="/protocol">Protocols</a><a class="hover:text-[var(--color-primary)]" href="/plugins">Plugins</a><a class="hover:text-[var(--color-primary)]" href="/repositories">Build & provenance</a></nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-10 lg:px-10 lg:pt-16">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+    <div class="mt-8 max-w-4xl">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Architecture · file-tree overview</p>
+      <h1 class="display-font mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">One repository, several very different layers.</h1>
+      <p class="mt-6 text-lg leading-8 text-[var(--color-muted)]">The tree mixes formal descriptions, model-level theorems, executable Rust/JavaScript components, build tooling and interface catalogs. A module existing in the tree is not evidence that it is built, deployed, or connected to a live system.</p>
+    </div>
+
+    <aside class="mt-8 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+      <h2 class="font-semibold text-[var(--color-primary)]">Read the claims at the right level</h2>
+      <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Lean theorems establish propositions about Lean definitions. They do not by themselves instrument a running agent, validate external telemetry, establish cloud deployment, or execute a provider API call. Several integrations explicitly contain placeholders and unfilled proofs.</p>
+    </aside>
+
+    <section class="mt-12 grid gap-5 lg:grid-cols-2" aria-label="Repository layers">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">01 · Twin & tool model</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">`minimal/` and `minimal/RequestProject/`</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Agent state, capabilities, environment, constraints, memory, skill lists, credit counters, command-result structures, tool-call provenance and parsed execution-trace models.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The files include specific theorems, but some embedded records are hand-authored examples. The tree alone cannot show whether a trace was captured from a real process.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">02 · Peer protocol</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">`minimal/Protocol/`</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">An idealized model of authenticated prover calls, nonce freshness, allow-listed executables, fuel budgets, certificates, caller acceptance and cross-check outcomes.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">Its `Tag` model carries the key and payload directly; the source explicitly describes this as idealized, not production cryptography.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">03 · Logging proxy model</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">`minimal/Proxy/`</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A reference-monitor model that gates file/network/process calls, records receipts, chains hashes, and lets a dashboard model verify journal entries.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The concrete example uses a 64-bit FNV-style hash and an idealized signature in the Lean model; its own comments caution that the hash is not collision-free.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">04 · Gokujo tooling</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">`minimal/Gokujo*` and `tools/gokujo/`</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A single-file CLI concept for scanning, building, checking, infrastructure generation and agent workflows, plus provider, protocol, cloud, GitHub, skill and DAO models.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The documentation makes broad capability statements. Check specific source and actual build output before treating those statements as verified product behavior.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">05 · Plugin contexts</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">`contexts/plugins/` and `minimal/`</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Plugin interface records and small theorems about declared names, capabilities and versions. Files are largely repetitive context declarations.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">Some contexts declare empty command lists yet claim non-empty commands through `exFalso`; those statements cannot be true as written. See the <a class="text-[var(--color-primary)] underline" href="/plugins">catalog notes</a>.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">06 · Service sources</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Pastebin and relay rescue</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">`tools/kant-zk-pastebin/` includes an Actix/Rust service, IPFS/DASL-related modules and UI handlers. `minimal/DeskServer-rescue/` contains a Node relay and Cloudflare Worker source plus regression tests.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The rescue README explicitly describes operational limitations and deployment uncertainty. Source inclusion is not a deployment attestation.</p>
+      </article>
+    </section>
+
+    <div class="mt-12 flex flex-wrap gap-3"><a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]" href="/proof-model">Review assurance limits →</a><a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-5 py-3 font-semibold" href="/repositories">Inspect build inputs</a></div>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10"><a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a></div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Declared Lean, Nix, Rust and CI build references in the supplied lean-worker repository dump, with provenance limitations.">
+  <title>Build & provenance — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home"><span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span><span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span></a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a><a class="hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a><a class="hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a><a class="hover:text-[var(--color-primary)]" href="/protocol">Protocols</a><a class="hover:text-[var(--color-primary)]" href="/plugins">Plugins</a><a class="text-[var(--color-primary)]" href="/repositories" aria-current="page">Build & provenance</a></nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-10 lg:px-10 lg:pt-16">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+    <div class="mt-8 max-w-4xl">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Source inventory · toolchains · external inputs</p>
+      <h1 class="display-font mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">Read the build declarations before trusting the build story.</h1>
+      <p class="mt-6 text-lg leading-8 text-[var(--color-muted)]">This inventory is extracted from the provided files. It is not a complete lockfile audit, a live repository lookup, a verified compiler run, or proof that all listed systems are deployed.</p>
+    </div>
+
+    <aside class="mt-8 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+      <h2 class="font-semibold text-[var(--color-primary)]">The dump has overlapping and inconsistent build descriptions</h2>
+      <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The README says there is no toolchain or Lake project in <code>minimal/</code>, while the supplied tree includes <code>minimal/lean-toolchain</code>, <code>lakefile.toml</code>, a manifest, and Nix/pipelight configurations. Treat actual checked-in files and reproducible CI logs as authoritative for a specific revision.</p>
+    </aside>
+
+    <section class="mt-12 grid gap-5 lg:grid-cols-2" aria-label="Build sources">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Lean & Lake</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Declared versions and packages</h2>
+        <ul class="mt-5 space-y-3 text-sm leading-6 text-[var(--color-muted)]">
+          <li><strong class="text-[var(--color-text)]">Toolchain:</strong> <code>minimal/lean-toolchain</code> names <code>leanprover/lean4:v4.28.0</code>.</li>
+          <li><strong class="text-[var(--color-text)]">Lake project:</strong> <code>minimal/lakefile.toml</code> declares Mathlib v4.28.0 from <code>leanprover-community/mathlib4</code>.</li>
+          <li><strong class="text-[var(--color-text)]">Lock data:</strong> <code>minimal/lake-manifest.json</code> lists Mathlib and inherited packages including plausible, LeanSearchClient, import-graph, ProofWidgets4, aesop, quote4, batteries, and lean4-cli.</li>
+          <li><strong class="text-[var(--color-text)]">Other setup:</strong> root <code>flake.nix</code> declares nixpkgs, flake-utils, Lean, Mathlib, Gokujo and pipelight inputs.</li>
+        </ul>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Rust service</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Pastebin dependency declarations</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]"><code>tools/kant-zk-pastebin/Cargo.toml</code> declares Actix Web, serde, Tera, chrono, sha2, ciborium, ipld-core, multibase, multipart, OpenAPI tooling, and other crates. It also names local path dependencies: <code>vendor/rust-ipfs/unixfs</code> and <code>erdfa-publish</code>.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The supplied tree does not include the Cargo.lock or the complete local vendor source, so resolved versions and transitive source provenance cannot be fully inventoried here.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Build automation</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">CI and deployment references</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">The supplied <code>.github/workflows/lean.yml</code> references checkout, Nix install and cache actions; shell steps install Lean tools, attempt staged Lake builds and a Gokujo check, and include a pipelight deployment job with a secret token.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The workflow content itself contains apparent issues (including variable-name mismatches and a schedule key nested under a job), so do not infer successful CI or deployment from the YAML’s presence.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">External tools & code</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">What a fuller provenance record needs</h2>
+        <ul class="mt-5 space-y-3 text-sm leading-6 text-[var(--color-muted)]">
+          <li>Exact source revision and clean working-tree status for every repository.</li>
+          <li>Resolved Rust dependency lockfile plus local vendor/submodule commits.</li>
+          <li>Lean compiler build logs, Lake manifest, and exact CI action SHAs.</li>
+          <li>Artifact digests and an attestation binding source, toolchain, build procedure and output.</li>
+          <li>Contributor notices from the actual source history and license files.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="mt-12 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+      <h2 class="display-font text-2xl font-semibold">Avoid mixing roster records with dependencies</h2>
+      <p class="mt-3 max-w-4xl text-sm leading-6 text-[var(--color-muted)]">The tree includes a registry of project names and plugin descriptions, plus formal API models for GitHub, Cloudflare, AWS and model providers. Those names do not automatically mean each API, provider or project is a build dependency. Consult the package manifests and import graph for a concrete target.</p>
+    </section>
+
+    <div class="mt-12 flex flex-wrap gap-3"><a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]" href="/protocol">Review runtime modules →</a><a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-5 py-3 font-semibold" href="/plugins">Browse plugin catalog</a></div>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10"><a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a></div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Run browser-based unit checks for Lodge House workspace, task, and schedule data handling.">
+  <title>Workspace unit tests — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .test-result[data-result="pass"] {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+    }
+
+    .test-result[data-result="fail"] {
+      border-color: var(--color-line-strong);
+      background: var(--color-surface);
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · quality checks</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">Workspace</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/training-log">Training log</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/unit-tests" aria-current="page">Unit tests</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <section class="rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] p-6 sm:p-9">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Browser-based checks · no server needed</p>
+      <h1 class="display-font mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Workspace unit tests</h1>
+      <p class="mt-5 max-w-3xl text-base leading-7 text-[var(--color-muted)]">These checks call the workspace page’s real data-normalization and helper functions. They cover profile, task, invitation, and schedule shapes, including malformed input. They do not verify server behavior, cross-device syncing, browser storage persistence, or GMP compliance.</p>
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button id="run-tests" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]">Run tests again</button>
+        <p id="test-summary" class="text-sm text-[var(--color-muted)]" aria-live="polite">Loading workspace test helpers…</p>
+        <p id="frame-url-log" class="w-full break-all rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs leading-5 text-[var(--color-muted)]" aria-live="polite">Preparing workspace frame URL…</p>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="results-heading">
+      <h2 id="results-heading" class="display-font text-2xl font-semibold">Results</h2>
+      <ol id="test-results" class="mt-4 space-y-3" aria-live="polite"></ol>
+    </section>
+
+    <p class="mt-5 text-xs leading-5 text-[var(--color-muted)]">The workspace page is loaded in a hidden same-origin frame so this page can exercise its actual functions without changing your saved workspace.</p>
+  </main>
+
+  <iframe id="workspace-frame" src="/seats" title="Workspace test runtime" class="hidden" aria-hidden="true" tabindex="-1"></iframe>
+
+  <script>
+    const resultsList = document.getElementById("test-results");
+    const summary = document.getElementById("test-summary");
+    const workspaceFrame = document.getElementById("workspace-frame");
+    const previewBaseUrl = "https://onecompiler.com/vibecode/45579w2cj";
+    const productionTestUrl = "https://lean-workers-union.oneapp.dev/unit-tests";
+    const frameUrlLog = document.getElementById("frame-url-log");
+
+    function readablePageUrls() {
+      const urls = [window.location.href, document.referrer];
+      for (const frame of [window.parent, window.top]) {
+        try {
+          urls.push(frame.location.href);
+        } catch (error) {
+          // Cross-origin parent URLs are not readable; try the other available hints.
+        }
+      }
+      return urls.filter(Boolean);
+    }
+
+    const pageUrlHints = readablePageUrls();
+    const isProduction = pageUrlHints.some((value) => value.includes("lean-workers-union.oneapp.dev"));
+    const workspaceBaseUrl = isProduction ? new URL("/", productionTestUrl).toString() : previewBaseUrl;
+    const workspaceUrl = isProduction
+      ? new URL("/seats", productionTestUrl).toString()
+      : `${previewBaseUrl}#seats`;
+
+    frameUrlLog.textContent = [
+      `Test page: ${window.location.href}`,
+      `Page URL hints: ${pageUrlHints.join(" | ") || "none available"}`,
+      `Selected base URL: ${workspaceBaseUrl}`,
+      `Workspace frame URL: ${workspaceUrl}`,
+      "Frame status: setting source"
+    ].join(" · ");
+
+    function updateFrameUrlLog(eventName) {
+      let loadedUrl = "Unavailable or cross-origin";
+      try {
+        loadedUrl = workspaceFrame.contentWindow.location.href;
+      } catch (error) {
+        loadedUrl = `Could not read frame URL: ${error.message || error}`;
+      }
+      frameUrlLog.textContent = [
+        `Page: ${window.location.href}`,
+        `Selected workspace URL: ${workspaceUrl}`,
+        `Frame src: ${workspaceFrame.src || "not set"}`,
+        `Frame status: ${eventName}`,
+        `Frame-reported URL: ${loadedUrl}`
+      ].join(" · ");
+    }
+
+    workspaceFrame.addEventListener("load", () => {
+      updateFrameUrlLog("load event received; waiting for test helpers");
+      summary.textContent = "Workspace page loaded. Waiting for its test helpers…";
+    });
+    workspaceFrame.addEventListener("error", () => {
+      updateFrameUrlLog("frame error event");
+      summary.textContent = "FAIL · Test setup — the workspace frame could not be loaded. Check the frame URL above, then retry.";
+    });
+    workspaceFrame.src = workspaceUrl;
+    updateFrameUrlLog("request sent");
+
+    function assert(condition, message) {
+      if (!condition) throw new Error(message);
+    }
+
+    function equal(actual, expected, message) {
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error(`${message} Expected ${JSON.stringify(expected)}, received ${JSON.stringify(actual)}.`);
+      }
+    }
+
+    function makeTests(api) {
+      return [{
+          name: "Empty workspace gets the expected collections",
+          run() {
+            const workspace = api.normalizeWorkspace({});
+            equal(workspace.people, [], "People should default to an empty list.");
+            equal(workspace.invitations, [], "Invitations should default to an empty list.");
+            equal(workspace.tasks, [], "Tasks should default to an empty list.");
+            equal(workspace.schedules, [], "Schedules should default to an empty list.");
+          }
+        },
+        {
+          name: "Profile fields are normalized and invalid slugs are rejected",
+          run() {
+            const valid = api.normalizeWorkspace({
+              profile: {
+                name: "  Ada  ",
+                slug: "ada-lovelace",
+                note: "  Proofs  "
+              }
+            });
+            equal(valid.profile.name, "Ada", "Profile name should be trimmed.");
+            equal(valid.profile.note, "Proofs", "Profile note should be trimmed.");
+            const invalid = api.normalizeWorkspace({
+              profile: {
+                name: "Ada",
+                slug: "not a valid slug"
+              }
+            });
+            equal(invalid.profile, null, "An invalid seat slug should not create a profile.");
+          }
+        },
+        {
+          name: "Imported workspace profile is included in the People roster",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              profile: {
+                name: "  Ada  ",
+                slug: "ada-lovelace",
+                note: "Proofs",
+                icon: "data:image/jpeg;base64,profile-icon",
+                photos: ["data:image/jpeg;base64,photo-one"]
+              },
+              people: [{
+                id: "person-ada",
+                name: "Ada",
+                note: "Profile owner"
+              }]
+            });
+            equal(workspace.people.length, 1, "The existing profile owner should be updated, not duplicated.");
+            equal(workspace.people[0].profile.slug, "ada-lovelace", "The roster entry should retain the profile seat name.");
+            equal(workspace.people[0].profile.icon, "data:image/jpeg;base64,profile-icon", "The roster entry should retain the profile icon.");
+            equal(workspace.people[0].profile.photos, ["data:image/jpeg;base64,photo-one"], "The roster entry should retain shared gallery photos.");
+          }
+        },
+        {
+          name: "Schedule entries retain valid fields and normalize duration and participants",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              schedules: [{
+                id: "schedule-1",
+                title: "  Review session  ",
+                date: "2026-05-20",
+                time: "14:30",
+                duration: 45,
+                notes: "  Review the outline  ",
+                participants: ["Ada", "Ada", "", 7]
+              }]
+            });
+            equal(workspace.schedules.length, 1, "A valid schedule should be retained.");
+            equal(workspace.schedules[0].title, "Review session", "Schedule title should be trimmed.");
+            equal(workspace.schedules[0].duration, 60, "Unsupported duration should use the one-hour default.");
+            equal(workspace.schedules[0].participants, ["Ada"], "Participant names should be filtered and deduplicated.");
+          }
+        },
+        {
+          name: "Schedules missing required date or title are discarded",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              schedules: [{
+                  title: "",
+                  date: "2026-05-20",
+                  time: "14:30"
+                },
+                {
+                  title: "Missing date",
+                  date: "",
+                  time: "14:30"
+                },
+                {
+                  title: "Missing time",
+                  date: "2026-05-20",
+                  time: ""
+                }
+              ]
+            });
+            equal(workspace.schedules, [], "Incomplete schedule entries should be removed.");
+          }
+        },
+        {
+          name: "Task status and text use safe defaults and limits",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              tasks: [{
+                id: "task-1",
+                title: "  Write the checklist  ",
+                status: "Unknown status",
+                notes: "  Next step  ",
+                collaborators: [{
+                  name: "  Ada  "
+                }, {
+                  name: ""
+                }],
+                contributions: [{
+                  idea: "  Add an acceptance check  "
+                }]
+              }]
+            });
+            const task = workspace.tasks[0];
+            equal(task.title, "Write the checklist", "Task title should be trimmed.");
+            equal(task.status, "Not started", "Unknown task status should fall back to Not started.");
+            equal(task.notes, "Next step", "Task notes should be trimmed.");
+            equal(task.collaborators.length, 1, "Invalid collaborator entries should be removed.");
+            equal(task.contributions[0].idea, "Add an acceptance check", "Contribution text should be trimmed.");
+          }
+        },
+        {
+          name: "Invitation statuses fall back to Draft",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              invitations: [{
+                id: "invite-1",
+                person: "Ada",
+                status: "Unrecognized"
+              }]
+            });
+            equal(workspace.invitations[0].status, "Draft", "Invalid invitation status should default to Draft.");
+          }
+        },
+        {
+          name: "Suggested seat names are normalized",
+          run() {
+            equal(api.suggestedSlug("  Élodie Proofs Team! "), "elodie-proofs-team", "Suggested slug should be lowercase and URL-safe.");
+          }
+        },
+        {
+          name: "Generated identifiers include their requested prefix",
+          run() {
+            assert(api.makeId("test").startsWith("test-"), "Generated ID should include the supplied prefix.");
+          }
+        },
+        {
+          name: "Valid schedules preserve task links and allowed durations",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              tasks: [{ id: "task-review", title: "Review the release" }],
+              schedules: [{
+                id: "schedule-review",
+                title: "Release review",
+                taskId: "task-review",
+                date: "2026-06-12",
+                time: "09:15",
+                duration: 90
+              }]
+            });
+            equal(workspace.schedules[0].taskId, "task-review", "A schedule should retain its linked task ID.");
+            equal(workspace.schedules[0].duration, 90, "An allowed duration should be preserved.");
+          }
+        },
+        {
+          name: "Schedule participants are trimmed and deduplicated",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              schedules: [{
+                title: "Planning session",
+                date: "2026-06-12",
+                time: "09:15",
+                participants: [" Ada ", "Ada", "  Bea", "", null]
+              }]
+            });
+            equal(workspace.schedules[0].participants, ["Ada", "Bea"], "Participant names should be trimmed, filtered, and deduplicated.");
+          }
+        },
+        {
+          name: "Profile galleries keep only image data and at most six photos",
+          run() {
+            const photos = Array.from({ length: 8 }, (_, index) => `data:image/jpeg;base64,photo-${index}`);
+            photos.splice(2, 0, "not-an-image");
+            const workspace = api.normalizeWorkspace({
+              profile: {
+                name: "Ada",
+                slug: "ada",
+                icon: "data:image/png;base64,icon",
+                photos
+              }
+            });
+            equal(workspace.profile.photos.length, 6, "The profile gallery should contain at most six valid images.");
+            assert(workspace.profile.photos.every((photo) => photo.startsWith("data:image/")), "Non-image gallery values should be removed.");
+            equal(workspace.profile.icon, "data:image/png;base64,icon", "A valid image icon should be retained.");
+          }
+        },
+        {
+          name: "Invitation records support legacy invitee names and safe status defaults",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              invitations: [
+                { id: "invite-1", invitee: "  Bea  ", purpose: "Join the review", status: "Accepted" },
+                { id: "invite-2", person: "  Cal  ", status: "Unknown" },
+                { id: "invite-invalid", person: "   " }
+              ]
+            });
+            equal(workspace.invitations.length, 2, "Invitations without a usable person name should be discarded.");
+            equal(workspace.invitations[0].person, "Bea", "Legacy invitee names should be normalized.");
+            equal(workspace.invitations[0].status, "Accepted", "A recognized invitation status should be preserved.");
+            equal(workspace.invitations[1].status, "Draft", "An unknown invitation status should default to Draft.");
+          }
+        },
+        {
+          name: "Task contributions retain author and trim content",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              tasks: [{
+                title: "Draft guidance",
+                contributions: [{
+                  id: "idea-1",
+                  author: "  Bea  ",
+                  idea: "  Add a review checklist  "
+                }, {
+                  idea: "   "
+                }]
+              }]
+            });
+            equal(workspace.tasks[0].contributions.length, 1, "Empty task contributions should be discarded.");
+            equal(workspace.tasks[0].contributions[0].author, "Bea", "Contribution authors should be trimmed.");
+            equal(workspace.tasks[0].contributions[0].idea, "Add a review checklist", "Contribution text should be trimmed.");
+          }
+        },
+        {
+          name: "Empty or malformed tasks are excluded",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              tasks: [null, {}, { title: "   " }, { title: "  Valid task  " }]
+            });
+            equal(workspace.tasks.length, 1, "Only tasks with a non-empty title should remain.");
+            equal(workspace.tasks[0].title, "Valid task", "Task titles should be trimmed.");
+          }
+        },
+        {
+          name: "Workspace collections respect their maximum sizes",
+          run() {
+            const workspace = api.normalizeWorkspace({
+              people: Array.from({ length: 305 }, (_, index) => ({ id: `person-${index}`, name: `Person ${index}` })),
+              invitations: Array.from({ length: 505 }, (_, index) => ({ id: `invite-${index}`, person: `Person ${index}` })),
+              tasks: Array.from({ length: 505 }, (_, index) => ({ id: `task-${index}`, title: `Task ${index}` })),
+              schedules: Array.from({ length: 305 }, (_, index) => ({
+                id: `schedule-${index}`,
+                title: `Session ${index}`,
+                date: "2026-06-12",
+                time: "09:15"
+              }))
+            });
+            equal(workspace.people.length, 300, "People should be capped at 300 entries.");
+            equal(workspace.invitations.length, 500, "Invitations should be capped at 500 entries.");
+            equal(workspace.tasks.length, 500, "Tasks should be capped at 500 entries.");
+            equal(workspace.schedules.length, 300, "Schedules should be capped at 300 entries.");
+          }
+        },
+        {
+          name: "Text helper trims values and respects its length limit",
+          run() {
+            equal(api.cleanText("  abcdef  ", 4), "abcd", "Text should be trimmed and limited to the requested length.");
+            equal(api.cleanText(42, 10), "", "Non-string values should normalize to an empty string.");
+          }
+        }
+      ];
+    }
+
+    function renderResults(results) {
+      resultsList.replaceChildren();
+      let passed = 0;
+
+      results.forEach((result) => {
+        const item = document.createElement("li");
+        item.className = "test-result rounded-[var(--radius)] border border-[var(--color-line)] p-4";
+        item.dataset.result = result.error ? "fail" : "pass";
+
+        const title = document.createElement("p");
+        title.className = "font-semibold text-[var(--color-text)]";
+        title.textContent = `${result.error ? "FAIL" : "PASS"} · ${result.name}`;
+        item.appendChild(title);
+
+        if (result.error) {
+          const detail = document.createElement("p");
+          detail.className = "mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--color-muted)]";
+          detail.textContent = result.error;
+          item.appendChild(detail);
+        } else {
+          passed += 1;
+        }
+        resultsList.appendChild(item);
+      });
+
+      const failed = results.length - passed;
+      summary.textContent = `${passed} passed · ${failed} failed · ${results.length} total`;
+    }
+
+    let runRequest = 0;
+
+    function getWorkspaceApi() {
+      try {
+        return workspaceFrame.contentWindow?.LodgeWorkspaceTestAPI || null;
+      } catch (error) {
+        throw new Error(`The workspace test frame is not accessible from this page: ${error.message || error}`);
+      }
+    }
+
+    async function runTests() {
+      const request = ++runRequest;
+      const button = document.getElementById("run-tests");
+      button.disabled = true;
+      button.textContent = "Preparing tests…";
+      summary.textContent = "Waiting for the workspace test helpers to load…";
+
+      try {
+        let api = null;
+        for (let attempt = 0; attempt < 50; attempt += 1) {
+          if (request !== runRequest) return;
+          api = getWorkspaceApi();
+          if (api) break;
+          await new Promise((resolve) => window.setTimeout(resolve, 100));
+        }
+
+        if (!api) {
+          const frameUrl = workspaceFrame.contentWindow?.location?.href || workspaceFrame.src;
+          throw new Error(`Workspace helpers did not appear after 5 seconds. The workspace page may not have loaded at ${frameUrl}. Check that /seats opens in this browser, then retry.`);
+        }
+
+        const results = makeTests(api).map((test) => {
+          try {
+            test.run();
+            return {
+              name: test.name
+            };
+          } catch (error) {
+            return {
+              name: test.name,
+              error: error.message || String(error)
+            };
+          }
+        });
+        renderResults(results);
+      } catch (error) {
+        renderResults([{
+          name: "Test setup",
+          error: error.message || String(error)
+        }]);
+      } finally {
+        if (request === runRequest) {
+          button.disabled = false;
+          button.textContent = "Run tests again";
+        }
+      }
+    }
+
+    document.getElementById("run-tests").addEventListener("click", runTests);
+    workspaceFrame.addEventListener("load", () => {
+      window.setTimeout(runTests, 50);
+    });
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

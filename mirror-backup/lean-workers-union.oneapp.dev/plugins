@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A concise catalog of plugin contexts listed in the supplied lean-worker tree, with warnings about placeholder claims and maturity.">
+  <title>Plugin catalog — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home"><span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span><span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span></a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a><a class="hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a><a class="hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a><a class="hover:text-[var(--color-primary)]" href="/protocol">Protocols</a><a class="text-[var(--color-primary)]" href="/plugins" aria-current="page">Plugins</a><a class="hover:text-[var(--color-primary)]" href="/repositories">Build & provenance</a></nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-10 lg:px-10 lg:pt-16">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+    <div class="mt-8 max-w-4xl">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Plugin contexts · catalog, not runtime inventory</p>
+      <h1 class="display-font mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">Many names in the registry. Verify each tool before relying on it.</h1>
+      <p class="mt-6 text-lg leading-8 text-[var(--color-muted)]">The tree includes plugin interface records and context files, with a mix of real-looking descriptions, empty command lists and placeholders. The catalog is a guide to what is declared—not a claim that every plugin is implemented, installed or running.</p>
+    </div>
+
+    <aside class="mt-8 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+      <h2 class="font-semibold text-[var(--color-primary)]">Evidence-quality note</h2>
+      <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Several generated context files have <code>commands := []</code> but also state that command lists are non-empty, with proofs ending in <code>exFalso</code>. Those propositions are inconsistent with the declarations. A file’s “AOK” label or theorem count should not be taken as a successful build without checking its proof and compiler output.</p>
+    </aside>
+
+    <section class="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label="Plugin families">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Authoring & proof</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Lean / Aristotle / proof tools</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">aristotle-manager, aristotle-tools, proof-robot, spec-to-proof, lean4-twin, lean4-repl, lean4-block-server, monster-hecke, monster-voa.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Storage & content</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">IPLD / shmem / paste</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">dir-to-shmem, index-to-shmem, ipld-car-shmem-client, ipld-car-shmem-server, letta-ipld-memory, shmem-dedup, shmem-optimize, shmem-warm, spool, spool-source, cid-index-lean, erdfa-publish.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Search & indexing</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Indexes and retrieval</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">forge-plugin-tantivy, tantivy-indexer, omnisearch, omnisearch-config, parquet-index, repo-headers, tokenizer, shard-tools.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Coordination & operations</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Worker and platform managers</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">hive-driver, task-manager, zombie-driver, zos-github-manager, zos-noc-manager, zos-plugin-generators, zos-a11y-gui, activity-profile, observer-qa, harbor.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Model-provider & protocol adapters</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">API type models</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Gokujo models common provider interfaces and adapters for Mistral, OpenRouter, Grok, DeepSeek, OpenAI and Claude, plus MCP, tool calling, Agent Client Protocol, AWS, Cloudflare, GitHub and GCP.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Named edge cases</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Declared empty or incomplete</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">forgecode, harbor, monster-voa and spool contexts show empty capability/command lists. Check actual module behavior; do not infer implemented functionality from catalog labels.</p>
+      </article>
+    </section>
+
+    <section class="mt-12 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+      <h2 class="display-font text-2xl font-semibold">What makes a plugin truly ready?</h2>
+      <div class="mt-5 grid gap-3 md:grid-cols-2">
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]">A real implementation or a clearly scoped stub, with honest descriptions.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]">A build target that includes the module and a reproducible passing build.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]">Tests for nontrivial behavior—not only reflexive “field equals itself” theorems.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]">Traceable dependencies, version pins, security boundaries and runtime evidence.</p>
+      </div>
+    </section>
+
+    <div class="mt-12 flex flex-wrap gap-3"><a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)]" href="/repositories">Inspect build inputs →</a><a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-5 py-3 font-semibold" href="/proof-model">Read assurance limits</a></div>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10"><a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a></div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Keep ZIP and tar.gz archives locally, inspect and filter files, make LLM-ready summaries, and share only selected files using file-type profiles.">
+  <title>Private archives & file profiles — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.js"></script>
+  <style>
+    .file-row[hidden] {
+      display: none;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--color-line-strong);
+    }
+
+    .drop-zone.is-over {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+    }
+
+    .type-chip {
+      border: 1px solid var(--color-line);
+      background: var(--color-bg);
+    }
+
+    .type-chip[data-active="true"] {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+      color: var(--color-primary);
+    }
+
+    .private-badge {
+      border: 1px solid var(--color-line-strong);
+      background: var(--color-bg);
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · private archive desk</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">My workspace</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union table</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/archive" aria-current="page">Archive desk</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-6 lg:px-10">
+    <section class="grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">ZIP · TGZ · TAR.GZ · local-first</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">Private archives, carefully shared.</h1>
+        <p class="mt-5 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Open compressed archives in your browser, find files by name or type, and prepare an LLM-ready summary. Private files stay in this browser. Choose a file profile and explicitly publish only the items you select.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">Private means local to this browser</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Archives are saved in this browser’s IndexedDB, not uploaded. Shared packages contain the files you choose and are readable by anyone who receives the package or link. Avoid secrets and personal data. Browser storage is not a backup—download anything important.</p>
+      </aside>
+    </section>
+
+    <section class="mt-8 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+      <article class="h-fit rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">1 · Add a private archive</p>
+        <h2 class="display-font mt-2 text-2xl font-semibold">Upload ZIP or tar.gz</h2>
+        <label id="drop-zone" for="archive-input" class="drop-zone mt-5 grid min-h-44 cursor-pointer place-items-center rounded-[var(--radius)] p-6 text-center transition">
+          <span>
+            <span class="mx-auto grid h-12 w-12 place-items-center rounded-[var(--radius)] bg-[var(--color-overlay-soft)] text-2xl text-[var(--color-primary)]" aria-hidden="true">＋</span>
+            <span class="mt-3 block font-semibold">Choose an archive or drop it here</span>
+            <span class="mt-1 block text-xs leading-5 text-[var(--color-muted)]">.zip · .tgz · .tar.gz</span>
+          </span>
+        </label>
+        <input id="archive-input" type="file" accept=".zip,.tgz,.tar.gz,application/zip,application/gzip" class="sr-only">
+        <p id="upload-status" class="mt-4 text-sm text-[var(--color-muted)]" role="status" aria-live="polite">Archive contents are extracted locally in your browser.</p>
+        <div class="mt-6 border-t border-[var(--color-line)] pt-5">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="font-semibold">Private archive shelf</h3>
+            <button id="refresh-archives" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Refresh</button>
+          </div>
+          <ul id="archive-list" class="mt-3 space-y-2" aria-label="Saved private archives"></ul>
+          <p id="archive-empty" class="mt-3 text-sm text-[var(--color-muted)]">No archives saved in this browser yet.</p>
+        </div>
+      </article>
+
+      <section class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="contents-heading">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">2 · Inspect & filter</p>
+            <h2 id="contents-heading" class="display-font mt-2 text-2xl font-semibold">Archive contents</h2>
+            <p id="active-archive-summary" class="mt-2 text-sm text-[var(--color-muted)]">Choose an archive from your shelf.</p>
+          </div>
+          <span class="private-badge rounded-full px-3 py-1.5 text-xs font-semibold">Private · local only</span>
+        </div>
+        <div class="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+          <label class="text-sm font-medium" for="file-search">Filter by file name
+            <input id="file-search" type="search" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Search paths…">
+          </label>
+          <label class="text-sm font-medium" for="type-filter">File type
+            <select id="type-filter" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]">
+              <option value="all">All types</option>
+            </select>
+          </label>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="select-visible" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Select visible for publishing</button>
+          <button id="clear-selection" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Clear selection</button>
+        </div>
+        <p id="file-count" class="mt-3 text-xs text-[var(--color-muted)]" aria-live="polite">No files loaded.</p>
+        <ul id="file-list" class="mt-3 max-h-[34rem] space-y-2 overflow-auto" aria-label="Files in active archive"></ul>
+        <p id="files-empty" class="mt-3 rounded-[var(--radius)] border border-dashed border-[var(--color-line-strong)] p-4 text-sm text-[var(--color-muted)]">Choose or upload a private archive to browse its files.</p>
+      </section>
+    </section>
+
+    <section class="mt-6 grid gap-5 lg:grid-cols-2">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">3 · Match files to profiles</p>
+        <h2 class="display-font mt-2 text-2xl font-semibold">Publishing profiles</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">A profile is a local rule for which extensions to select; it does not publish by itself. Review the selection before building a public package.</p>
+        <label for="profile-select" class="mt-4 block text-sm font-medium">Choose a file-type profile</label>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <select id="profile-select" class="focus-ring min-w-48 flex-1 rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]"></select>
+          <button id="apply-profile" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Select matching files</button>
+        </div>
+        <p id="profile-description" class="mt-3 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs leading-5 text-[var(--color-muted)]"></p>
+        <details class="mt-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <summary class="focus-ring cursor-pointer rounded-[var(--radius)] text-sm font-semibold text-[var(--color-primary)]">Create a custom profile</summary>
+          <form id="profile-form" class="mt-4 space-y-3">
+            <label class="block text-sm font-medium" for="profile-name">Profile name
+              <input id="profile-name" required maxlength="60" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="For example, public documentation">
+            </label>
+            <label class="block text-sm font-medium" for="profile-extensions">File extensions, comma-separated
+              <input id="profile-extensions" required maxlength="500" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder=".md, .txt, .png">
+            </label>
+            <button type="submit" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Save profile on this device</button>
+          </form>
+        </details>
+        <p id="profile-status" class="mt-3 text-xs text-[var(--color-muted)]" aria-live="polite">Profiles are saved in this browser.</p>
+      </article>
+
+      <article class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">4 · Make an explicit public copy</p>
+        <h2 class="display-font mt-2 text-2xl font-semibold">Selected files & sharing</h2>
+        <p id="selection-summary" class="mt-2 text-sm leading-6 text-[var(--color-muted)]">No files selected. Select individual files or use a profile first.</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="create-summary" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Create LLM summary</button>
+          <button id="download-summary" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Download llm.txt</button>
+          <button id="copy-summary" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Copy summary</button>
+        </div>
+        <label for="summary-output" class="mt-4 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">LLM-ready summary · generated from names, sizes and readable text</label>
+        <textarea id="summary-output" rows="9" readonly class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-3 py-3 font-mono text-xs leading-5 text-[var(--color-text)]" placeholder="Create a summary to preview it here."></textarea>
+        <div class="mt-5 border-t border-[var(--color-line)] pt-4">
+          <label class="flex items-start gap-3 text-sm leading-6">
+            <input id="confirm-public" type="checkbox" class="mt-1 h-4 w-4 accent-[var(--color-primary)]">
+            <span>I reviewed the selected files and understand that the public package contains their contents.</span>
+          </label>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button id="make-public-package" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Prepare selected public files</button>
+            <button id="download-public-package" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Download public package JSON</button>
+            <button id="copy-public-link" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Create share link</button>
+          </div>
+          <div class="mt-5 border-t border-[var(--color-line)] pt-4">
+            <p class="text-sm font-semibold">Attach selected files to your public profile link</p>
+            <p class="mt-1 text-xs leading-5 text-[var(--color-muted)]">After preparing a reviewed public package, stage its selected files on this device. Then open profile sharing and create an invitation link. Attachments are embedded in the link, so only small files fit reliably.</p>
+            <button id="attach-to-profile" type="button" class="focus-ring mt-3 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Stage selected files for profile sharing</button>
+            <a class="focus-ring ml-2 mt-3 inline-flex rounded-[var(--radius)] text-sm font-semibold text-[var(--color-primary)] underline" href="/seats/share">Open profile sharing →</a>
+          </div>
+          <p id="sharing-status" class="mt-3 text-sm text-[var(--color-muted)]" role="status" aria-live="polite">No files have been published. Private archives are never included unless you select files and confirm.</p>
+          <label for="share-link-output" class="mt-4 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Portable public package link</label>
+          <textarea id="share-link-output" rows="3" readonly class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="A share link appears here when the package is small enough."></textarea>
+          <div id="incoming-package" class="mt-4 hidden rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] p-4">
+            <h3 class="font-semibold">Shared public package received</h3>
+            <p id="incoming-summary" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+            <button id="import-public-package" type="button" class="focus-ring mt-3 rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Save received files as a new private archive</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="mt-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="display-font text-xl font-semibold">How private-to-public copying works</h2>
+          <p class="mt-2 max-w-4xl text-sm leading-6 text-[var(--color-muted)]">Uploading creates a private, browser-local archive. Type profiles help select matching file names; you can refine that selection manually. Preparing a public package copies only checked files, and the checkbox confirmation is required. Small packages can be shared in a URL; larger packages should be shared using the downloaded JSON file. Anyone with either copy can read its contents.</p>
+        </div>
+        <button id="delete-active-archive" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Delete active private archive</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Lean-Workers Union Lodge House</a>
+      <span>Browser-local archive desk · no uploads or background sync</span>
+    </div>
+  </footer>
+
+  <script>
+    const DB_NAME = "lodge-private-archive-desk-v1";
+    const DB_VERSION = 2;
+    const STORE = "archives";
+    const PROFILE_STORE = "profiles";
+    const MAX_FILES = 3000;
+    const MAX_UNPACKED_BYTES = 200 * 1024 * 1024;
+    const LINK_LIMIT = 12000;
+    const DEFAULT_PROFILES = [{
+        id: "docs",
+        name: "Documentation",
+        extensions: [".md", ".txt", ".rst", ".adoc"]
+      },
+      {
+        id: "source",
+        name: "Source code",
+        extensions: [".lean", ".rs", ".js", ".ts", ".py", ".html", ".css", ".sh", ".nix"]
+      },
+      {
+        id: "images",
+        name: "Images",
+        extensions: [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]
+      },
+      {
+        id: "data",
+        name: "Data & records",
+        extensions: [".json", ".csv", ".xml", ".yaml", ".yml", ".toml"]
+      },
+      {
+        id: "all-public",
+        name: "All files (review carefully)",
+        extensions: ["*"]
+      }
+    ];
+    const TEXT_EXTENSIONS = new Set([".txt", ".md", ".rst", ".adoc", ".lean", ".rs", ".js", ".ts", ".py", ".html", ".css", ".sh", ".nix", ".json", ".csv", ".xml", ".yaml", ".yml", ".toml", ".log", ".sql", ".lock", ".diff", ".patch", ".tex", ".ini", ".conf", ".gitignore"]);
+    let db;
+    let activeArchiveId = null;
+    let activeArchive = null;
+    let selectedPaths = new Set();
+    let receivedPackage = null;
+    let summaryText = "";
+
+    const el = (id) => document.getElementById(id);
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          if (!database.objectStoreNames.contains(STORE)) database.createObjectStore(STORE, {
+            keyPath: "id"
+          });
+          if (!database.objectStoreNames.contains(PROFILE_STORE)) database.createObjectStore(PROFILE_STORE, {
+            keyPath: "id"
+          });
+          if (!database.objectStoreNames.contains("profileDocuments")) database.createObjectStore("profileDocuments", {
+            keyPath: "id"
+          });
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("Browser archive storage could not be opened."));
+      });
+    }
+
+    function requestResult(request) {
+      return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("Browser storage request failed."));
+      });
+    }
+
+    async function getAll(storeName) {
+      return requestResult(db.transaction(storeName, "readonly").objectStore(storeName).getAll());
+    }
+
+    async function putRecord(storeName, value) {
+      return requestResult(db.transaction(storeName, "readwrite").objectStore(storeName).put(value));
+    }
+
+    async function deleteRecord(storeName, key) {
+      return requestResult(db.transaction(storeName, "readwrite").objectStore(storeName).delete(key));
+    }
+
+    function makeId() {
+      return globalThis.crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function extensionOf(path) {
+      const name = path.split("/").pop() || "";
+      const dot = name.lastIndexOf(".");
+      return dot > 0 ? name.slice(dot).toLowerCase() : "(no extension)";
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    function getBytes(value) {
+      return value instanceof Uint8Array ? value : new Uint8Array(value || []);
+    }
+
+    function parseTar(bytes) {
+      const entries = [];
+      let offset = 0;
+      let totalBytes = 0;
+      while (offset + 512 <= bytes.length) {
+        const header = bytes.subarray(offset, offset + 512);
+        if (header.every((byte) => byte === 0)) break;
+        const readString = (start, length) => new TextDecoder().decode(header.subarray(start, start + length)).replace(/\0.*$/s, "").trim();
+        const rawName = readString(0, 100);
+        const prefix = readString(345, 155);
+        const path = (prefix ? `${prefix}/` : "") + rawName;
+        const sizeText = readString(124, 12).replace(/\0/g, "").trim();
+        const size = sizeText ? Number.parseInt(sizeText, 8) : 0;
+        const type = readString(156, 1);
+        if (!Number.isFinite(size) || size < 0) throw new Error(`Invalid tar entry size for ${path || "unnamed entry"}.`);
+        const contentStart = offset + 512;
+        const contentEnd = contentStart + size;
+        if (contentEnd > bytes.length) throw new Error(`Archive ended while reading ${path || "unnamed entry"}.`);
+        if (path && !path.endsWith("/") && (!type || type === "0" || type === "7")) {
+          totalBytes += size;
+          if (entries.length >= MAX_FILES) throw new Error(`Archive has more than ${MAX_FILES.toLocaleString()} files.`);
+          if (totalBytes > MAX_UNPACKED_BYTES) throw new Error("Expanded archive exceeds the 200 MB safety limit.");
+          entries.push({
+            path,
+            size,
+            bytes: bytes.slice(contentStart, contentEnd)
+          });
+        }
+        offset = contentStart + Math.ceil(size / 512) * 512;
+      }
+      return entries;
+    }
+
+    async function readArchive(file) {
+      const input = new Uint8Array(await file.arrayBuffer());
+      const lowerName = file.name.toLowerCase();
+      let entries;
+      if (lowerName.endsWith(".zip")) {
+        if (!window.JSZip) throw new Error("ZIP reader did not load. Check your connection and try again.");
+        const zip = await JSZip.loadAsync(input, {
+          checkCRC32: true
+        });
+        const paths = Object.values(zip.files).filter((entry) => !entry.dir);
+        if (paths.length > MAX_FILES) throw new Error(`Archive has more than ${MAX_FILES.toLocaleString()} files.`);
+        entries = [];
+        let total = 0;
+        for (const entry of paths) {
+          const bytes = await entry.async("uint8array");
+          total += bytes.byteLength;
+          if (total > MAX_UNPACKED_BYTES) throw new Error("Expanded archive exceeds the 200 MB safety limit.");
+          entries.push({
+            path: entry.name,
+            size: bytes.byteLength,
+            bytes
+          });
+        }
+      } else if (lowerName.endsWith(".tgz") || lowerName.endsWith(".tar.gz")) {
+        if (!window.fflate) throw new Error("Gzip reader did not load. Check your connection and try again.");
+        let tarBytes;
+        try {
+          tarBytes = fflate.gunzipSync(input);
+        } catch (error) {
+          throw new Error("Could not decompress this gzip archive. Check that it is a valid .tgz or .tar.gz file.");
+        }
+        if (tarBytes.byteLength > MAX_UNPACKED_BYTES) throw new Error("Expanded archive exceeds the 200 MB safety limit.");
+        entries = parseTar(tarBytes);
+      } else {
+        throw new Error("Choose a .zip, .tgz, or .tar.gz archive.");
+      }
+      return entries;
+    }
+
+    async function uploadArchive(file) {
+      el("upload-status").textContent = `Reading ${file.name} locally…`;
+      try {
+        const files = await readArchive(file);
+        if (!files.length) throw new Error("No regular files were found in this archive.");
+        const record = {
+          id: makeId(),
+          name: file.name,
+          createdAt: new Date().toISOString(),
+          files
+        };
+        await putRecord(STORE, record);
+        activeArchiveId = record.id;
+        activeArchive = record;
+        selectedPaths.clear();
+        el("upload-status").textContent = `${file.name} saved privately in this browser · ${files.length} files · ${formatBytes(files.reduce((sum, item) => sum + item.size, 0))}.`;
+        await renderAll();
+      } catch (error) {
+        el("upload-status").textContent = `Could not open archive: ${error.message}`;
+      }
+    }
+
+    async function renderShelf() {
+      const archives = (await getAll(STORE)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const list = el("archive-list");
+      list.replaceChildren();
+      el("archive-empty").classList.toggle("hidden", archives.length > 0);
+      for (const archive of archives) {
+        const item = document.createElement("li");
+        item.className = "flex items-center justify-between gap-3 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3";
+        const info = document.createElement("div");
+        info.className = "min-w-0";
+        const title = document.createElement("p");
+        title.className = "break-all text-sm font-semibold";
+        title.textContent = archive.name;
+        const detail = document.createElement("p");
+        detail.className = "mt-1 text-xs text-[var(--color-muted)]";
+        detail.textContent = `${archive.files.length} files · ${formatBytes(archive.files.reduce((sum, file) => sum + file.size, 0))}`;
+        info.append(title, detail);
+        const open = document.createElement("button");
+        open.type = "button";
+        open.className = "focus-ring shrink-0 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold";
+        open.textContent = archive.id === activeArchiveId ? "Active" : "Open";
+        open.disabled = archive.id === activeArchiveId;
+        open.classList.toggle("opacity-50", open.disabled);
+        open.addEventListener("click", async () => {
+          activeArchiveId = archive.id;
+          activeArchive = archive;
+          selectedPaths.clear();
+          summaryText = "";
+          el("summary-output").value = "";
+          await renderAll();
+        });
+        item.append(info, open);
+        list.appendChild(item);
+      }
+    }
+
+    function getSelectedProfile(profiles) {
+      return profiles.find((profile) => profile.id === el("profile-select").value) || profiles[0];
+    }
+
+    async function renderProfiles() {
+      const stored = await getAll(PROFILE_STORE);
+      const profiles = [...DEFAULT_PROFILES, ...stored];
+      const select = el("profile-select");
+      const previous = select.value;
+      select.replaceChildren();
+      profiles.forEach((profile) => select.add(new Option(profile.name, profile.id)));
+      if (profiles.some((profile) => profile.id === previous)) select.value = previous;
+      updateProfileDescription(profiles);
+      return profiles;
+    }
+
+    function updateProfileDescription(profiles) {
+      const profile = getSelectedProfile(profiles);
+      el("profile-description").textContent = profile ? `${profile.name} matches ${profile.extensions.includes("*") ? "all file extensions" : profile.extensions.join(", ")}. Applying it changes which files are checked; it does not publish anything.` : "Create a profile to define matching extensions.";
+    }
+
+    function applyFilters() {
+      const query = el("file-search").value.trim().toLowerCase();
+      const extension = el("type-filter").value;
+      let visible = 0;
+      document.querySelectorAll(".file-row").forEach((row) => {
+        const path = row.dataset.path.toLowerCase();
+        const matches = (!query || path.includes(query)) && (extension === "all" || row.dataset.extension === extension);
+        row.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      const total = activeArchive?.files.length || 0;
+      el("file-count").textContent = `${visible} visible of ${total} files · ${selectedPaths.size} selected for a public copy`;
+      el("files-empty").classList.toggle("hidden", total > 0 && visible > 0);
+      if (!total) el("files-empty").classList.remove("hidden");
+      updateSelectionSummary();
+    }
+
+    function updateSelectionSummary() {
+      const files = activeArchive?.files.filter((file) => selectedPaths.has(file.path)) || [];
+      const total = files.reduce((sum, file) => sum + file.size, 0);
+      el("selection-summary").textContent = files.length ?
+        `${files.length} selected file${files.length === 1 ? "" : "s"} · ${formatBytes(total)}. Only these selected items can be copied into a public package.` :
+        "No files selected. Select individual files or use a profile first.";
+      el("file-count").textContent = `${document.querySelectorAll(".file-row:not([hidden])").length} visible of ${activeArchive?.files.length || 0} files · ${selectedPaths.size} selected for a public copy`;
+    }
+
+    async function renderFiles() {
+      const list = el("file-list");
+      list.replaceChildren();
+      const files = activeArchive?.files || [];
+      const extensions = [...new Set(files.map((file) => extensionOf(file.path)))].sort();
+      const typeFilter = el("type-filter");
+      const previousType = typeFilter.value;
+      typeFilter.replaceChildren(new Option("All types", "all"));
+      extensions.forEach((extension) => typeFilter.add(new Option(extension, extension)));
+      if (extensions.includes(previousType)) typeFilter.value = previousType;
+      el("active-archive-summary").textContent = activeArchive ?
+        `${activeArchive.name} · ${files.length} files · ${formatBytes(files.reduce((sum, file) => sum + file.size, 0))}` :
+        "Choose an archive from your shelf.";
+      el("files-empty").classList.toggle("hidden", files.length > 0);
+
+      for (const file of files) {
+        const row = document.createElement("li");
+        row.className = "file-row rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3";
+        row.dataset.path = file.path;
+        row.dataset.extension = extensionOf(file.path);
+        const wrap = document.createElement("div");
+        wrap.className = "flex items-start gap-3";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = selectedPaths.has(file.path);
+        checkbox.className = "mt-1 h-4 w-4 shrink-0 accent-[var(--color-primary)]";
+        checkbox.setAttribute("aria-label", `Select ${file.path} for public package`);
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) selectedPaths.add(file.path);
+          else selectedPaths.delete(file.path);
+          updateSelectionSummary();
+        });
+        const details = document.createElement("div");
+        details.className = "min-w-0 flex-1";
+        const path = document.createElement("p");
+        path.className = "break-all text-sm font-medium";
+        path.textContent = file.path;
+        const meta = document.createElement("p");
+        meta.className = "mt-1 text-xs text-[var(--color-muted)]";
+        meta.textContent = `${extensionOf(file.path)} · ${formatBytes(file.size)}`;
+        details.append(path, meta);
+        const previewButton = document.createElement("button");
+        previewButton.type = "button";
+        previewButton.className = "focus-ring shrink-0 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-1.5 text-xs font-semibold";
+        previewButton.textContent = "Preview";
+        previewButton.addEventListener("click", () => previewFile(file));
+        wrap.append(checkbox, details, previewButton);
+        row.appendChild(wrap);
+        list.appendChild(row);
+      }
+      applyFilters();
+    }
+
+    function previewFile(file) {
+      const ext = extensionOf(file.path);
+      if (!TEXT_EXTENSIONS.has(ext) || file.size > 1024 * 1024) {
+        el("sharing-status").textContent = `${file.path} is not a small recognized text file. Its name and size are visible; its binary contents are not previewed.`;
+        return;
+      }
+      const text = new TextDecoder("utf-8", {
+        fatal: false
+      }).decode(getBytes(file.bytes));
+      const preview = text.length > 6000 ? `${text.slice(0, 6000)}\n\n[Preview truncated]` : text;
+      el("summary-output").value = `FILE PREVIEW: ${file.path}\n\n${preview}`;
+      el("sharing-status").textContent = "Text preview shown in the summary box. Previewing does not publish or change the file.";
+      el("summary-output").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+
+    function base64(bytes) {
+      let binary = "";
+      const chunkSize = 0x8000;
+      for (let index = 0; index < bytes.length; index += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    function fromBase64(value) {
+      const binary = atob(value);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      return bytes;
+    }
+
+    async function buildSummary() {
+      if (!activeArchive) {
+        el("sharing-status").textContent = "Open a private archive before creating its summary.";
+        return;
+      }
+      const selected = activeArchive.files.filter((file) => selectedPaths.has(file.path));
+      const sourceFiles = selected.length ? selected : activeArchive.files;
+      const lines = [
+        "# Archive file summary",
+        "",
+        `Archive: ${activeArchive.name}`,
+        `Generated: ${new Date().toISOString()}`,
+        `Scope: ${selected.length ? "Selected files only" : "Private archive inventory; no file contents included"}`,
+        "",
+        "This is a locally generated LLM-ready inventory, not an AI-generated interpretation or security review.",
+        "",
+        "## Files",
+        ...sourceFiles.map((file) => `- ${file.path} — ${extensionOf(file.path)}, ${formatBytes(file.size)}`),
+        "",
+        "## Readable text excerpts",
+        "Text is included only for recognized text extensions, limited to 2,000 characters per file and 20 files. Binary file contents are excluded."
+      ];
+      let excerptCount = 0;
+      for (const file of sourceFiles) {
+        if (excerptCount >= 20) break;
+        if (!TEXT_EXTENSIONS.has(extensionOf(file.path)) || file.size > 100000) continue;
+        const text = new TextDecoder("utf-8", {
+          fatal: false
+        }).decode(getBytes(file.bytes)).replace(/\0/g, "").trim();
+        if (!text) continue;
+        lines.push("", `### ${file.path}`, "```", text.slice(0, 2000), text.length > 2000 ? "[Excerpt truncated]" : "", "```");
+        excerptCount += 1;
+      }
+      summaryText = lines.join("\n");
+      el("summary-output").value = summaryText;
+      el("sharing-status").textContent = selected.length ?
+        `Summary created from ${selected.length} selected file${selected.length === 1 ? "" : "s"}. Review excerpts before sharing.` :
+        `Private inventory summary created from all ${sourceFiles.length} files. No files were selected for publication.`;
+    }
+
+    function publicPayload() {
+      if (!activeArchive) throw new Error("Open a private archive first.");
+      if (!el("confirm-public").checked) throw new Error("Please review the public-sharing confirmation before preparing files.");
+      const files = activeArchive.files.filter((file) => selectedPaths.has(file.path));
+      if (!files.length) throw new Error("Select at least one file for the public package.");
+      return {
+        formatVersion: 1,
+        kind: "lodge-public-archive",
+        createdAt: new Date().toISOString(),
+        sourceArchiveName: activeArchive.name,
+        profile: el("profile-select").selectedOptions[0]?.textContent || "Manual selection",
+        files: files.map((file) => ({
+          path: file.path,
+          size: file.size,
+          data: base64(getBytes(file.bytes))
+        }))
+      };
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const url = URL.createObjectURL(new Blob([content], {
+        type: mimeType
+      }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function renderAll() {
+      await renderShelf();
+      const profiles = await renderProfiles();
+      updateProfileDescription(profiles);
+      await renderFiles();
+    }
+
+    el("archive-input").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (file) await uploadArchive(file);
+      event.target.value = "";
+    });
+
+    const dropZone = el("drop-zone");
+    ["dragenter", "dragover"].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.add("is-over");
+    }));
+    ["dragleave", "drop"].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.remove("is-over");
+    }));
+    dropZone.addEventListener("drop", async (event) => {
+      const file = [...(event.dataTransfer?.files || [])][0];
+      if (file) await uploadArchive(file);
+    });
+
+    el("refresh-archives").addEventListener("click", renderAll);
+    el("file-search").addEventListener("input", applyFilters);
+    el("type-filter").addEventListener("change", applyFilters);
+    el("select-visible").addEventListener("click", () => {
+      document.querySelectorAll(".file-row:not([hidden])").forEach((row) => selectedPaths.add(row.dataset.path));
+      document.querySelectorAll(".file-row:not([hidden]) input[type=checkbox]").forEach((checkbox) => checkbox.checked = true);
+      updateSelectionSummary();
+    });
+    el("clear-selection").addEventListener("click", () => {
+      selectedPaths.clear();
+      document.querySelectorAll(".file-row input[type=checkbox]").forEach((checkbox) => checkbox.checked = false);
+      updateSelectionSummary();
+    });
+
+    el("profile-select").addEventListener("change", async () => updateProfileDescription(await renderProfiles()));
+    el("apply-profile").addEventListener("click", async () => {
+      if (!activeArchive) {
+        el("profile-status").textContent = "Open an archive before matching a profile.";
+        return;
+      }
+      const profiles = [...DEFAULT_PROFILES, ...(await getAll(PROFILE_STORE))];
+      const profile = getSelectedProfile(profiles);
+      if (!profile) return;
+      const extensions = new Set(profile.extensions);
+      selectedPaths = new Set(activeArchive.files.filter((file) => extensions.has("*") || extensions.has(extensionOf(file.path))).map((file) => file.path));
+      document.querySelectorAll(".file-row").forEach((row) => {
+        row.querySelector("input[type=checkbox]").checked = selectedPaths.has(row.dataset.path);
+      });
+      updateSelectionSummary();
+      el("profile-status").textContent = `Selected ${selectedPaths.size} file${selectedPaths.size === 1 ? "" : "s"} matching ${profile.name}. Review the files before publishing.`;
+    });
+
+    el("profile-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = el("profile-name").value.trim().slice(0, 60);
+      const extensions = [...new Set(el("profile-extensions").value.split(",").map((value) => {
+        const cleaned = value.trim().toLowerCase();
+        if (!cleaned) return "";
+        return cleaned === "*" ? "*" : cleaned.startsWith(".") ? cleaned : `.${cleaned}`;
+      }).filter((value) => value === "*" || /^\.[a-z0-9][a-z0-9._+-]*$/.test(value)))];
+      if (!name || !extensions.length) {
+        el("profile-status").textContent = "Enter a profile name and one or more valid extensions, such as .md, .png.";
+        return;
+      }
+      const profiles = await getAll(PROFILE_STORE);
+      const existing = profiles.find((profile) => profile.name.toLowerCase() === name.toLowerCase());
+      const profile = {
+        id: existing?.id || makeId(),
+        name,
+        extensions,
+        createdAt: existing?.createdAt || new Date().toISOString()
+      };
+      await putRecord(PROFILE_STORE, profile);
+      form.reset();
+      await renderAll();
+      el("profile-select").value = profile.id;
+      updateProfileDescription([...DEFAULT_PROFILES, ...(await getAll(PROFILE_STORE))]);
+      el("profile-status").textContent = `Profile “${name}” saved in this browser.`;
+    });
+
+    el("create-summary").addEventListener("click", buildSummary);
+    el("download-summary").addEventListener("click", async () => {
+      if (!summaryText) await buildSummary();
+      if (summaryText) downloadFile("llm.txt", summaryText, "text/plain;charset=utf-8");
+    });
+    el("copy-summary").addEventListener("click", async () => {
+      if (!summaryText) await buildSummary();
+      if (!summaryText) return;
+      try {
+        await navigator.clipboard.writeText(summaryText);
+        el("sharing-status").textContent = "LLM-ready summary copied. Review it before sharing.";
+      } catch (error) {
+        el("summary-output").focus();
+        el("summary-output").select();
+        el("sharing-status").textContent = "Clipboard is unavailable. The summary is selected for manual copying.";
+      }
+    });
+
+    el("make-public-package").addEventListener("click", () => {
+      try {
+        const payload = publicPayload();
+        receivedPackage = payload;
+        el("sharing-status").textContent = `Public package prepared with ${payload.files.length} selected file${payload.files.length === 1 ? "" : "s"}. It is a separate copy; your private archive is unchanged.`;
+      } catch (error) {
+        el("sharing-status").textContent = error.message;
+      }
+    });
+
+    el("attach-to-profile").addEventListener("click", () => {
+      try {
+        const payload = publicPayload();
+        const serialized = JSON.stringify({
+          formatVersion: 1,
+          sourceArchiveName: payload.sourceArchiveName,
+          files: payload.files
+        });
+        const size = new TextEncoder().encode(serialized).byteLength;
+        if (size > 60000) {
+          throw new Error(`The selected files total ${formatBytes(size)} before link encoding. Profile links are limited to small attachments; select fewer or smaller files, or use the public package JSON download instead.`);
+        }
+        localStorage.setItem("lodge-profile-share-attachments-v1", serialized);
+        el("sharing-status").textContent = `${payload.files.length} selected file${payload.files.length === 1 ? "" : "s"} staged on this device (${formatBytes(size)}). Open profile sharing to create a link that includes them.`;
+      } catch (error) {
+        el("sharing-status").textContent = error.message;
+      }
+    });
+
+    el("download-public-package").addEventListener("click", () => {
+      try {
+        const payload = publicPayload();
+        receivedPackage = payload;
+        downloadFile("lodge-public-archive.json", JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+        el("sharing-status").textContent = `Downloaded a public package containing ${payload.files.length} selected files. The private archive was not changed.`;
+      } catch (error) {
+        el("sharing-status").textContent = error.message;
+      }
+    });
+
+    el("copy-public-link").addEventListener("click", async () => {
+      try {
+        const payload = publicPayload();
+        const encoded = base64(new TextEncoder().encode(JSON.stringify(payload))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+        const current = new URL(window.location.href);
+        if (!/^https?:$/.test(current.protocol) || current.origin === "null") {
+          throw new Error("This preview has no shareable web address. Download the public package JSON, or create the link after opening the published archive page.");
+        }
+        const url = new URL("/archive", current.origin);
+        url.hash = `package=${encoded}`;
+        if (url.href.length > LINK_LIMIT) {
+          el("share-link-output").value = "";
+          throw new Error(`This package link would be ${url.href.length.toLocaleString()} characters, too large to share reliably. Download the public package JSON instead.`);
+        }
+        el("share-link-output").value = url.href;
+        try {
+          await navigator.clipboard.writeText(url.href);
+          el("sharing-status").textContent = `A share link with ${payload.files.length} selected file${payload.files.length === 1 ? "" : "s"} was created and copied. Anyone with it can read those files.`;
+        } catch (error) {
+          el("share-link-output").focus();
+          el("share-link-output").select();
+          el("sharing-status").textContent = "Share link is ready and selected for manual copying. It contains the chosen files.";
+        }
+      } catch (error) {
+        el("sharing-status").textContent = error.message;
+      }
+    });
+
+    el("delete-active-archive").addEventListener("click", async () => {
+      if (!activeArchive) {
+        el("upload-status").textContent = "Choose an archive before deleting it.";
+        return;
+      }
+      if (!window.confirm(`Delete “${activeArchive.name}” from this browser? This does not delete your original uploaded file.`)) return;
+      await deleteRecord(STORE, activeArchive.id);
+      activeArchiveId = null;
+      activeArchive = null;
+      selectedPaths.clear();
+      summaryText = "";
+      el("summary-output").value = "";
+      el("upload-status").textContent = "Active private archive deleted from this browser. Your original file is unchanged.";
+      await renderAll();
+    });
+
+    function validateSharedPackage(payload) {
+      if (!payload || payload.formatVersion !== 1 || payload.kind !== "lodge-public-archive" || !Array.isArray(payload.files) || payload.files.length > MAX_FILES) {
+        throw new Error("This does not look like a supported public archive package.");
+      }
+      let total = 0;
+      const paths = new Set();
+      const files = payload.files.map((file) => {
+        if (!file || typeof file.path !== "string" || typeof file.data !== "string") throw new Error("A shared file is missing its path or contents.");
+        const path = file.path.replace(/^\/+/, "").slice(0, 1000);
+        if (!path || path.split("/").includes("..") || paths.has(path)) throw new Error("The package has an invalid or duplicate file path.");
+        paths.add(path);
+        const bytes = fromBase64(file.data);
+        total += bytes.byteLength;
+        if (total > MAX_UNPACKED_BYTES) throw new Error("Shared package exceeds the 200 MB safety limit.");
+        return {
+          path,
+          size: bytes.byteLength,
+          bytes
+        };
+      });
+      if (!files.length) throw new Error("The shared package contains no files.");
+      return {
+        id: makeId(),
+        name: `Shared · ${String(payload.sourceArchiveName || "selected files").slice(0, 160)}`,
+        createdAt: new Date().toISOString(),
+        files
+      };
+    }
+
+    el("import-public-package").addEventListener("click", async () => {
+      if (!receivedPackage) return;
+      try {
+        const record = validateSharedPackage(receivedPackage);
+        await putRecord(STORE, record);
+        activeArchiveId = record.id;
+        activeArchive = record;
+        selectedPaths.clear();
+        el("incoming-package").classList.add("hidden");
+        el("upload-status").textContent = `Received ${record.files.length} files and saved them as a new private archive in this browser.`;
+        await renderAll();
+      } catch (error) {
+        el("sharing-status").textContent = `Could not import package: ${error.message}`;
+      }
+    });
+
+    async function readIncomingPackage() {
+      const encoded = new URLSearchParams(window.location.hash.slice(1)).get("package");
+      if (!encoded) return;
+      try {
+        if (encoded.length > 20000000) throw new Error("Shared package is too large to open as a URL. Ask for the JSON package file instead.");
+        const payload = JSON.parse(new TextDecoder().decode(fromBase64(encoded.replace(/-/g, "+").replace(/_/g, "/"))));
+        receivedPackage = payload;
+        const checked = validateSharedPackage(payload);
+        el("incoming-summary").textContent = `${checked.files.length} file${checked.files.length === 1 ? "" : "s"} · ${formatBytes(checked.files.reduce((sum, file) => sum + file.size, 0))} · source label: ${String(payload.sourceArchiveName || "not provided").slice(0, 160)}. Review and save this shared copy as a new private archive; it will not replace your existing archives.`;
+        el("incoming-package").classList.remove("hidden");
+        el("sharing-status").textContent = "A share package is ready for review. Nothing is saved until you choose to import it.";
+      } catch (error) {
+        el("sharing-status").textContent = `Could not read the shared package: ${error.message}`;
+      }
+    }
+
+    async function initialize() {
+      try {
+        if (!("indexedDB" in window)) throw new Error("This browser does not support local archive storage.");
+        db = await openDatabase();
+        await readIncomingPackage();
+        await renderAll();
+      } catch (error) {
+        el("upload-status").textContent = `Archive desk unavailable: ${error.message}`;
+      }
+    }
+
+    initialize();
+
+  </script>
+</body>
+
+</html>

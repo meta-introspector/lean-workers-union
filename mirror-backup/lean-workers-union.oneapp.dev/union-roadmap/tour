@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive audio tour of the browser-only Union registry: registration, URL and cookie state, and sneakernet import/export.">
+  <title>Interactive registry tour — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .sequence-line {
+      stroke: var(--color-line-strong);
+      stroke-width: 2;
+      stroke-dasharray: 7 7;
+    }
+
+    .sequence-arrow {
+      stroke: var(--color-primary);
+      stroke-width: 2.5;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+
+    .sequence-arrow.is-active {
+      stroke-width: 4;
+      filter: drop-shadow(0 0 5px var(--color-glow-primary));
+    }
+
+    .sequence-message {
+      fill: var(--color-text);
+      font: 13px var(--font-body);
+    }
+
+    .sequence-actor {
+      fill: var(--color-surface);
+      stroke: var(--color-line-strong);
+      stroke-width: 1.5;
+    }
+
+    .sequence-actor-label {
+      fill: var(--color-text);
+      font: 12px var(--font-body);
+      text-anchor: middle;
+    }
+
+    .trace-row[aria-current="step"] {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union backlog</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/tours">More tours & playbooks</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/union-roadmap/tour" aria-current="page">Interactive tour</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/union-roadmap">← Back to Union backlog</a>
+
+    <section class="mt-8 grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Audio tour · use cases · live trace</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">Follow a member record from form to shareable state.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Choose a registry use case and your role, follow its practical SOP checklist, then take the audio tour. Use-case events and completed playbook actions appear in the interactive trace; browser speech synthesis can narrate both.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">Scope reminder</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">This tour simulates the page’s local behavior. It does not call a server, create accounts, or validate a live deployment. URL fragments and exported files may disclose roster data to anyone who receives them.</p>
+      </aside>
+    </section>
+
+    <section class="mt-10 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+      <aside class="h-fit rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">1 · Select a use case</p>
+        <label for="use-case" class="mt-4 block text-sm font-medium">Registry scenario</label>
+        <select id="use-case" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]">
+          <option value="register">Register a new member</option>
+          <option value="duplicate">Reject a duplicate member ID</option>
+          <option value="sneakernet">Export and import roster JSON</option>
+          <option value="share">Share and restore URL state</option>
+        </select>
+        <label for="tour-role" class="mt-5 block text-sm font-medium">Choose your role</label>
+        <select id="tour-role" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]">
+          <option value="member">Member</option>
+          <option value="maintainer">Registry maintainer</option>
+          <option value="reviewer">Reviewer</option>
+        </select>
+        <div class="mt-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">Role SOP / playbook</p>
+          <h2 id="playbook-title" class="display-font mt-2 text-lg font-semibold">Member playbook</h2>
+          <p id="playbook-description" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+          <ol id="playbook-steps" class="mt-3 space-y-2" aria-label="Role playbook steps"></ol>
+          <p id="playbook-progress" class="mt-3 text-xs text-[var(--color-muted)]" aria-live="polite">0 steps complete</p>
+        </div>
+        <div class="mt-5 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h2 id="scenario-title" class="display-font text-lg font-semibold">Register a new member</h2>
+          <p id="scenario-description" class="mt-2 text-sm leading-6 text-[var(--color-muted)]">A valid record is normalized, checked for a duplicate ID, added to the in-page roster, then persisted to the URL fragment and cookie when it fits.</p>
+        </div>
+        <label for="tour-member-id" class="mt-5 block text-sm font-medium">Sample member ID</label>
+        <input id="tour-member-id" value="tour-member-01" maxlength="120" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]">
+        <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">This tour uses temporary sample data only; it does not modify the backlog page's registry.</p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <button id="play-tour" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110">Take an audio tour</button>
+          <button id="next-step" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold transition hover:border-[var(--color-primary)]">Next step</button>
+          <button id="reset-tour" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Reset</button>
+        </div>
+        <label class="mt-5 flex items-center gap-3 text-sm text-[var(--color-muted)]">
+          <input id="voice-toggle" type="checkbox" checked class="h-4 w-4 accent-[var(--color-primary)]">
+          Read each trace step aloud
+        </label>
+        <p id="speech-status" class="mt-3 text-xs leading-5 text-[var(--color-muted)]" aria-live="polite">Speech uses your browser’s built-in voice, when available.</p>
+      </aside>
+
+      <section class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4 sm:p-6" aria-labelledby="sequence-heading">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">2 · Sequence diagram</p>
+            <h2 id="sequence-heading" class="display-font mt-2 text-2xl font-semibold">Who talks to whom?</h2>
+          </div>
+          <span id="step-counter" class="rounded-full border border-[var(--color-line-strong)] px-3 py-1.5 text-xs text-[var(--color-muted)]">Ready · 0 steps</span>
+        </div>
+        <div class="mt-5 overflow-x-auto rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3">
+          <svg id="sequence-diagram" viewBox="0 0 900 370" role="img" aria-labelledby="diagram-title diagram-description" class="min-w-[720px] w-full">
+            <title id="diagram-title">Registry use-case sequence diagram</title>
+            <desc id="diagram-description">A sequence diagram showing the user, browser registry, URL fragment, cookie, and JSON file interactions.</desc>
+            <defs>
+              <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 z" fill="var(--color-primary)"></path>
+              </marker>
+            </defs>
+            <g id="diagram-actors"></g>
+            <g id="diagram-lifelines"></g>
+            <g id="diagram-messages"></g>
+          </svg>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-[var(--color-muted)]">The highlighted arrow corresponds to the currently selected trace step. This is an explanatory model, not a network trace.</p>
+      </section>
+    </section>
+
+    <section class="mt-5 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="use-case-heading">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">3 · Use-case model</p>
+        <h2 id="use-case-heading" class="display-font mt-2 text-xl font-semibold">Actors and outcomes</h2>
+        <div id="use-case-model" class="mt-4 space-y-3"></div>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="trace-heading">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">4 · Interactive debug trace</p>
+            <h2 id="trace-heading" class="display-font mt-2 text-xl font-semibold">Step events</h2>
+          </div>
+          <button id="copy-trace" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold transition hover:border-[var(--color-primary)]">Copy trace</button>
+        </div>
+        <p id="trace-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Choose a scenario, then play or step through it.</p>
+        <ol id="trace-list" class="mt-4 max-h-[28rem] space-y-2 overflow-auto" aria-label="Interactive debug events"></ol>
+      </article>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Return to Union backlog</a>
+      <span>Browser speech and illustrative trace · no server calls</span>
+    </div>
+  </footer>
+
+  <script>
+    const actors = ["User", "Page registry", "URL fragment", "Cookie", "JSON file"];
+    const rolePlaybooks = {
+      member: {
+        title: "Member playbook",
+        description: "Register a public record, check what will be shared, and keep a portable copy.",
+        steps: [
+          "Use public identifiers only; leave secrets and personal contact details out.",
+          "Enter the member ID, repository identifier, module, status, and optional capabilities.",
+          "Review the roster after registration and confirm the URL fragment contains only intended data.",
+          "Export roster JSON for offline transfer, or share the link only with intended recipients."
+        ]
+      },
+      maintainer: {
+        title: "Registry maintainer playbook",
+        description: "Review incoming records carefully before distributing the roster to the team.",
+        steps: [
+          "Confirm the record uses the team's agreed member ID and repository/module conventions.",
+          "Check for duplicate member IDs; remember a different ID may reuse a repository identifier.",
+          "Validate status and capability values with the team before treating them as authoritative.",
+          "Export JSON, review the file contents, and transfer it through the team's chosen channel."
+        ]
+      },
+      reviewer: {
+        title: "Reviewer playbook",
+        description: "Treat roster entries as submitted data, not proof of identity, membership, or implementation.",
+        steps: [
+          "Check the scope and provenance of each record independently; the browser does not verify claims.",
+          "Inspect the roster fields and note that URL fragments and exports can be copied by recipients.",
+          "Test import behavior with a copy; malformed entries and duplicate IDs should be rejected.",
+          "Record review findings separately and do not describe local browser state as a shared registry."
+        ]
+      }
+    };
+    const scenarios = {
+      register: {
+        title: "Register a new member",
+        description: "A valid record is normalized, checked for a duplicate ID, added to the in-page roster, then persisted to the URL fragment and cookie when it fits.",
+        useCases: [
+          ["Primary actor", "Member entering a public roster record"],
+          ["Precondition", "The member ID is not already in the current roster"],
+          ["Success outcome", "Record appears locally and is encoded into portable browser state"],
+          ["Boundary", "No server account or shared database is created"]
+        ],
+        events: [{ from: "User", to: "Page registry", label: "Submit {{memberId}} fields", detail: "The dialog submits member ID {{memberId}}, repository identifier, module, status, and optional capability tags." },
+          {
+            from: "Page registry",
+            to: "Page registry",
+            label: "Normalize and validate",
+            detail: "Required text fields are trimmed and bounded; the roster rejects malformed records."
+          },
+          {
+            from: "Page registry",
+            to: "Page registry",
+            label: "Check duplicate ID",
+            detail: "A matching member_id is rejected. A different ID can share a repository identifier."
+          },
+          {
+            from: "Page registry",
+            to: "URL fragment",
+            label: "Write encoded roster",
+            detail: "The roster is serialized into the page URL fragment for portable sharing."
+          },
+          {
+            from: "Page registry",
+            to: "Cookie",
+            label: "Save local backup",
+            detail: "A same-browser cookie is updated when the roster fits; this is not server storage."
+          },
+          {
+            from: "Page registry",
+            to: "User",
+            label: "Show updated roster",
+            detail: "The page reports local registration and offers export/share controls."
+          }
+        ]
+      },
+      duplicate: {
+        title: "Reject a duplicate member ID",
+        description: "The registry normalizes the submitted record, detects an existing member_id, and reports an error without changing roster state.",
+        useCases: [
+          ["Primary actor", "Member submitting a record"],
+          ["Precondition", "The submitted member ID already exists"],
+          ["Failure outcome", "Registration is rejected and current data stays unchanged"],
+          ["Alternative", "A different ID may use an existing repository identifier"]
+        ],
+        events: [{ from: "User", to: "Page registry", label: "Submit existing {{memberId}}", detail: "The member ID {{memberId}} already exists, demonstrating duplicate handling." },
+          {
+            from: "Page registry",
+            to: "Page registry",
+            label: "Normalize input",
+            detail: "The registry validates the fields before applying any state changes."
+          },
+          {
+            from: "Page registry",
+            to: "Page registry",
+            label: "Find duplicate",
+            detail: "An existing member_id matches, so registerMember throws a duplicate-ID error."
+          },
+          {
+            from: "Page registry",
+            to: "User",
+            label: "Show validation error",
+            detail: "The form can display the error. The roster, URL, and cookie are not rewritten."
+          }
+        ]
+      },
+      sneakernet: {
+        title: "Export and import roster JSON",
+        description: "A user exports a JSON roster file, carries it offline, then imports it in another browser to replace that browser's roster state.",
+        useCases: [
+          ["Primary actor", "Roster maintainer moving data between devices"],
+          ["Precondition", "A JSON file contains a valid members array"],
+          ["Success outcome", "Imported roster is validated and becomes local browser state"],
+          ["Boundary", "File transfer is user-mediated; there is no automatic sync"]
+        ],
+        events: [{
+            from: "User",
+            to: "Page registry",
+            label: "Choose export",
+            detail: "The user asks the page for the current roster as JSON."
+          },
+          {
+            from: "Page registry",
+            to: "JSON file",
+            label: "Create roster JSON",
+            detail: "The browser prepares a JSON document with the roster format version and member records."
+          },
+          {
+            from: "JSON file",
+            to: "User",
+            label: "Carry file offline",
+            detail: "The user transfers the exported file by their chosen offline method."
+          },
+          {
+            from: "User",
+            to: "Page registry",
+            label: "Select import file",
+            detail: "The destination browser reads the chosen local JSON file."
+          },
+          {
+            from: "Page registry",
+            to: "Page registry",
+            label: "Validate members",
+            detail: "Every record is normalized and duplicate member IDs in the import are rejected."
+          },
+          {
+            from: "Page registry",
+            to: "URL fragment",
+            label: "Persist imported roster",
+            detail: "A valid import replaces local registry contents and updates the shareable URL fragment."
+          },
+          {
+            from: "Page registry",
+            to: "Cookie",
+            label: "Update local backup",
+            detail: "The destination browser cookie is refreshed if the encoded data fits."
+          }
+        ]
+      },
+      share: {
+        title: "Share and restore URL state",
+        description: "The roster is encoded into the URL fragment, copied by the user, then decoded and validated when opened in another browser.",
+        useCases: [
+          ["Primary actor", "Member sharing a roster link"],
+          ["Precondition", "The URL fragment contains supported encoded roster data"],
+          ["Success outcome", "A recipient restores the roster into the page's local state"],
+          ["Privacy note", "Anyone with the link can read the roster data in its fragment"]
+        ],
+        events: [{
+            from: "Page registry",
+            to: "URL fragment",
+            label: "Encode member list",
+            detail: "The page encodes the current roster into the fragment without sending it to a server."
+          },
+          {
+            from: "URL fragment",
+            to: "User",
+            label: "Copy share link",
+            detail: "The link is shared out of band. Treat its member data as visible to recipients."
+          },
+          {
+            from: "User",
+            to: "URL fragment",
+            label: "Open received link",
+            detail: "The recipient opens the URL containing the encoded roster fragment."
+          },
+          {
+            from: "URL fragment",
+            to: "Page registry",
+            label: "Decode and validate",
+            detail: "The page decodes format version 1 and validates all member records."
+          },
+          {
+            from: "Page registry",
+            to: "Cookie",
+            label: "Store local copy",
+            detail: "The restored roster is retained in this browser's cookie when it fits."
+          },
+          {
+            from: "Page registry",
+            to: "User",
+            label: "Render restored roster",
+            detail: "The recipient sees the imported member records in their own page state."
+          }
+        ]
+      }
+    };
+
+    const caseSelect = document.getElementById("use-case");
+    const roleSelect = document.getElementById("tour-role");
+    const playbookEvents = [];
+    const traceList = document.getElementById("trace-list");
+    const traceStatus = document.getElementById("trace-status");
+    const speechStatus = document.getElementById("speech-status");
+    const stepCounter = document.getElementById("step-counter");
+    const actorsGroup = document.getElementById("diagram-actors");
+    const lifelinesGroup = document.getElementById("diagram-lifelines");
+    const messagesGroup = document.getElementById("diagram-messages");
+    let currentScenario = "register";
+    let currentStep = -1;
+    let trace = [];
+    let playTimer = null;
+
+    function svgElement(name, attributes = {}) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function drawDiagram() {
+      const positions = [90, 270, 450, 630, 810];
+      actorsGroup.replaceChildren();
+      lifelinesGroup.replaceChildren();
+      messagesGroup.replaceChildren();
+
+      actors.forEach((actor, index) => {
+        const x = positions[index];
+        const box = svgElement("rect", {
+          x: x - 72,
+          y: 12,
+          width: 144,
+          height: 42,
+          rx: 10,
+          class: "sequence-actor"
+        });
+        const text = svgElement("text", {
+          x,
+          y: 38,
+          class: "sequence-actor-label"
+        });
+        text.textContent = actor;
+        actorsGroup.append(box, text);
+        lifelinesGroup.appendChild(svgElement("line", {
+          x1: x,
+          y1: 55,
+          x2: x,
+          y2: 355,
+          class: "sequence-line"
+        }));
+      });
+
+      const activeEvents = scenarios[currentScenario].events;
+      const rowHeight = Math.min(42, 280 / activeEvents.length);
+      activeEvents.forEach((event, index) => {
+        const y = 82 + index * rowHeight;
+        const fromIndex = actors.indexOf(event.from);
+        const toIndex = actors.indexOf(event.to);
+        const fromX = positions[fromIndex];
+        const toX = positions[toIndex];
+        const startX = fromIndex === toIndex ? fromX + 8 : fromX;
+        const endX = fromIndex === toIndex ? toX + 62 : toX;
+        const path = fromIndex === toIndex ?
+          `M ${startX} ${y} C ${startX + 65} ${y - 18}, ${endX + 25} ${y + 18}, ${endX} ${y}` :
+          `M ${startX} ${y} L ${endX} ${y}`;
+        const line = svgElement("path", {
+          d: path,
+          class: `sequence-arrow${index === currentStep ? " is-active" : ""}`,
+          "data-step": index
+        });
+        const labelX = (fromX + toX) / 2;
+        const labelY = y - 8;
+        const label = svgElement("text", {
+          x: fromIndex === toIndex ? fromX + 45 : labelX,
+          y: labelY,
+          class: "sequence-message",
+          "text-anchor": "middle"
+        });
+        label.textContent = event.label;
+        messagesGroup.append(line, label);
+      });
+      document.getElementById("diagram-title").textContent = `${scenarios[currentScenario].title} sequence diagram`;
+      document.getElementById("diagram-description").textContent = `Sequence diagram with ${activeEvents.length} events. Current step: ${currentStep + 1}.`;
+    }
+
+    function renderPlaybook(resetProgress = false) {
+      const role = rolePlaybooks[roleSelect.value];
+      document.getElementById("playbook-title").textContent = role.title;
+      document.getElementById("playbook-description").textContent = role.description;
+      const list = document.getElementById("playbook-steps");
+      list.replaceChildren();
+
+      role.steps.forEach((step, index) => {
+        const item = document.createElement("li");
+        const label = document.createElement("label");
+        label.className = "flex items-start gap-2 text-xs leading-5 text-[var(--color-muted)]";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "mt-1 h-4 w-4 shrink-0 accent-[var(--color-primary)]";
+        checkbox.dataset.playbookStep = String(index);
+        const text = document.createElement("span");
+        text.textContent = step;
+        label.append(checkbox, text);
+        item.appendChild(label);
+        list.appendChild(item);
+      });
+
+      if (resetProgress) {
+        playbookEvents.length = 0;
+      }
+      updatePlaybookProgress();
+      renderTrace();
+    }
+
+    function updatePlaybookProgress() {
+      const checkboxes = [...document.querySelectorAll("[data-playbook-step]")];
+      const completed = checkboxes.filter((checkbox) => checkbox.checked).length;
+      document.getElementById("playbook-progress").textContent = `${completed} of ${checkboxes.length} playbook steps complete`;
+    }
+
+    function renderUseCase() {
+      const scenario = scenarios[currentScenario];
+      document.getElementById("scenario-title").textContent = scenario.title;
+      document.getElementById("scenario-description").textContent = scenario.description;
+      const model = document.getElementById("use-case-model");
+      model.replaceChildren();
+      scenario.useCases.forEach(([label, value]) => {
+        const item = document.createElement("div");
+        item.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3";
+        const heading = document.createElement("p");
+        heading.className = "text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]";
+        heading.textContent = label;
+        const description = document.createElement("p");
+        description.className = "mt-1 text-sm leading-6 text-[var(--color-muted)]";
+        description.textContent = value;
+        item.append(heading, description);
+        model.appendChild(item);
+      });
+    }
+
+    function initializeTrace() {
+      window.clearInterval(playTimer);
+      playTimer = null;
+      currentScenario = caseSelect.value;
+      currentStep = -1;
+      document.getElementById("play-tour").textContent = "Take an audio tour";
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      const memberId = document.getElementById("tour-member-id").value.trim() || "sample-member";
+      trace = scenarios[currentScenario].events.map((event, index) => ({
+        time: new Date().toISOString(),
+        scenario: currentScenario,
+        step: index + 1,
+        actor: `${event.from} → ${event.to}`,
+        event: event.label.replaceAll("{{memberId}}", memberId),
+        detail: event.detail.replaceAll("{{memberId}}", memberId)
+      }));
+      renderUseCase();
+      renderTrace();
+      drawDiagram();
+      traceStatus.textContent = "Scenario ready. Play the tour or advance one step at a time.";
+    }
+
+    function renderTrace() {
+      traceList.replaceChildren();
+      const allEntries = [
+        ...trace.map((entry, index) => ({ ...entry, traceIndex: index, kind: "tour" })),
+        ...playbookEvents.map((entry) => ({ ...entry, kind: "playbook" }))
+      ];
+
+      allEntries.forEach((entry, index) => {
+        const item = document.createElement("li");
+        item.className = "trace-row rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3 transition";
+        if (entry.kind === "tour") {
+          item.dataset.step = entry.traceIndex;
+          if (entry.traceIndex === currentStep) item.setAttribute("aria-current", "step");
+        }
+        const heading = document.createElement("p");
+        heading.className = "text-sm font-semibold text-[var(--color-text)]";
+        heading.textContent = `${String(index + 1).padStart(2, "0")} · ${entry.event}`;
+        const meta = document.createElement("p");
+        meta.className = "mt-1 text-xs font-medium text-[var(--color-primary)]";
+        meta.textContent = entry.actor;
+        const detail = document.createElement("p");
+        detail.className = "mt-2 text-sm leading-6 text-[var(--color-muted)]";
+        detail.textContent = entry.detail;
+        item.append(heading, meta, detail);
+        traceList.appendChild(item);
+      });
+
+      const tourProgress = currentStep < 0 ? `Ready · ${trace.length} tour steps` : `Step ${currentStep + 1} of ${trace.length}`;
+      stepCounter.textContent = `${tourProgress} · ${playbookEvents.length} SOP actions`;
+      const active = traceList.querySelector(`[data-step="${currentStep}"]`);
+      if (active) active.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth"
+      });
+    }
+
+    function advanceStep() {
+      if (currentStep >= trace.length - 1) {
+        window.clearInterval(playTimer);
+        playTimer = null;
+        traceStatus.textContent = "Tour complete. Reset or choose another use case to replay.";
+        return false;
+      }
+      currentStep += 1;
+      const entry = trace[currentStep];
+      traceStatus.textContent = `${entry.actor}: ${entry.detail}`;
+      renderTrace();
+      drawDiagram();
+      if (document.getElementById("voice-toggle").checked) speak(entry.detail);
+      return true;
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) {
+        speechStatus.textContent = "Text-to-speech is not supported by this browser; the written trace is still available.";
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      utterance.onstart = () => speechStatus.textContent = "Narrating the current trace step…";
+      utterance.onend = () => speechStatus.textContent = "Narration complete. Use Next step to continue.";
+      utterance.onerror = () => speechStatus.textContent = "Speech playback was unavailable; continue with the written trace.";
+      window.speechSynthesis.speak(utterance);
+    }
+
+    roleSelect.addEventListener("change", () => renderPlaybook(true));
+    document.getElementById("playbook-steps").addEventListener("change", (event) => {
+      const checkbox = event.target.closest("[data-playbook-step]");
+      if (!checkbox) return;
+
+      const stepIndex = Number(checkbox.dataset.playbookStep);
+      const role = rolePlaybooks[roleSelect.value];
+      const stepText = role.steps[stepIndex];
+      const action = checkbox.checked ? "Completed" : "Reopened";
+      const detail = `${action} SOP step: ${stepText}`;
+      playbookEvents.push({
+        time: new Date().toISOString(),
+        actor: role.title,
+        event: detail,
+        detail: `Role: ${role.title}. ${stepText}`
+      });
+      updatePlaybookProgress();
+      renderTrace();
+      traceStatus.textContent = detail;
+      if (checkbox.checked && document.getElementById("voice-toggle").checked) speak(stepText);
+    });
+
+    caseSelect.addEventListener("change", initializeTrace);
+    document.getElementById("tour-member-id").addEventListener("change", initializeTrace);
+    document.getElementById("next-step").addEventListener("click", advanceStep);
+    document.getElementById("reset-tour").addEventListener("click", initializeTrace);
+    document.getElementById("play-tour").addEventListener("click", () => {
+      if (currentStep >= trace.length - 1) initializeTrace();
+      if (playTimer) {
+        window.clearInterval(playTimer);
+        playTimer = null;
+        document.getElementById("play-tour").textContent = "Take an audio tour";
+        traceStatus.textContent = "Tour paused.";
+        return;
+      }
+      document.getElementById("play-tour").textContent = "Pause tour";
+      advanceStep();
+      playTimer = window.setInterval(() => {
+        if (!advanceStep()) {
+          document.getElementById("play-tour").textContent = "Take an audio tour";
+        }
+      }, 4200);
+    });
+
+    document.getElementById("copy-trace").addEventListener("click", async () => {
+      const text = [
+        `Union registry tour: ${scenarios[currentScenario].title}`,
+        `Role playbook: ${rolePlaybooks[roleSelect.value].title}`,
+        ...trace.map((entry, index) => `${index + 1}. ${entry.actor} — ${entry.event}\n   ${entry.detail}`),
+        ...playbookEvents.map((entry, index) => `SOP action ${index + 1}. ${entry.actor} — ${entry.event}\n   ${entry.detail}`)
+      ].join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        traceStatus.textContent = "Trace copied to clipboard.";
+      } catch (error) {
+        traceStatus.textContent = "Clipboard access was blocked. Select and copy the visible trace instead.";
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      window.clearInterval(playTimer);
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    });
+
+    renderPlaybook(true);
+    initializeTrace();
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

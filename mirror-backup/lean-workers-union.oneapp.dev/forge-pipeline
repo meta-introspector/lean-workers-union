@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive S0–S9 pipeline from selected inputs to a composed, interface-compatible tool set.">
+  <title>Forge pipeline — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .stage-card[aria-current="step"] {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+      box-shadow: 0 0 0 1px var(--color-primary);
+    }
+
+    .stage-card:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px;
+    }
+
+    .stage-connector {
+      background: var(--color-line-strong);
+    }
+
+    .stage-connector.is-past {
+      background: var(--color-primary);
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union backlog</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/search">Research bounties</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/search/enrichment">Enrichment workspace</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/forge-pipeline" aria-current="page">Forge pipeline</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/union-roadmap/search/enrichment">← Back to enrichment workspace</a>
+
+    <section class="mt-8 grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">S0–S9 · staged refinement · composition</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">From raw material to a composed tool set.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Explore the ten stages from input selection through refinement, construction, constraints, decisive transformation, and interface-compatible composition. Select a stage to inspect its role in the sequence.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">Scope and certification note</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">This page presents the stage vocabulary you supplied. It is a conceptual workflow, not instructions for making a physical blade. “Certified” names a proposed evidence gate; it does not mean any stage, primitive, or composition has been independently tested or certified here.</p>
+      </aside>
+    </section>
+
+    <section class="mt-10 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="sequence-heading">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Pipeline map</p>
+          <h2 id="sequence-heading" class="display-font mt-2 text-2xl font-semibold">Choose a stage to inspect</h2>
+        </div>
+        <p class="text-sm text-[var(--color-muted)]">Use the cards or arrow keys to move through stages.</p>
+      </div>
+      <div id="stage-map" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" role="list" aria-label="S0 to S9 stages"></div>
+    </section>
+
+    <section class="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="stage-detail-heading">
+        <p id="stage-kicker" class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">S0 · Input gate</p>
+        <h2 id="stage-detail-heading" class="display-font mt-3 text-3xl font-semibold">Raw Material</h2>
+        <p id="stage-subtitle" class="mt-2 text-sm font-medium text-[var(--color-primary)]">Select / validate</p>
+        <p id="stage-description" class="mt-5 text-sm leading-7 text-[var(--color-muted)]"></p>
+        <div class="mt-6 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">Transition question</h3>
+          <p id="stage-question" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button id="previous-stage" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold transition hover:border-[var(--color-primary)]">← Previous</button>
+          <button id="next-stage" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110">Next stage →</button>
+        </div>
+      </article>
+
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="trace-heading">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Interactive process trace</p>
+            <h2 id="trace-heading" class="display-font mt-2 text-2xl font-semibold">Stage transition log</h2>
+          </div>
+          <button id="reset-trace" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold transition hover:border-[var(--color-primary)]">Reset trace</button>
+        </div>
+        <p id="trace-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Select a stage to begin exploring the pipeline.</p>
+        <ol id="trace-list" class="mt-4 max-h-80 space-y-2 overflow-auto" aria-label="Stage transition events"></ol>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="copy-trace" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Copy trace</button>
+          <button id="download-trace" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Download trace JSON</button>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-[var(--color-muted)]">This is an explanatory navigation trace generated in your browser—not a build log, test result, or certification record.</p>
+      </article>
+    </section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="boundaries-heading">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Composition boundary</p>
+      <h2 id="boundaries-heading" class="display-font mt-2 text-2xl font-semibold">Keep the evidence attached to the stage.</h2>
+      <div class="mt-5 grid gap-3 md:grid-cols-3">
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">S0–S5:</strong> input, selection, refinement, construction, constraint, and transformation stages.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">S6–S7:</strong> a proposed certified primitive, then that primitive paired with an interface as a tool.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">S8–S9:</strong> shared interface conventions, then a proposed certified composition of tools.</p>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]" href="/union-roadmap/search/enrichment">Open enrichment report →</a>
+        <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold" href="/union-roadmap/search">Open research bounties</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a>
+      <span>Illustrative stages · no physical fabrication instructions</span>
+    </div>
+  </footer>
+
+  <script>
+    const stages = [{
+        id: "S0",
+        name: "Raw Material",
+        subtitle: "Select / validate",
+        group: "Input gate",
+        description: "Identify candidate inputs and validate that they are in scope before any refinement begins. Record where each input came from and what is known about it.",
+        question: "What is the input, where did it come from, and is it suitable to enter this workflow?"
+      },
+      {
+        id: "S1",
+        name: "Tamahagane",
+        subtitle: "Material selection",
+        group: "Selection",
+        description: "Choose the material set that will carry forward. Keep selection decisions distinct from the claims or evidence attached to the selected items.",
+        question: "Which validated inputs were selected, and what selection rule was used?"
+      },
+      {
+        id: "S2",
+        name: "Shita-kitae",
+        subtitle: "Iterative refinement",
+        group: "Refinement",
+        description: "Refine the selected material through documented iterations. Each pass should preserve enough history to explain what changed and why.",
+        question: "What changed in this iteration, and can the prior state and rationale be reviewed?"
+      },
+      {
+        id: "S3",
+        name: "Tsukuri-komi",
+        subtitle: "Core construction",
+        group: "Construction",
+        description: "Assemble the refined elements into a core primitive or component with a defined purpose and explicit inputs and outputs.",
+        question: "What is being constructed, and are its parts and expected behavior clearly identified?"
+      },
+      {
+        id: "S4",
+        name: "Tsuchi-oki",
+        subtitle: "Clay coating / constraint",
+        group: "Constraint",
+        description: "Apply the intended constraints and boundaries to the construction. In a software workflow, describe policies, limits, or interface conditions rather than physical procedures.",
+        question: "Which constraints apply, and how will the workflow check that they are respected?"
+      },
+      {
+        id: "S5",
+        name: "Yaki-ire",
+        subtitle: "Quenching / decisive transform",
+        group: "Transform",
+        description: "Mark the decisive transformation from a prepared candidate to an evaluated result. The transition should name the procedure and capture its outcome; this page does not perform one.",
+        question: "What transformation is performed, by what process, and what evidence records its outcome?"
+      },
+      {
+        id: "S6",
+        name: "Blade",
+        subtitle: "Certified primitive",
+        group: "Primitive gate",
+        description: "Represent a primitive that has passed an explicitly defined review gate. Certification criteria, evidence, scope, and reviewer must be supplied by the team; none are asserted by this page.",
+        question: "What exact criteria and evidence justify calling this primitive certified, and what remains outside that claim?"
+      },
+      {
+        id: "S7",
+        name: "Tool",
+        subtitle: "Blade + interface",
+        group: "Tooling",
+        description: "Pair the primitive with an interface contract so a user or another component can invoke it predictably. Document inputs, outputs, errors, and limitations.",
+        question: "Can a consumer understand and use the interface without relying on unstated assumptions?"
+      },
+      {
+        id: "S8",
+        name: "Assembly",
+        subtitle: "Common interface",
+        group: "Interoperability",
+        description: "Bring tools together behind common interface conventions. Make compatibility, orchestration, and failure boundaries visible before composition.",
+        question: "Do the components share compatible conventions, and are interactions and failure modes specified?"
+      },
+      {
+        id: "S9",
+        name: "Swiss Army Knife",
+        subtitle: "Certified composition",
+        group: "Composition gate",
+        description: "Present a composed tool set whose component boundaries and composition-level evidence are explicit. A component-level certificate does not automatically certify the whole composition.",
+        question: "What composition-level evidence supports the claim, and which component or integration risks remain?"
+      }
+    ];
+
+    const stageMap = document.getElementById("stage-map");
+    const traceList = document.getElementById("trace-list");
+    const traceEvents = [];
+    let activeIndex = 0;
+
+    function addTraceEvent(event, stage) {
+      traceEvents.unshift({
+        time: new Date().toISOString(),
+        event,
+        stage: stage.id,
+        name: stage.name,
+        detail: `${stage.subtitle} · ${stage.group}`
+      });
+      if (traceEvents.length > 100) traceEvents.length = 100;
+      renderTrace();
+    }
+
+    function renderMap() {
+      stageMap.replaceChildren();
+      stages.forEach((stage, index) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "stage-card focus-ring rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-left transition hover:border-[var(--color-primary)]";
+        card.setAttribute("role", "listitem");
+        card.setAttribute("aria-current", index === activeIndex ? "step" : "false");
+        card.setAttribute("aria-label", `${stage.id}: ${stage.name}, ${stage.subtitle}`);
+        card.dataset.index = String(index);
+        card.innerHTML = `<span class="flex items-center justify-between gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">${stage.id}</span><span class="h-2 w-2 rounded-full ${index < activeIndex ? "bg-[var(--color-primary)]" : "bg-[var(--color-line-strong)]"}" aria-hidden="true"></span></span><span class="display-font mt-3 block text-base font-semibold">${stage.name}</span><span class="mt-1 block text-xs leading-5 text-[var(--color-muted)]">${stage.subtitle}</span>`;
+        card.addEventListener("click", () => selectStage(index, "Selected stage"));
+        card.addEventListener("keydown", (event) => {
+          if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) return;
+          event.preventDefault();
+          const direction = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1;
+          const next = (index + direction + stages.length) % stages.length;
+          selectStage(next, "Moved to stage");
+          stageMap.querySelector(`[data-index="${next}"]`).focus();
+        });
+        stageMap.appendChild(card);
+        if (index < stages.length - 1) {
+          const connector = document.createElement("span");
+          connector.className = `stage-connector hidden h-px self-center lg:block ${index < activeIndex ? "is-past" : ""}`;
+          connector.setAttribute("aria-hidden", "true");
+          connector.style.display = "none";
+        }
+      });
+    }
+
+    function selectStage(index, eventName = "Selected stage") {
+      activeIndex = Math.max(0, Math.min(stages.length - 1, index));
+      const stage = stages[activeIndex];
+      document.getElementById("stage-kicker").textContent = `${stage.id} · ${stage.group}`;
+      document.getElementById("stage-detail-heading").textContent = stage.name;
+      document.getElementById("stage-subtitle").textContent = stage.subtitle;
+      document.getElementById("stage-description").textContent = stage.description;
+      document.getElementById("stage-question").textContent = stage.question;
+      document.getElementById("previous-stage").disabled = activeIndex === 0;
+      document.getElementById("next-stage").disabled = activeIndex === stages.length - 1;
+      document.getElementById("previous-stage").classList.toggle("opacity-50", activeIndex === 0);
+      document.getElementById("next-stage").classList.toggle("opacity-50", activeIndex === stages.length - 1);
+      renderMap();
+      addTraceEvent(eventName, stage);
+      document.getElementById("trace-status").textContent = `${stage.id} active · ${stage.name}. Trace events are generated locally as you navigate.`;
+    }
+
+    function renderTrace() {
+      traceList.replaceChildren();
+      if (!traceEvents.length) {
+        const empty = document.createElement("li");
+        empty.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm text-[var(--color-muted)]";
+        empty.textContent = "No stage events yet.";
+        traceList.appendChild(empty);
+        return;
+      }
+      traceEvents.forEach((entry) => {
+        const item = document.createElement("li");
+        item.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3";
+        const title = document.createElement("p");
+        title.className = "text-sm font-semibold text-[var(--color-text)]";
+        title.textContent = `${entry.stage} · ${entry.event}: ${entry.name}`;
+        const detail = document.createElement("p");
+        detail.className = "mt-1 text-xs leading-5 text-[var(--color-muted)]";
+        detail.textContent = `${new Date(entry.time).toLocaleString()} · ${entry.detail}`;
+        item.append(title, detail);
+        traceList.appendChild(item);
+      });
+    }
+
+    document.getElementById("previous-stage").addEventListener("click", () => selectStage(activeIndex - 1, "Moved to stage"));
+    document.getElementById("next-stage").addEventListener("click", () => selectStage(activeIndex + 1, "Moved to stage"));
+    document.getElementById("reset-trace").addEventListener("click", () => {
+      traceEvents.length = 0;
+      activeIndex = 0;
+      renderMap();
+      renderTrace();
+      document.getElementById("trace-status").textContent = "Trace cleared. Select a stage to continue.";
+      selectStage(0, "Started pipeline exploration");
+    });
+    document.getElementById("copy-trace").addEventListener("click", async () => {
+      const text = ["Forge pipeline interactive trace", ...traceEvents.map((entry) => `${entry.time} · ${entry.stage} · ${entry.event}: ${entry.name} — ${entry.detail}`)].join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById("trace-status").textContent = "Trace copied. It records navigation only, not certification evidence.";
+      } catch (error) {
+        document.getElementById("trace-status").textContent = "Clipboard unavailable. Use Download trace JSON instead.";
+      }
+    });
+    document.getElementById("download-trace").addEventListener("click", () => {
+      const report = {
+        formatVersion: 1,
+        reportType: "forge-pipeline-navigation-trace",
+        note: "Illustrative navigation trace; not a build, test, or certification record.",
+        stages,
+        events: traceEvents
+      };
+      const blob = new Blob([JSON.stringify(report, null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "forge-pipeline-trace.json";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      document.getElementById("trace-status").textContent = "Trace JSON download requested. This is navigation history only.";
+    });
+
+    document.getElementById("stage-description").textContent = stages[0].description;
+    document.getElementById("stage-question").textContent = stages[0].question;
+    renderMap();
+    selectStage(0, "Started pipeline exploration");
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

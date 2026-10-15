@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive tours with editable playbooks, browser speech, and UML-style use-case and sequence diagrams.">
+  <title>Interactive tours & playbooks — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .diagram-text {
+      fill: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+
+    .diagram-muted {
+      fill: var(--color-muted);
+      font-family: var(--font-body);
+      font-size: 11px;
+    }
+
+    .diagram-line {
+      stroke: var(--color-line-strong);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .diagram-accent {
+      stroke: var(--color-primary);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .diagram-box {
+      fill: var(--color-surface);
+      stroke: var(--color-line-strong);
+      stroke-width: 1.5;
+      rx: var(--radius);
+    }
+
+    .diagram-oval {
+      fill: var(--color-overlay-soft);
+      stroke: var(--color-primary);
+      stroke-width: 1.5;
+    }
+
+    .sequence-step[aria-current="step"] {
+      border-color: var(--color-primary);
+      background: var(--color-overlay-soft);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · guided learning</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union table</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/tour">Registry tour</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/skill-registry">Skills registry</a>
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats">My workspace</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-6 lg:px-10">
+    <section class="grid gap-8 lg:grid-cols-[1fr_0.7fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Tour studio · diagrams · speak-aloud guides</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">Learn a workflow. Edit the playbook. Share the tour.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Walk through browser-local workspace sharing, invitation replies, research bounties, or the Forge pipeline. Each tour pairs a plain-language explainer with a UML-style use-case view, a step-by-step sequence, editable role guidance, and optional browser speech.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">A teaching and planning aid</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Tours run in this browser. Playbooks are saved locally, and share links include the selected tour and edited steps. Anyone with a link can read its contents. No account, server sync, message sending, or external workflow is triggered.</p>
+      </aside>
+    </section>
+
+    <section class="mt-9 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+      <aside class="h-fit rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Choose a guided tour</p>
+        <label for="tour-select" class="mt-4 block text-sm font-medium">Tour topic</label>
+        <select id="tour-select" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]">
+          <option value="workspace">Share and import a workspace</option>
+          <option value="invitation">Prepare an invitation and bring back a reply</option>
+          <option value="research">Research bounty: ask, gather, review</option>
+          <option value="forge">Forge pipeline: inputs to composition</option>
+        </select>
+        <label for="role-select" class="mt-4 block text-sm font-medium">Playbook role</label>
+        <select id="role-select" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]">
+          <option value="participant">Participant</option>
+          <option value="maintainer">Maintainer</option>
+          <option value="reviewer">Reviewer</option>
+        </select>
+        <div class="mt-5 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">What you’ll learn</p>
+          <h2 id="tour-title" class="display-font mt-2 text-xl font-semibold"></h2>
+          <p id="tour-explainer" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+          <p id="tour-boundary" class="mt-3 border-l-2 border-[var(--color-primary)] pl-3 text-xs leading-5 text-[var(--color-muted)]"></p>
+        </div>
+        <div class="mt-5 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">Editable playbook</p>
+              <h2 id="playbook-title" class="display-font mt-2 text-lg font-semibold"></h2>
+            </div>
+            <button id="save-playbook" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-1.5 text-xs font-semibold">Save</button>
+          </div>
+          <p id="playbook-description" class="mt-2 text-xs leading-5 text-[var(--color-muted)]"></p>
+          <label for="playbook-editor" class="sr-only">Edit playbook steps, one per line</label>
+          <textarea id="playbook-editor" rows="8" class="focus-ring mt-3 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-3 py-3 text-sm leading-6 text-[var(--color-text)]"></textarea>
+          <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">Edit the steps, one per line, then save. Saved playbooks stay in this browser unless you share or export them.</p>
+          <p id="playbook-status" class="mt-2 text-xs text-[var(--color-muted)]" aria-live="polite"></p>
+        </div>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <button id="play-tour" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Play tour</button>
+          <button id="next-step" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Next step</button>
+          <button id="reset-tour" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Reset</button>
+        </div>
+        <label class="mt-4 flex items-center gap-2 text-sm text-[var(--color-muted)]">
+          <input id="speech-toggle" type="checkbox" checked class="h-4 w-4 accent-[var(--color-primary)]">
+          Speak tour steps aloud
+        </label>
+        <p id="speech-status" class="mt-2 text-xs leading-5 text-[var(--color-muted)]" aria-live="polite">Uses the voice available in your browser.</p>
+      </aside>
+
+      <div class="space-y-5">
+        <section class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="usecase-heading">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">UML-style · use-case view</p>
+              <h2 id="usecase-heading" class="display-font mt-2 text-2xl font-semibold">Who wants what from the system?</h2>
+            </div>
+            <span class="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs text-[var(--color-muted)]">Illustrative model</span>
+          </div>
+          <div class="mt-4 overflow-x-auto rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3">
+            <svg id="usecase-diagram" viewBox="0 0 760 300" role="img" aria-labelledby="usecase-svg-title usecase-svg-desc" class="min-w-[560px] w-full">
+              <title id="usecase-svg-title">Use-case diagram</title>
+              <desc id="usecase-svg-desc">Actors and system use cases for the selected tour.</desc>
+            </svg>
+          </div>
+          <p id="usecase-caption" class="mt-3 text-xs leading-5 text-[var(--color-muted)]"></p>
+        </section>
+
+        <section class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="sequence-heading">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">UML-style · sequence view</p>
+              <h2 id="sequence-heading" class="display-font mt-2 text-2xl font-semibold">Follow the interaction</h2>
+            </div>
+            <span id="step-counter" class="rounded-full border border-[var(--color-line-strong)] px-3 py-1.5 text-xs text-[var(--color-muted)]">Ready</span>
+          </div>
+          <div class="mt-4 overflow-x-auto rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3">
+            <svg id="sequence-diagram" viewBox="0 0 900 390" role="img" aria-labelledby="sequence-svg-title sequence-svg-desc" class="min-w-[680px] w-full">
+              <title id="sequence-svg-title">Sequence diagram</title>
+              <desc id="sequence-svg-desc">The selected workflow as messages between actors.</desc>
+              <defs>
+                <marker id="tour-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="var(--color-primary)"></path>
+                </marker>
+              </defs>
+              <g id="sequence-content"></g>
+            </svg>
+          </div>
+          <p id="tour-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Select a tour, then play or move one step at a time.</p>
+          <ol id="step-list" class="mt-4 grid gap-2 sm:grid-cols-2" aria-label="Tour steps"></ol>
+        </section>
+      </div>
+    </section>
+
+    <section class="mt-5 grid gap-5 lg:grid-cols-2">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Share a tour</p>
+        <h2 class="display-font mt-2 text-xl font-semibold">Send the selected tour and playbook</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The share link includes the selected scenario, role, and your current edited playbook steps. The recipient can review and apply the playbook locally.</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="create-share" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Create share link</button>
+          <button id="copy-share" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Copy link</button>
+          <button id="export-playbook" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Download playbook JSON</button>
+        </div>
+        <label for="share-output" class="mt-4 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Share URL</label>
+        <textarea id="share-output" rows="3" readonly class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="Create a share link to show it here."></textarea>
+        <p id="share-status" class="mt-2 text-sm text-[var(--color-muted)]" aria-live="polite">Share only content you are comfortable making visible to anyone with the link.</p>
+      </article>
+
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Review incoming playbook</p>
+        <h2 class="display-font mt-2 text-xl font-semibold">Import a shared tour link or JSON</h2>
+        <label for="import-input" class="mt-4 block text-sm font-medium">Paste link or playbook JSON
+          <textarea id="import-input" rows="4" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="Paste the complete tour link or downloaded JSON"></textarea>
+        </label>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="review-import" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Review import</button>
+          <label for="import-file" class="focus-ring cursor-pointer rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Choose JSON file</label>
+          <input id="import-file" type="file" accept="application/json,.json" class="sr-only">
+        </div>
+        <div id="import-review" class="mt-4 hidden rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-4">
+          <h3 class="font-semibold text-[var(--color-primary)]">Ready to apply</h3>
+          <p id="import-summary" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+          <button id="apply-import" type="button" class="focus-ring mt-3 rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Apply to my editor</button>
+        </div>
+        <p id="import-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Nothing is applied until you review and choose to apply it.</p>
+      </article>
+    </section>
+
+    <section class="mt-5 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+      <h2 class="display-font text-xl font-semibold">How to use these diagrams</h2>
+      <div class="mt-4 grid gap-3 text-sm leading-6 text-[var(--color-muted)] md:grid-cols-3">
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">Use-case view:</strong> actors are outside the system boundary; ovals name goals or operations in the workflow.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">Sequence view:</strong> read from top to bottom. Arrows show the order of illustrative messages between participants.</p>
+        <p class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">Editable playbook:</strong> adapt the checklist to your team. A saved or shared checklist is guidance, not an authenticated approval or completed action.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Lean-Workers Union Lodge House</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/tour">Open the registry audio tour →</a>
+    </div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "lodge-tour-playbooks-v1";
+    const tours = {
+      workspace: {
+        title: "Share and import a workspace",
+        explainer: "A sender creates a snapshot URL. The recipient reviews the included profile, people, invitations, and tasks before choosing merge or replace in their own browser.",
+        boundary: "A link carries a snapshot; it does not create server accounts or sync later edits.",
+        actors: ["Sender", "Workspace page", "Share URL", "Recipient"],
+        useCases: ["Prepare workspace", "Create share link", "Review incoming data", "Merge or replace locally"],
+        steps: [
+          ["Sender", "Workspace page", "Choose share state", "Select the workspace snapshot to share."],
+          ["Workspace page", "Share URL", "Encode snapshot", "The page packages the selected workspace state into a URL fragment."],
+          ["Share URL", "Recipient", "Send link manually", "The sender shares the link using a channel they choose."],
+          ["Recipient", "Workspace page", "Open import review", "The link opens a review page; the data is not saved automatically."],
+          ["Recipient", "Workspace page", "Choose merge or replace", "The recipient decides how the incoming snapshot should affect local browser data."],
+          ["Workspace page", "Recipient", "Show local result", "The page reports the local import outcome. There is no background sync."]
+        ],
+        playbooks: {
+          participant: ["Check the snapshot for details you intend to share.", "Create a workspace link and copy it into a message yourself.", "Tell the recipient that the link contains readable data.", "Keep a JSON backup if the snapshot is important."],
+          maintainer: ["Agree which profile, task, invite, and contribution data belongs in the snapshot.", "Review identifiers and remove unnecessary personal or secret data.", "Send the link through the team's chosen channel.", "Ask the recipient to review before importing; no shared database is updated."],
+          reviewer: ["Inspect the incoming snapshot before applying it.", "Treat imported names, notes, and task claims as user-supplied data.", "Choose merge or replace deliberately; both affect only this browser.", "Record independent verification separately from imported status labels."]
+        }
+      },
+      invitation: {
+        title: "Prepare an invitation and bring back a reply",
+        explainer: "A profile owner prepares a public-safe invitation link. A recipient writes a reply and returns a separate link manually for import into the local inbox.",
+        boundary: "The page prepares links; it does not send messages, authenticate people, or verify who created a reply.",
+        actors: ["Profile owner", "Invite page", "Message channel", "Recipient"],
+        useCases: ["Prepare invite", "Share profile", "Write a reply", "Import reply"],
+        steps: [
+          ["Profile owner", "Invite page", "Review public profile", "Check the name, seat label, note, and photos before sharing."],
+          ["Profile owner", "Invite page", "Create invitation link", "The browser packages the profile and invitation prompt into a link."],
+          ["Invite page", "Message channel", "Copy link for manual sending", "The user copies the link; this page does not deliver a message."],
+          ["Recipient", "Invite page", "Open invitation", "The recipient sees the shared profile and can write a response."],
+          ["Recipient", "Message channel", "Return reply link", "The recipient sends the generated reply link back out of band."],
+          ["Profile owner", "Invite page", "Import reply locally", "The profile owner pastes or opens the reply data to add it to the local inbox."]
+        ],
+        playbooks: {
+          participant: ["Keep profile text and photos appropriate for link sharing.", "Write a clear invitation prompt.", "Copy the invitation link and send it using your chosen message channel.", "Ask the recipient to return their reply link if they choose to respond."],
+          maintainer: ["Agree on public-safe profile fields and photo-sharing expectations.", "Explain that invite links are portable data, not account permissions.", "Provide a simple process for receiving and importing reply links.", "Keep replies in the browser or export a backup when needed."],
+          reviewer: ["Treat invitation and reply contents as unauthenticated user input.", "Check that a reply is associated with the intended invitation where possible.", "Do not equate a prepared or imported status with a delivered message.", "Avoid sharing sensitive personal details in links or exports."]
+        }
+      },
+      research: {
+        title: "Research bounty: ask, gather, review",
+        explainer: "A team describes an information need, chooses a source to search independently, pastes findings with attribution, and reviews before relying on the result.",
+        boundary: "The board stores local notes. It does not search the web, authenticate contributors, or validate pasted evidence.",
+        actors: ["Requester", "Bounty board", "Researcher", "Source"],
+        useCases: ["Define a need", "Prepare a query", "Gather a source", "Submit and review finding"],
+        steps: [
+          ["Requester", "Bounty board", "Write need and acceptance check", "Define what useful information would answer the question."],
+          ["Bounty board", "Researcher", "Share bounty", "The research request can be copied or shared as portable data."],
+          ["Researcher", "Source", "Search independently", "Use a source the researcher chooses; this page does not issue the query."],
+          ["Source", "Researcher", "Gather relevant material", "Check the source context, date, and exact statement rather than relying only on a snippet."],
+          ["Researcher", "Bounty board", "Paste attributed finding", "Record a concise finding and source details as unverified input."],
+          ["Requester", "Bounty board", "Review and decide", "The team reviews the source and decides whether the finding supports the need."]
+        ],
+        playbooks: {
+          participant: ["Describe one bounded question and what would count as a useful answer.", "Add a suggested query only if it helps another researcher.", "Gather material from a source you choose.", "Paste the finding with attribution and uncertainty."],
+          maintainer: ["Keep the bounty request separate from its findings.", "Use clear acceptance criteria and avoid leading claims.", "Review imports before merging data into the local board.", "Keep a record of what was checked and what remains open."],
+          reviewer: ["Open the source itself rather than relying only on a search snippet.", "Check that the cited material supports the submitted summary.", "Separate observed facts, interpretation, and unresolved questions.", "Mark review status honestly; pasted content is not authenticated evidence."]
+        }
+      },
+      forge: {
+        title: "Forge pipeline: inputs to composition",
+        explainer: "Explore the conceptual S0–S9 refinement sequence: select inputs, refine and constrain them, define a primitive, add an interface, then reason about composition-level evidence.",
+        boundary: "This is a conceptual software-workflow explainer, not physical fabrication guidance or evidence that any component is certified.",
+        actors: ["Designer", "Input set", "Review gate", "Tool assembly"],
+        useCases: ["Select inputs", "Refine component", "Define interface", "Review composition"],
+        steps: [
+          ["Designer", "Input set", "Select and validate inputs", "Record where candidate inputs came from and whether they are in scope."],
+          ["Input set", "Designer", "Refine with recorded changes", "Preserve enough history to explain what changed and why."],
+          ["Designer", "Review gate", "State constraints and criteria", "Name the boundaries and evidence required for a review decision."],
+          ["Review gate", "Designer", "Assess a proposed primitive", "A review label only applies to explicit criteria and supplied evidence."],
+          ["Designer", "Tool assembly", "Pair component with interface", "Document inputs, outputs, errors, and limitations for a consumer."],
+          ["Tool assembly", "Review gate", "Evaluate composition scope", "Component-level evidence does not automatically establish composition-level behavior."]
+        ],
+        playbooks: {
+          participant: ["Name the inputs and their source.", "Record each refinement and the reason for it.", "Describe component purpose, interface, and limits.", "List open questions before composing components."],
+          maintainer: ["Keep input selection rules and provenance visible.", "Define the evidence gate before using a certification label.", "Ensure interface contracts describe failure behavior as well as success.", "Evaluate composition-level interactions separately from components."],
+          reviewer: ["Check scope, assumptions, and source for each input.", "Distinguish a proposed review gate from a completed assessment.", "Verify that evidence supports the exact claim being made.", "Do not infer certification, build success, or deployment from this diagram."]
+        }
+      }
+    };
+
+    const tourSelect = document.getElementById("tour-select");
+    const roleSelect = document.getElementById("role-select");
+    const editor = document.getElementById("playbook-editor");
+    let activeTour = tourSelect.value;
+    let activeRole = roleSelect.value;
+    let activeStep = -1;
+    let playTimer = null;
+    let pendingImport = null;
+
+    function readSavedPlaybooks() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        return stored && typeof stored === "object" ? stored : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    let savedPlaybooks = readSavedPlaybooks();
+
+    function getSteps(tourId, role) {
+      const custom = savedPlaybooks?.[tourId]?.[role];
+      return Array.isArray(custom) ? custom : tours[tourId].playbooks[role];
+    }
+
+    function currentPayload() {
+      return {
+        formatVersion: 1,
+        kind: "lodge-tour-playbook",
+        tour: activeTour,
+        role: activeRole,
+        steps: editor.value.split("\n").map((step) => step.trim()).filter(Boolean).slice(0, 30)
+      };
+    }
+
+    function setScenario() {
+      stopPlayback();
+      activeTour = tourSelect.value;
+      activeRole = roleSelect.value;
+      activeStep = -1;
+      const tour = tours[activeTour];
+      document.getElementById("tour-title").textContent = tour.title;
+      document.getElementById("tour-explainer").textContent = tour.explainer;
+      document.getElementById("tour-boundary").textContent = tour.boundary;
+      document.getElementById("playbook-title").textContent = `${roleSelect.options[roleSelect.selectedIndex].text} playbook`;
+      document.getElementById("playbook-description").textContent = "Edit this role's suggested actions to fit your team's process.";
+      editor.value = getSteps(activeTour, activeRole).join("\n");
+      document.getElementById("playbook-status").textContent = "Showing the saved local playbook or the starter checklist.";
+      renderUseCase();
+      renderSequence();
+      document.getElementById("tour-status").textContent = "Tour ready. Play the narration or advance through the steps.";
+      document.getElementById("play-tour").textContent = "Play tour";
+      document.getElementById("step-counter").textContent = `${tour.steps.length} steps`;
+    }
+
+    function svgNode(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+      return node;
+    }
+
+    function renderUseCase() {
+      const svg = document.getElementById("usecase-diagram");
+      svg.querySelectorAll(".generated").forEach((node) => node.remove());
+      const tour = tours[activeTour];
+            const system = svgNode("rect", { x: 245, y: 20, width: 495, height: 250, class: "diagram-box generated" });
+
+      const systemLabel = svgNode("text", {
+        x: 265,
+        y: 45,
+        class: "diagram-muted generated"
+      });
+      systemLabel.textContent = `${tour.title} · system boundary`;
+      svg.append(system, systemLabel);
+
+      const actorNames = tour.actors;
+      actorNames.forEach((actor, index) => {
+        const y = 75 + index * 48;
+        const person = svgNode("circle", {
+          cx: 80,
+          cy: y,
+          r: 10,
+          class: "diagram-accent generated"
+        });
+        const head = svgNode("circle", {
+          cx: 80,
+          cy: y - 15,
+          r: 6,
+          class: "diagram-accent generated"
+        });
+        const body = svgNode("line", {
+          x1: 80,
+          y1: y - 4,
+          x2: 80,
+          y2: y + 18,
+          class: "diagram-accent generated"
+        });
+        const arms = svgNode("line", {
+          x1: 67,
+          y1: y + 3,
+          x2: 93,
+          y2: y + 3,
+          class: "diagram-accent generated"
+        });
+        const legs = svgNode("path", {
+          d: `M80 ${y + 18} L68 ${y + 31} M80 ${y + 18} L92 ${y + 31}`,
+          class: "diagram-accent generated"
+        });
+        const label = svgNode("text", {
+          x: 110,
+          y: y + 5,
+          class: "diagram-text generated"
+        });
+        label.textContent = actor;
+        svg.append(person, head, body, arms, legs, label);
+      });
+
+      tour.useCases.forEach((useCase, index) => {
+        const x = 475 + (index % 2) * 210;
+        const y = 95 + Math.floor(index / 2) * 90;
+        const oval = svgNode("ellipse", {
+          cx: x,
+          cy: y,
+          rx: 88,
+          ry: 26,
+          class: "diagram-oval generated"
+        });
+        const label = svgNode("text", {
+          x,
+          y: y + 4,
+          "text-anchor": "middle",
+          class: "diagram-text generated"
+        });
+        label.textContent = useCase;
+        svg.append(oval, label);
+        const actorIndex = Math.min(index, actorNames.length - 1);
+        const actorY = 75 + actorIndex * 48;
+        svg.appendChild(svgNode("path", {
+          d: `M125 ${actorY + 5} L${x - 90} ${y}`,
+          class: "diagram-line generated"
+        }));
+      });
+      document.getElementById("usecase-caption").textContent = `${tour.title}: use cases show workflow goals and participants. The diagram describes an intended interaction, not a live system trace.`;
+      document.getElementById("usecase-svg-title").textContent = `${tour.title} use-case diagram`;
+      document.getElementById("usecase-svg-desc").textContent = `A system boundary with actors ${actorNames.join(", ")} and use cases ${tour.useCases.join(", ")}.`;
+    }
+
+    function renderSequence() {
+      const svg = document.getElementById("sequence-diagram");
+      const group = document.getElementById("sequence-content");
+      group.replaceChildren();
+      const tour = tours[activeTour];
+      const participants = tour.actors;
+      const positions = participants.map((_, index) => 110 + index * (680 / Math.max(1, participants.length - 1)));
+      participants.forEach((participant, index) => {
+        const x = positions[index];
+                group.appendChild(svgNode("rect", { x: x - 68, y: 12, width: 136, height: 38, class: "diagram-box" }));
+
+        const label = svgNode("text", {
+          x,
+          y: 36,
+          "text-anchor": "middle",
+          class: "diagram-text"
+        });
+        label.textContent = participant;
+        group.appendChild(label);
+        group.appendChild(svgNode("line", {
+          x1: x,
+          y1: 51,
+          x2: x,
+          y2: 370,
+          class: "diagram-line",
+          "stroke-dasharray": "6 6"
+        }));
+      });
+
+      const list = document.getElementById("step-list");
+      list.replaceChildren();
+      tour.steps.forEach((step, index) => {
+        const y = 83 + index * 44;
+        const from = participants.indexOf(step[0]);
+        const to = participants.indexOf(step[1]);
+        const startX = positions[from];
+        const endX = positions[to];
+        const line = svgNode("path", {
+          d: from === to ? `M${startX} ${y} C${startX + 55} ${y - 15} ${startX + 55} ${y + 17} ${startX} ${y + 17}` : `M${startX} ${y} L${endX} ${y}`,
+          class: index === activeStep ? "diagram-accent" : "diagram-line",
+          "marker-end": "url(#tour-arrow)"
+        });
+        const label = svgNode("text", {
+          x: (startX + endX) / 2,
+          y: y - 7,
+          "text-anchor": "middle",
+          class: "diagram-muted"
+        });
+        label.textContent = step[2];
+        group.append(line, label);
+
+        const item = document.createElement("li");
+        item.className = "sequence-step rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-sm";
+        if (index === activeStep) item.setAttribute("aria-current", "step");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "focus-ring w-full rounded-[var(--radius)] text-left";
+        const title = document.createElement("span");
+        title.className = "block font-semibold text-[var(--color-text)]";
+        title.textContent = `${index + 1}. ${step[2]}`;
+        const meta = document.createElement("span");
+        meta.className = "mt-1 block text-xs text-[var(--color-primary)]";
+        meta.textContent = `${step[0]} → ${step[1]}`;
+        const detail = document.createElement("span");
+        detail.className = "mt-2 block text-xs leading-5 text-[var(--color-muted)]";
+        detail.textContent = step[3];
+        button.append(title, meta, detail);
+        button.addEventListener("click", () => selectStep(index));
+        item.appendChild(button);
+        list.appendChild(item);
+      });
+      document.getElementById("sequence-svg-title").textContent = `${tour.title} sequence diagram`;
+      document.getElementById("sequence-svg-desc").textContent = `${tour.steps.length} illustrative steps between ${participants.join(", ")}.`;
+      document.getElementById("step-counter").textContent = activeStep < 0 ? `${tour.steps.length} steps` : `Step ${activeStep + 1} of ${tour.steps.length}`;
+    }
+
+    function selectStep(index) {
+      const steps = tours[activeTour].steps;
+      if (index < 0 || index >= steps.length) return;
+      activeStep = index;
+      const step = steps[index];
+      document.getElementById("tour-status").textContent = `${step[0]} to ${step[1]}: ${step[3]}`;
+      renderSequence();
+      if (document.getElementById("speech-toggle").checked) speak(`${step[2]}. ${step[3]}`);
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) {
+        document.getElementById("speech-status").textContent = "Speech synthesis is unavailable here; the written tour remains available.";
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      utterance.onstart = () => document.getElementById("speech-status").textContent = "Speaking the current tour step…";
+      utterance.onend = () => document.getElementById("speech-status").textContent = "Narration finished. Continue when ready.";
+      utterance.onerror = () => document.getElementById("speech-status").textContent = "Voice playback was unavailable; continue with the written steps.";
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopPlayback() {
+      window.clearInterval(playTimer);
+      playTimer = null;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      const button = document.getElementById("play-tour");
+      if (button) button.textContent = "Play tour";
+    }
+
+    function savePlaybook() {
+      const steps = editor.value.split("\n").map((step) => step.trim()).filter(Boolean).slice(0, 30);
+      if (!steps.length) {
+        document.getElementById("playbook-status").textContent = "Add at least one step before saving.";
+        return;
+      }
+      savedPlaybooks[activeTour] ||= {};
+      savedPlaybooks[activeTour][activeRole] = steps;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPlaybooks));
+        editor.value = steps.join("\n");
+        document.getElementById("playbook-status").textContent = `Saved ${steps.length} editable step${steps.length === 1 ? "" : "s"} in this browser.`;
+      } catch (error) {
+        document.getElementById("playbook-status").textContent = "Could not save in browser storage. You can still create a share link or download JSON.";
+      }
+    }
+
+    function encodePayload(payload) {
+      const bytes = new TextEncoder().encode(JSON.stringify(payload));
+      let binary = "";
+      bytes.forEach((byte) => binary += String.fromCharCode(byte));
+      return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+    }
+
+    function decodePayload(encoded) {
+      if (!encoded || encoded.length > 200000) throw new Error("The shared playbook is missing or too large.");
+      const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+      const bytes = Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+
+    function validatePayload(payload) {
+      if (!payload || payload.formatVersion !== 1 || payload.kind !== "lodge-tour-playbook" || !tours[payload.tour] || !["participant", "maintainer", "reviewer"].includes(payload.role) || !Array.isArray(payload.steps)) {
+        throw new Error("This is not a supported tour playbook.");
+      }
+      const steps = payload.steps.filter((step) => typeof step === "string").map((step) => step.trim().slice(0, 500)).filter(Boolean).slice(0, 30);
+      if (!steps.length) throw new Error("The playbook needs at least one text step.");
+      return {
+        formatVersion: 1,
+        kind: "lodge-tour-playbook",
+        tour: payload.tour,
+        role: payload.role,
+        steps
+      };
+    }
+
+    function reviewPayload(payload) {
+      pendingImport = validatePayload(payload);
+      document.getElementById("import-summary").textContent = `${tours[pendingImport.tour].title} · ${pendingImport.role} playbook · ${pendingImport.steps.length} steps. Review this content before applying it to the editor.`;
+      document.getElementById("import-review").classList.remove("hidden");
+      document.getElementById("import-status").textContent = "Import preview ready; your saved playbooks have not changed.";
+    }
+
+    async function copyText(value) {
+      if (!navigator.clipboard || !window.isSecureContext) {
+        throw new Error("Clipboard access is unavailable in this browser.");
+      }
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+
+    function createShareUrl() {
+      const url = new URL("/tours", "https://lean-workers-union.oneapp.dev");
+      url.hash = `playbook=${encodePayload(currentPayload())}`;
+      return url.toString();
+    }
+
+    tourSelect.addEventListener("change", setScenario);
+    roleSelect.addEventListener("change", setScenario);
+    document.getElementById("save-playbook").addEventListener("click", savePlaybook);
+    document.getElementById("next-step").addEventListener("click", () => {
+      if (activeStep + 1 >= tours[activeTour].steps.length) {
+        document.getElementById("tour-status").textContent = "Tour complete. Reset to start again.";
+        stopPlayback();
+        return;
+      }
+      selectStep(activeStep + 1);
+    });
+    document.getElementById("reset-tour").addEventListener("click", () => {
+      stopPlayback();
+      activeStep = -1;
+      renderSequence();
+      document.getElementById("tour-status").textContent = "Tour reset. Select a step or play from the beginning.";
+    });
+    document.getElementById("play-tour").addEventListener("click", () => {
+      if (playTimer) {
+        stopPlayback();
+        document.getElementById("tour-status").textContent = "Tour paused.";
+        return;
+      }
+      if (activeStep >= tours[activeTour].steps.length - 1) activeStep = -1;
+      document.getElementById("play-tour").textContent = "Pause tour";
+      const advance = () => {
+        if (activeStep + 1 >= tours[activeTour].steps.length) {
+          stopPlayback();
+          document.getElementById("tour-status").textContent = "Tour complete. Reset to play again.";
+          return;
+        }
+        selectStep(activeStep + 1);
+      };
+      advance();
+      playTimer = window.setInterval(advance, 5000);
+    });
+
+    document.getElementById("create-share").addEventListener("click", () => {
+      const url = createShareUrl();
+      document.getElementById("share-output").value = url;
+      document.getElementById("share-status").textContent = "Link created. Anyone who receives it can read the selected tour and playbook.";
+    });
+    document.getElementById("copy-share").addEventListener("click", async () => {
+      const output = document.getElementById("share-output");
+      if (!output.value) output.value = createShareUrl();
+      try {
+        await copyText(output.value);
+        document.getElementById("share-status").textContent = "Share link copied. It opens this tour with the playbook ready for review.";
+      } catch (error) {
+        output.focus();
+        output.select();
+        document.getElementById("share-status").textContent = "Clipboard is unavailable. The link is selected for manual copying.";
+      }
+    });
+    document.getElementById("export-playbook").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(currentPayload(), null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `lodge-${activeTour}-${activeRole}-playbook.json`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      document.getElementById("share-status").textContent = "Playbook JSON download requested. It remains on your device unless you share it.";
+    });
+    document.getElementById("review-import").addEventListener("click", () => {
+      try {
+        const text = document.getElementById("import-input").value.trim();
+        if (text.startsWith("{")) {
+          reviewPayload(JSON.parse(text));
+        } else {
+          const url = new URL(text);
+          const encoded = new URLSearchParams(url.hash.slice(1)).get("playbook");
+          if (!encoded) throw new Error("The URL does not contain a shared playbook.");
+          reviewPayload(decodePayload(encoded));
+        }
+      } catch (error) {
+        document.getElementById("import-status").textContent = `Could not review import: ${error.message}`;
+        document.getElementById("import-review").classList.add("hidden");
+      }
+    });
+    document.getElementById("import-file").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        reviewPayload(JSON.parse(await file.text()));
+      } catch (error) {
+        document.getElementById("import-status").textContent = `Could not review ${file.name}: ${error.message}`;
+      }
+      event.target.value = "";
+    });
+    document.getElementById("apply-import").addEventListener("click", () => {
+      if (!pendingImport) return;
+      tourSelect.value = pendingImport.tour;
+      roleSelect.value = pendingImport.role;
+      setScenario();
+      editor.value = pendingImport.steps.join("\n");
+      savePlaybook();
+      document.getElementById("import-review").classList.add("hidden");
+      document.getElementById("import-status").textContent = "Imported steps are now in the editor and saved locally. Review or edit them before use.";
+      pendingImport = null;
+    });
+
+    function restoreSharedFromFragment() {
+      const encoded = new URLSearchParams(window.location.hash.slice(1)).get("playbook");
+      if (!encoded) return;
+      try {
+        reviewPayload(decodePayload(encoded));
+        document.getElementById("import-status").textContent = "Shared playbook loaded for review. Choose Apply to put it in your editor.";
+        document.getElementById("import-review").scrollIntoView({
+          block: "center",
+          behavior: "smooth"
+        });
+      } catch (error) {
+        document.getElementById("import-status").textContent = `Shared link could not be read: ${error.message}`;
+      }
+    }
+
+    window.addEventListener("beforeunload", stopPlayback);
+    setScenario();
+    restoreSharedFromFragment();
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

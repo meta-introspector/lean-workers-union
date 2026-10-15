@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore the Nixwars Arcade game catalog: TradeWars 71, Monster games, arcade concepts, competitions, tools, and project milestones.">
+  <title>Nixwars Arcade — Lean-Workers Union Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .arcade-screen {
+      background:
+        radial-gradient(ellipse at 50% 0%, var(--color-glow-primary), transparent 65%),
+        linear-gradient(145deg, var(--color-wood), var(--color-primary));
+      box-shadow: inset 0 0 0 1px var(--color-brass), 0 1.25rem 3rem var(--color-shadow);
+    }
+
+    .arcade-grid {
+      background-image:
+        linear-gradient(var(--color-overlay-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-overlay-soft) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .game-card[hidden] {
+      display: none;
+    }
+
+    .filter-button[aria-pressed="true"] {
+      background: var(--color-primary);
+      color: var(--color-primary-contrast);
+      border-color: var(--color-primary);
+    }
+
+  </style>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lean-Workers Union Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · tea, proofs & fellowship</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/n00b-guide">Beginner guide</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union table</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/nixwars-arcade" aria-current="page">Nixwars Arcade</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-14 pt-7 lg:grid-cols-[1.05fr_0.95fr] lg:px-10 lg:pb-20 lg:pt-12">
+      <div>
+        <p class="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] bg-[var(--color-overlay)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-primary)]"><span aria-hidden="true">🎮</span> The Nixwars Arcade · a field guide</p>
+        <h1 class="display-font max-w-3xl text-5xl font-semibold leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">The galaxy is the game board.</h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">Pull up a chair in the Lodge House, browse the game inventory, and follow the trail from TradeWars 71 to Monster-space chases, BBS doors, puzzle hunts, and arcade experiments.</p>
+        <p class="mt-4 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">This catalog is based on the inventory supplied for the project. File names, feature descriptions, commit notes, and deployment labels are presented as reported—not as an independent build, test, or live-service check.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110" href="#main-games">Browse the cabinets ↓</a>
+          <a class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-overlay)] px-5 py-3 font-semibold transition hover:border-[var(--color-primary)]" href="#roadmap">See the roadmap</a>
+        </div>
+      </div>
+
+      <aside class="arcade-screen relative overflow-hidden rounded-[var(--radius)] p-5 text-[var(--color-primary-contrast)] sm:p-8" aria-label="Illustrated arcade marquee">
+        <div class="arcade-grid absolute inset-0 opacity-40" aria-hidden="true"></div>
+        <div class="relative">
+          <div class="mx-auto max-w-md rounded-[var(--radius)] border border-[var(--color-brass)] bg-[var(--color-wood)] px-5 py-5 text-center shadow-[0_1rem_2.5rem_var(--color-shadow)]">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-paper)]">Now showing at the Lodge</p>
+            <p class="display-font mt-2 text-3xl font-bold sm:text-4xl">NIXWARS</p>
+            <p class="mt-2 text-sm text-[var(--color-paper)]">71 shards · strange dimensions · good company</p>
+          </div>
+          <svg class="mx-auto mt-6 w-full max-w-xl" viewBox="0 0 600 280" role="img" aria-labelledby="arcade-title arcade-description">
+            <title id="arcade-title">A starship approaches an arcade cabinet among the stars</title>
+            <desc id="arcade-description">A stylized ship travels toward a glowing arcade cabinet beneath a starry sky.</desc>
+            <circle cx="80" cy="60" r="3" fill="var(--color-paper)" />
+            <circle cx="180" cy="32" r="2" fill="var(--color-paper)" />
+            <circle cx="510" cy="64" r="3" fill="var(--color-paper)" />
+            <circle cx="440" cy="28" r="2" fill="var(--color-paper)" />
+            <circle cx="270" cy="55" r="2" fill="var(--color-paper)" />
+            <path d="M88 151h126" stroke="var(--color-brass)" stroke-width="4" stroke-linecap="round" />
+            <path d="M115 143l18 8-18 8" fill="none" stroke="var(--color-brass)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M210 151l54-38 94 38-94 38z" fill="var(--color-paper)" stroke="var(--color-brass)" stroke-width="3" />
+            <path d="M244 150l27-15 35 15-35 15z" fill="var(--color-primary)" />
+            <path d="M250 189l-13 22M318 189l14 22" stroke="var(--color-brass)" stroke-width="5" stroke-linecap="round" />
+            <rect x="415" y="95" width="112" height="124" rx="12" fill="var(--color-wood)" stroke="var(--color-brass)" stroke-width="4" />
+            <rect x="430" y="108" width="82" height="61" rx="6" fill="var(--color-surface)" stroke="var(--color-brass)" stroke-width="3" />
+            <path d="M440 155l18-24 13 16 11-11 22 19" fill="none" stroke="var(--color-primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="455" cy="190" r="5" fill="var(--color-brass)" />
+            <circle cx="477" cy="190" r="5" fill="var(--color-primary-contrast)" />
+            <path d="M392 229h158" stroke="var(--color-brass)" stroke-width="5" stroke-linecap="round" />
+            <text x="300" y="258" text-anchor="middle" fill="var(--color-paper)" font-family="var(--font-heading)" font-size="18">One more cabinet before the kettle whistles.</text>
+          </svg>
+          <div class="mt-2 flex flex-wrap justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-paper)]">
+            <span class="rounded-full border border-[var(--color-brass)] px-3 py-1">Trade</span>
+            <span class="rounded-full border border-[var(--color-brass)] px-3 py-1">Explore</span>
+            <span class="rounded-full border border-[var(--color-brass)] px-3 py-1">Compete</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="border-y border-[var(--color-line)] bg-[var(--color-surface)]" aria-label="Catalog at a glance">
+      <div class="mx-auto grid max-w-7xl gap-6 px-6 py-8 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
+        <div>
+          <p class="display-font text-3xl font-semibold text-[var(--color-primary)]">6</p>
+          <p class="mt-1 text-sm text-[var(--color-muted)]">major game entries listed</p>
+        </div>
+        <div>
+          <p class="display-font text-3xl font-semibold text-[var(--color-primary)]">50+</p>
+          <p class="mt-1 text-sm text-[var(--color-muted)]">game files reported</p>
+        </div>
+        <div>
+          <p class="display-font text-3xl font-semibold text-[var(--color-primary)]">5</p>
+          <p class="mt-1 text-sm text-[var(--color-muted)]">game categories</p>
+        </div>
+        <div>
+          <p class="display-font text-3xl font-semibold text-[var(--color-primary)]">Many forms</p>
+          <p class="mt-1 text-sm text-[var(--color-muted)]">BBS · browser · CLI · WASM</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="main-games" class="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div class="max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">Choose a cabinet</p>
+          <h2 class="display-font mt-3 text-3xl font-semibold sm:text-4xl">Main games & worlds</h2>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Filter the catalog by category. Status labels reflect the supplied inventory wording and have not been checked against live deployments.</p>
+        </div>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter games by category">
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="all" aria-pressed="true">All games</button>
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="space" aria-pressed="false">Space</button>
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="action" aria-pressed="false">Action</button>
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="arcade" aria-pressed="false">Arcade</button>
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="strategy" aria-pressed="false">Strategy</button>
+          <button class="filter-button focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-sm font-semibold" type="button" data-filter="puzzle" aria-pressed="false">Puzzle</button>
+        </div>
+      </div>
+
+      <p id="filter-status" class="sr-only" aria-live="polite">Showing all six games.</p>
+      <div id="game-grid" class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="space strategy arcade">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">🚀</span><span class="rounded-full border border-[var(--color-brass)] px-3 py-1 text-xs font-semibold text-[var(--color-brass)]">Listed live · not verified here</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 01 · multiple implementations</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">TradeWars 71</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A space-trading and navigation family with Rust and Python entries, j-invariant navigation, a spacetime variant, zkPerf experiments, Hecke clock synchronization, and orbital path concepts.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">BBS</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Rust / Python</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Navigation</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> <code>tradewars71.rs</code>, <code>tradewars71.py</code>, spacetime and zkPerf variants, orbital paths, and a README. Commits are listed as source notes.</p>
+        </article>
+
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="action arcade">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">👾</span><span class="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs font-semibold text-[var(--color-muted)]">In development · per inventory</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 02 · 71 levels</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">Monster Dash</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A Geometry Dash–style concept for navigating Monster Group structure, with 71 levels and accessibility and multi-platform porting ambitions described in the inventory.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Action</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Accessibility</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Concept</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> <code>MONSTER_DASH_GAME.md</code>. MAME ports are described as a feature goal, not verified builds.</p>
+        </article>
+
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="action space">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">🏃</span><span class="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs font-semibold text-[var(--color-muted)]">Game design listed</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 03 · 15D chase</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">Monster Tag</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A multi-agent tag-and-chase game concept in 15-dimensional Monster space, using Monster primes as dimensions and movement rules inspired by the group structure.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Action</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Multi-agent</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">15D</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> <code>MONSTER_TAG_GAME.md</code> and a commit note. The catalog does not establish a playable build.</p>
+        </article>
+
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="space strategy arcade">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">🛸</span><span class="rounded-full border border-[var(--color-brass)] px-3 py-1 text-xs font-semibold text-[var(--color-brass)]">Live features claimed · not verified here</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 04 · BBS door</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">Monster Ship Loadout</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A 15D BBS-door game family whose inventory describes sidechannel tunneling, four-player MCTS battles, ZK-RDFa witness generation, browser gossip, and Gists integration.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">BBS</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Strategy</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">MCTS</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> <code>doorgame/</code>, AI and scoreboard files, lobster economy, and 15D map. No game launch is provided on this catalog page.</p>
+        </article>
+
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="arcade space">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">🕹️</span><span class="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs font-semibold text-[var(--color-muted)]">In development · per inventory</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 05 · MAME / spacetime</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">MAME Spacetime Tuner</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">An arcade concept in which a galactic position is connected to game parameters such as gravity, address translation, and performance traces.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Arcade</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">WASM</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">BBS</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> <code>MAME_SPACETIME_TUNER.md</code> and <code>zkmame/</code>. The WASM build and spacetime hooks are listed as next steps.</p>
+        </article>
+
+        <article class="game-card rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6" data-categories="arcade puzzle space">
+          <div class="flex items-start justify-between gap-4"><span class="text-3xl" aria-hidden="true">☕</span><span class="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs font-semibold text-[var(--color-muted)]">Concept · per inventory</span></div>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brass)]">Cabinet 06 · Sierra-style adventure</p>
+          <h3 class="display-font mt-2 text-2xl font-semibold">Space Quest Monster</h3>
+          <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A 1980s-style text-adventure concept at the Sgr A* café, with Roger Wilco, Umberto Eco, Kurt Gödel, and a 71-shard collection goal.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]"><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Adventure</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">Puzzle</span><span class="rounded-full bg-[var(--color-bg)] px-3 py-1">71 shards</span></div>
+          <p class="mt-5 border-t border-[var(--color-line)] pt-4 text-xs leading-5 text-[var(--color-muted)]"><strong class="text-[var(--color-text)]">Inventory lists:</strong> an arcade description under an experiments directory. This is presented as a design concept, not a playable title.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="border-y border-[var(--color-line)] bg-[var(--color-surface)]">
+      <div class="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[0.72fr_1.28fr] lg:px-10 lg:py-16">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">Beyond the cabinets</p>
+          <h2 class="display-font mt-3 text-3xl font-semibold">Tools, tapes & competitions</h2>
+          <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The inventory also describes shared game infrastructure, asset catalogs, competition formats, and a puzzle hunt. These are catalog entries—not services connected by this page.</p>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5">
+            <h3 class="display-font text-xl font-semibold">Game components</h3>
+            <ul class="mt-3 space-y-2 text-sm leading-6 text-[var(--color-muted)]">
+              <li><strong class="text-[var(--color-text)]">Timeline:</strong> gaming shard and video-game history notes.</li>
+              <li><strong class="text-[var(--color-text)]">Assets & tapes:</strong> game tape catalog, import/copy scripts, state compression.</li>
+              <li><strong class="text-[var(--color-text)]">State:</strong> status, shareable URL, and game-state integration scripts.</li>
+              <li><strong class="text-[var(--color-text)]">Testing:</strong> headless tests and a door-game test file are listed.</li>
+            </ul>
+          </article>
+          <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-5">
+            <h3 class="display-font text-xl font-semibold">Competition boards</h3>
+            <ul class="mt-3 space-y-2 text-sm leading-6 text-[var(--color-muted)]">
+              <li><strong class="text-[var(--color-text)]">Monster Dance 2026:</strong> an emote competition with prize and shard details stated in the inventory.</li>
+              <li><strong class="text-[var(--color-text)]">CICADA-71:</strong> a puzzle-hunt entry describing 497 challenges across 71 shards.</li>
+              <li><strong class="text-[var(--color-text)]">Leaderboard:</strong> Paxos-node and consensus requirements are described as competition plans.</li>
+              <li><strong class="text-[var(--color-text)]">Prize claims:</strong> verify current terms and availability with the maintainers.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
+      <div class="max-w-3xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">From inventory to next steps</p>
+        <h2 class="display-font mt-3 text-3xl font-semibold sm:text-4xl">The arcade roadmap, as supplied</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">These are proposed or reported activities from the inventory, not commitments or current project status confirmed by this page.</p>
+      </div>
+      <div class="mt-8 grid gap-4 lg:grid-cols-3">
+        <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+          <span class="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-brass)]">Priority 1</span>
+          <h3 class="display-font mt-3 text-xl font-semibold">Gather the session games</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[var(--color-muted)]">
+            <li>TradeWars 71 spacetime variants</li>
+            <li>MAME Spacetime Tuner</li>
+            <li>Sgr A* Café Arcade</li>
+            <li>Astronomy integration work</li>
+          </ul>
+        </article>
+        <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+          <span class="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-brass)]">Priority 2</span>
+          <h3 class="display-font mt-3 text-xl font-semibold">Complete MAME experiments</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[var(--color-muted)]">
+            <li>Compile MAME to WASM</li>
+            <li>Add spacetime hooks</li>
+            <li>Prepare a BBS-door integration</li>
+            <li>Test with Pac-Man</li>
+          </ul>
+        </article>
+        <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+          <span class="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-brass)]">Priority 3</span>
+          <h3 class="display-font mt-3 text-xl font-semibold">Plan the 71-agent competition</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[var(--color-muted)]">
+            <li>Invite participating frameworks</li>
+            <li>Set up a leaderboard</li>
+            <li>Launch the competition</li>
+            <li>Confirm prize details</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pb-16 lg:px-10">
+      <div class="rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-paper)] p-6 sm:p-8">
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-brass)]">Bring another game to the table</p>
+            <h2 class="display-font mt-2 text-2xl font-semibold">The inventory is a starting point.</h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-[var(--color-muted)]">Add a source, confirm its current status, or suggest a cabinet for the next edition. This page itself does not fetch repository activity, launch games, or verify external services.</p>
+          </div>
+          <a class="focus-ring inline-flex shrink-0 items-center justify-center rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 font-semibold text-[var(--color-primary-contrast)] transition hover:brightness-110" href="https://github.com/meta-introspector/hackathon" target="_blank" rel="noopener noreferrer">Open supplied games repository ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <p>Lean-Workers Union Lodge House · Nixwars Arcade field guide</p>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Back to the front door ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    const filterButtons = [...document.querySelectorAll("[data-filter]")];
+    const gameCards = [...document.querySelectorAll(".game-card")];
+    const filterStatus = document.getElementById("filter-status");
+
+    function applyFilter(category) {
+      let visibleCount = 0;
+      gameCards.forEach((card) => {
+        const categories = card.dataset.categories.split(" ");
+        const isVisible = category === "all" || categories.includes(category);
+        card.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+      });
+
+      filterButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === category));
+      });
+      const label = category === "all" ? "all categories" : `${category} games`;
+      filterStatus.textContent = `Showing ${visibleCount} ${label}.`;
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => applyFilter(button.dataset.filter));
+    });
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

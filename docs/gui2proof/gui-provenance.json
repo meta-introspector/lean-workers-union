@@ -1,0 +1,361 @@
+{
+  "site": "Lean Workers Union Lodge House",
+  "generator": "lodge-gen (Lake exe)",
+  "generatorSource": "LodgeHouse/Gen.lean",
+  "snapshotTime": "2026-10-14T10:14:00Z",
+  "pages": [
+    {
+      "path": "index.html",
+      "url": "/",
+      "title": "Lean-Workers Union Lodge House",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Lean-Workers Union Lodge House",
+          "renderedValue": "Lean-Workers Union Lodge House",
+          "isStaticLiteral": true
+        },
+        {
+          "id": "subtitle",
+          "tag": "p",
+          "role": "generic",
+          "accessibleName": "The Lodge House: browser-local, link-shareable, now generated from recursive Lean.",
+          "renderedValue": "The Lodge House: browser-local, link-shareable, now generated from recursive Lean.",
+          "isStaticLiteral": true
+        }
+      ],
+      "links": [
+        { "href": "seats.html", "text": "My profile, invites & tasks" },
+        { "href": "capabilities.html", "text": "Capabilities" },
+        { "href": "protocol.html", "text": "Protocol" },
+        { "href": "proof-model.html", "text": "Proof model" },
+        { "href": "repositories.html", "text": "Repositories" },
+        { "href": "plugins.html", "text": "Plugins" },
+        { "href": "skill-registry.html", "text": "Skill registry" },
+        { "href": "tours.html", "text": "Tours" },
+        { "href": "training-log.html", "text": "Training log" },
+        { "href": "unit-tests.html", "text": "Unit tests" },
+        { "href": "archive.html", "text": "Archive" },
+        { "href": "n00b-guide.html", "text": "n00b guide" },
+        { "href": "union-roadmap.html", "text": "Union roadmap" },
+        { "href": "nixwars-arcade.html", "text": "NixWars arcade" },
+        { "href": "cli.html", "text": "CLI Documentation" },
+        { "href": "seats/index.html", "text": "Profile sharing" },
+        { "href": "union-roadmap/index.html", "text": "Roadmap search" }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "seats.html",
+      "url": "/seats.html",
+      "title": "Seats",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Seats",
+          "renderedValue": "Seats",
+          "isStaticLiteral": true
+        },
+        {
+          "id": "subtitle",
+          "tag": "p",
+          "role": "generic",
+          "accessibleName": "Profile, invitations, tasks — the browser-local workspace.",
+          "renderedValue": "Profile, invitations, tasks — the browser-local workspace.",
+          "isStaticLiteral": true
+        }
+      ],
+      "links": [
+        { "href": "share.html", "text": "Share a profile" }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "capabilities.html",
+      "url": "/capabilities.html",
+      "title": "Capabilities",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Capabilities",
+          "renderedValue": "Capabilities",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "protocol.html",
+      "url": "/protocol.html",
+      "title": "Protocol",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Protocol",
+          "renderedValue": "Protocol",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "proof-model.html",
+      "url": "/proof-model.html",
+      "title": "Proof model",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Proof model",
+          "renderedValue": "Proof model",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "repositories.html",
+      "url": "/repositories.html",
+      "title": "Repositories",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Repositories",
+          "renderedValue": "Repositories",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "plugins.html",
+      "url": "/plugins.html",
+      "title": "Plugins",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Plugins",
+          "renderedValue": "Plugins",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "skill-registry.html",
+      "url": "/skill-registry.html",
+      "title": "Skill registry",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Skill registry",
+          "renderedValue": "Skill registry",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "tours.html",
+      "url": "/tours.html",
+      "title": "Tours",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Tours",
+          "renderedValue": "Tours",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "training-log.html",
+      "url": "/training-log.html",
+      "title": "Training log",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Training log",
+          "renderedValue": "Training log",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "unit-tests.html",
+      "url": "/unit-tests.html",
+      "title": "Unit tests",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Unit tests",
+          "renderedValue": "Unit tests",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "archive.html",
+      "url": "/archive.html",
+      "title": "Archive",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Archive",
+          "renderedValue": "Archive",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "n00b-guide.html",
+      "url": "/n00b-guide.html",
+      "title": "n00b guide",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "n00b guide",
+          "renderedValue": "n00b guide",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "union-roadmap.html",
+      "url": "/union-roadmap.html",
+      "title": "Union roadmap",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Union roadmap",
+          "renderedValue": "Union roadmap",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "nixwars-arcade.html",
+      "url": "/nixwars-arcade.html",
+      "title": "NixWars arcade",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "NixWars arcade",
+          "renderedValue": "NixWars arcade",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "cli.html",
+      "url": "/cli.html",
+      "title": "CLI Documentation",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "CLI Documentation",
+          "renderedValue": "CLI Documentation",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "seats/index.html",
+      "url": "/seats/index.html",
+      "title": "Profile sharing",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Share a profile",
+          "renderedValue": "Share a profile",
+          "isStaticLiteral": true
+        },
+        {
+          "id": "subtitle",
+          "tag": "p",
+          "role": "generic",
+          "accessibleName": "Create an invite link; bring the reply back.",
+          "renderedValue": "Create an invite link; bring the reply back.",
+          "isStaticLiteral": true
+        }
+      ],
+      "links": [
+        { "href": "share.html", "text": "Share a profile" }
+      ],
+      "verdict": "live"
+    },
+    {
+      "path": "union-roadmap/index.html",
+      "url": "/union-roadmap/index.html",
+      "title": "Roadmap search",
+      "elements": [
+        {
+          "id": "page-title",
+          "tag": "h1",
+          "role": "heading",
+          "accessibleName": "Search",
+          "renderedValue": "Search",
+          "isStaticLiteral": true
+        },
+        {
+          "id": "subtitle",
+          "tag": "p",
+          "role": "generic",
+          "accessibleName": "Roadmap search",
+          "renderedValue": "Roadmap search",
+          "isStaticLiteral": true
+        }
+      ],
+      "verdict": "live"
+    }
+  ],
+  "siteIntegrity": {
+    "totalPages": 18,
+    "totalLinks": 19,
+    "staticLiterals": 42,
+    "mismatches": 0,
+    "orphanPages": 0,
+    "structurallyComplete": true
+  }
+}

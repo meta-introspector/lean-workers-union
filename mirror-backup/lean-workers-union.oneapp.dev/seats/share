@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Share a browser-local profile, prepare an invitation link, and bring a reply back from a message.">
+  <title>Profile sharing & invitation replies — Lodge House</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="Lodge House home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · profile sharing</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-3 text-sm" aria-label="Main navigation">
+      <a class="focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 font-semibold hover:border-[var(--color-primary)]" href="/seats">My profile, invites & tasks</a>
+      <a class="focus-ring rounded-full border border-[var(--color-line-strong)] px-4 py-2 font-semibold hover:border-[var(--color-primary)]" href="/union-roadmap">Union table</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-6 lg:px-10">
+    <section class="grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Profile link · message reply · browser-local</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">Share your profile. Bring the reply back.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Create a share link for your profile and invite someone to reply. They can open the link, write a response, and send you a return link in a message. Paste that reply link here to keep it with your profile.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">A link, not a login or message service</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Nothing is sent automatically. Profile links and reply links contain their contents; anyone who gets a link can read it. Use public-safe information only. This workspace stores profiles and replies in this browser.</p>
+      </aside>
+    </section>
+
+    <section class="mt-9 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="profile-heading">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Your profile</p>
+        <h2 id="profile-heading" class="display-font mt-2 text-2xl font-semibold">Check what you’ll share</h2>
+        <div class="mt-5 flex items-center gap-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <div id="profile-icon-preview" class="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-surface)] text-2xl font-semibold text-[var(--color-primary)]" aria-label="Profile icon preview">?</div>
+          <div class="min-w-0">
+            <p id="profile-card-name" class="display-font break-words text-xl font-semibold">No profile yet</p>
+            <p id="profile-card-seat" class="mt-1 break-all text-sm text-[var(--color-primary)]">Create a profile below</p>
+            <p id="profile-card-note" class="mt-2 break-words text-sm text-[var(--color-muted)]"></p>
+          </div>
+        </div>
+        <div id="shared-profile-gallery" class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4" aria-label="Additional profile photos"></div>
+        <p id="profile-gallery-empty" class="mt-3 text-sm text-[var(--color-muted)]">No additional photos saved.</p>
+        <p id="profile-status" class="mt-4 text-sm text-[var(--color-muted)]" aria-live="polite">Your profile is stored only in this browser.</p>
+        <a class="focus-ring mt-4 inline-flex rounded-[var(--radius)] text-sm font-semibold text-[var(--color-primary)] underline" href="/seats#profile">Open the full profile workspace →</a>
+      </article>
+
+      <form id="profile-form" class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Create or update</p>
+        <h2 class="display-font mt-2 text-2xl font-semibold">Your public-safe profile</h2>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <label class="text-sm font-medium sm:col-span-2" for="profile-name">Name or team
+            <input id="profile-name" maxlength="80" autocomplete="nickname" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Your name or team">
+          </label>
+          <label class="text-sm font-medium sm:col-span-2" for="profile-slug">Seat name (optional)
+            <input id="profile-slug" maxlength="40" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Suggested from your name">
+            <span class="mt-1 block text-xs text-[var(--color-muted)]">Suggested automatically. This label is not globally reserved.</span>
+          </label>
+          <label class="text-sm font-medium sm:col-span-2" for="profile-note">Short profile note
+            <textarea id="profile-note" maxlength="240" rows="3" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="What are you interested in?"></textarea>
+          </label>
+          <label class="text-sm font-medium sm:col-span-2" for="profile-icon-file">Main profile photo
+            <input id="profile-icon-file" type="file" accept="image/*" class="focus-ring mt-2 block w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-muted)]">
+            <span class="mt-1 block text-xs text-[var(--color-muted)]">Optional image, resized before saving. It may increase the share-link size.</span>
+          </label>
+          <label class="text-sm font-medium sm:col-span-2" for="profile-gallery-files">Add more profile photos
+            <input id="profile-gallery-files" type="file" accept="image/*" multiple class="focus-ring mt-2 block w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-muted)]">
+            <span class="mt-1 block text-xs text-[var(--color-muted)]">Add as many additional photos as browser storage allows. Images are resized and travel with your profile invitation link; only share photos you intend recipients to see.</span>
+          </label>
+        </div>
+        <p id="profile-error" class="mt-4 hidden rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] p-3 text-sm" role="alert"></p>
+        <button type="submit" class="focus-ring mt-5 rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-[var(--color-primary-contrast)]">Save profile</button>
+      </form>
+    </section>
+
+    <section class="mt-5 grid gap-5 lg:grid-cols-2">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="share-heading">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">1 · Invite someone</p>
+        <h2 id="share-heading" class="display-font mt-2 text-2xl font-semibold">Make a profile share link</h2>
+        <div class="mt-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <p class="text-sm font-semibold">Files staged from Private archives</p>
+          <p id="profile-attachments-status" class="mt-1 text-xs leading-5 text-[var(--color-muted)]" aria-live="polite">No archive files staged for this device.</p>
+          <ul id="profile-attachments-list" class="mt-2 space-y-1 text-xs text-[var(--color-muted)]"></ul>
+          <button id="clear-profile-attachments" type="button" class="focus-ring mt-2 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-1.5 text-xs font-semibold">Clear staged files</button>
+          <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">Staged files are included in the next invitation link. Links contain readable file data; share only small, public-safe files.</p>
+        </div>
+        <label class="mt-5 block text-sm font-medium" for="invite-prompt">What would you like them to respond to?
+          <textarea id="invite-prompt" maxlength="500" rows="3" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="For example: Would you like to join our research discussion?"></textarea>
+        </label>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="create-share-link" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Create invite link</button>
+          <button id="copy-share-link" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Copy link</button>
+          <button id="export-profile" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Export profile JSON</button>
+        </div>
+        <label for="share-link-output" class="mt-5 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Share link to send in a message</label>
+        <textarea id="share-link-output" rows="4" readonly class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="Create a link to show it here."></textarea>
+        <p id="share-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Create a profile before making an invitation link.</p>
+      </article>
+
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="reply-heading">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">2 · Bring the reply back</p>
+        <h2 id="reply-heading" class="display-font mt-2 text-2xl font-semibold">Paste a reply link from your message</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">When someone opens your invite link and responds, ask them to send you the return link they create. Paste that link below. You can also paste exported reply JSON.</p>
+        <label for="reply-import" class="mt-5 block text-sm font-medium">Reply link or JSON
+          <textarea id="reply-import" rows="5" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="Paste the response link or the JSON text they sent you."></textarea>
+        </label>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="import-reply" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-contrast)]">Add reply to my inbox</button>
+          <button id="export-replies" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Export replies JSON</button>
+          <label for="reply-file" class="focus-ring cursor-pointer rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Import reply file</label>
+          <input id="reply-file" type="file" accept="application/json,.json" class="sr-only">
+        </div>
+        <p id="reply-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite">Replies are saved in this browser. Nothing is fetched from a message service.</p>
+      </article>
+    </section>
+
+    <section class="mt-5 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-7" aria-labelledby="inbox-heading">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">Your local inbox</p>
+          <h2 id="inbox-heading" class="display-font mt-2 text-2xl font-semibold">Invitation replies</h2>
+        </div>
+        <p id="inbox-count" class="text-sm text-[var(--color-muted)]" aria-live="polite">No replies yet.</p>
+      </div>
+      <div id="reply-list" class="mt-5 grid gap-3 md:grid-cols-2"></div>
+      <p id="reply-empty" class="mt-4 rounded-[var(--radius)] border border-dashed border-[var(--color-line-strong)] p-4 text-sm text-[var(--color-muted)]">Replies you import will appear here.</p>
+    </section>
+
+    <section id="incoming-invite" class="mt-5 hidden rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-7" aria-labelledby="incoming-heading">
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-primary)]">You received an invitation</p>
+      <h2 id="incoming-heading" class="display-font mt-2 text-2xl font-semibold">Review and write a reply</h2>
+      <div class="mt-4 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+        <p id="incoming-profile-name" class="font-semibold"></p>
+        <p id="incoming-profile-seat" class="mt-1 text-sm text-[var(--color-primary)]"></p>
+        <p id="incoming-profile-note" class="mt-2 text-sm leading-6 text-[var(--color-muted)]"></p>
+        <div id="incoming-profile-photos" class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4" aria-label="Photos shared with this invitation"></div>
+        <section id="incoming-attachments" class="mt-4 hidden rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4" aria-labelledby="incoming-attachments-heading">
+          <h3 id="incoming-attachments-heading" class="font-semibold">Files shared with this profile</h3>
+          <ul id="incoming-attachment-list" class="mt-2 space-y-2"></ul>
+          <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">These files were embedded in the link by its sender. Review files before opening them.</p>
+        </section>
+        <p id="incoming-prompt" class="mt-3 text-sm leading-6"></p>
+      </div>
+      <form id="response-form" class="mt-5 grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium" for="response-name">Your name or team
+          <input id="response-name" maxlength="80" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Optional">
+        </label>
+        <label class="block text-sm font-medium sm:col-span-2" for="response-message">Your reply
+          <textarea id="response-message" required maxlength="2000" rows="4" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Write a response to the invitation."></textarea>
+        </label>
+        <button type="submit" class="focus-ring justify-self-start rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-[var(--color-primary-contrast)]">Create return link</button>
+      </form>
+      <label for="response-link-output" class="mt-5 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Send this return link to the inviter in your message</label>
+      <textarea id="response-link-output" rows="4" readonly class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs text-[var(--color-text)]" placeholder="Your return link will appear here after you write a reply."></textarea>
+      <button id="copy-response-link" type="button" class="focus-ring mt-3 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Copy return link</button>
+      <p id="response-status" class="mt-3 text-sm text-[var(--color-muted)]" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">Lean-Workers Union Lodge House</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/seats">Open profile, invites & tasks</a>
+    </div>
+  </footer>
+
+  <script>
+    const WORKSPACE_KEY = "lean-worker-seats-tasks-v3";
+    const PROFILE_SHARE_KIND = "lodge-profile-invite-v1";
+    const REPLY_KIND = "lodge-invitation-reply-v1";
+    const REPLIES_KEY = "lodge-invitation-replies-v1";
+    const ATTACHMENTS_KEY = "lodge-profile-share-attachments-v1";
+    const pageUrl = new URL("/seats/share", window.location.origin);
+    let workspace = readWorkspace();
+    let replies = readReplies();
+    let incomingInvite = null;
+    let outgoingReplyLink = "";
+    let stagedAttachments = readStagedAttachments();
+
+    function readWorkspace() {
+      try {
+        const value = JSON.parse(localStorage.getItem(WORKSPACE_KEY) || "null");
+        return value && typeof value === "object" ? value : {
+          profile: null,
+          people: [],
+          invitations: [],
+          tasks: []
+        };
+      } catch (error) {
+        return {
+          profile: null,
+          people: [],
+          invitations: [],
+          tasks: []
+        };
+      }
+    }
+
+    function readReplies() {
+      try {
+        const value = JSON.parse(localStorage.getItem(REPLIES_KEY) || "[]");
+        return Array.isArray(value) ? value.filter((item) => item && item.kind === REPLY_KIND) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function readStagedAttachments() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(ATTACHMENTS_KEY) || "null");
+        if (!saved || saved.formatVersion !== 1 || !Array.isArray(saved.files)) return [];
+        return saved.files.slice(0, 30).filter((file) =>
+          file && typeof file.path === "string" && typeof file.data === "string" &&
+          file.data.length <= 80000
+        ).map((file) => ({
+          path: file.path.replace(/^\\/+/, "").slice(0, 500),
+          size: Number.isFinite(file.size) ? Math.max(0, file.size) : 0,
+          data: file.data
+        })).filter((file) => file.path && !file.path.split("/").includes(".."));
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function renderStagedAttachments() {
+      const list = document.getElementById("profile-attachments-list");
+      const status = document.getElementById("profile-attachments-status");
+      list.replaceChildren();
+      if (!stagedAttachments.length) {
+        status.textContent = "No archive files staged for this device.";
+        return;
+      }
+      status.textContent = `${stagedAttachments.length} file${stagedAttachments.length === 1 ? "" : "s"} ready to include in the profile invitation link.`;
+      stagedAttachments.forEach((file) => {
+        const item = document.createElement("li");
+        item.textContent = `${file.path} · ${Math.max(1, Math.round(file.size / 1024))} KB`;
+        list.appendChild(item);
+      });
+    }
+
+    function safeText(value, limit = 2000) {
+      return typeof value === "string" ? value.trim().slice(0, limit) : "";
+    }
+
+    function suggestedSlug(value) {
+      return safeText(value, 80).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/g, "") || "my-seat";
+    }
+
+    function normalizeProfile() {
+      const stored = workspace.profile || {};
+      return {
+        name: safeText(stored.name || stored.displayName, 80),
+        slug: safeText(stored.slug, 40),
+        note: safeText(stored.note || stored.bio, 240),
+        icon: typeof stored.icon === "string" && stored.icon.startsWith("data:image/") ? stored.icon.slice(0, 100000) : "",
+        photos: Array.isArray(stored.photos) ? stored.photos
+          .filter((photo) => typeof photo === "string" && photo.startsWith("data:image/"))
+          
+          .map((photo) => photo.slice(0, 100000)) : []
+      };
+    }
+
+    function encode(value) {
+      const bytes = new TextEncoder().encode(JSON.stringify(value));
+      let binary = "";
+      bytes.forEach((byte) => binary += String.fromCharCode(byte));
+      return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+    }
+
+    function decode(value) {
+      if (typeof value !== "string" || value.length > 120000) throw new Error("The shared data is too large or missing.");
+      const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+      const bytes = Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+
+    function saveWorkspaceProfile(profile) {
+      workspace.profile = {
+        ...(workspace.profile || {}),
+        name: profile.name,
+        slug: profile.slug,
+        note: profile.note,
+        icon: profile.icon,
+        photos: Array.isArray(profile.photos) ? profile.photos : []
+      };
+      workspace.formatVersion = workspace.formatVersion || 1;
+      localStorage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
+    }
+
+    function renderProfile() {
+      const profile = normalizeProfile();
+      document.getElementById("profile-name").value = profile.name;
+      document.getElementById("profile-slug").value = profile.slug || (profile.name ? suggestedSlug(profile.name) : "");
+      document.getElementById("profile-note").value = profile.note;
+      document.getElementById("profile-card-name").textContent = profile.name || "No profile yet";
+      document.getElementById("profile-card-seat").textContent = profile.slug ? `Seat · ${profile.slug}` : "Create a profile below";
+      document.getElementById("profile-card-note").textContent = profile.note;
+      const preview = document.getElementById("profile-icon-preview");
+      preview.replaceChildren();
+      if (profile.icon) {
+        const image = document.createElement("img");
+        image.src = profile.icon;
+        image.alt = `${profile.name || "Profile"} icon`;
+        image.className = "h-full w-full object-cover";
+        preview.appendChild(image);
+      } else {
+        preview.textContent = profile.name ? profile.name.charAt(0).toUpperCase() : "?";
+      }
+      const gallery = document.getElementById("shared-profile-gallery");
+      gallery.replaceChildren();
+      const photos = profile.photos || [];
+      document.getElementById("profile-gallery-empty").classList.toggle("hidden", photos.length > 0);
+      photos.forEach((photo, index) => {
+        const image = document.createElement("img");
+        image.src = photo;
+        image.alt = `Additional profile photo ${index + 1}`;
+        image.className = "aspect-square w-full rounded-[var(--radius)] border border-[var(--color-line)] object-cover";
+        gallery.appendChild(image);
+      });
+      document.getElementById("profile-status").textContent = profile.name ? `Using your saved browser profile, ${profile.name}.` : "No saved profile found. Create one below or open the full profile workspace.";
+    }
+
+    function renderIncomingAttachments(files) {
+      const section = document.getElementById("incoming-attachments");
+      const list = document.getElementById("incoming-attachment-list");
+      list.replaceChildren();
+      if (!files.length) {
+        section.classList.add("hidden");
+        return;
+      }
+      section.classList.remove("hidden");
+      files.forEach((file) => {
+        const item = document.createElement("li");
+        item.className = "flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-3";
+        const description = document.createElement("span");
+        description.className = "min-w-0 break-all text-sm text-[var(--color-muted)]";
+        description.textContent = `${file.path} · ${Math.max(1, Math.round(file.size / 1024))} KB`;
+        const download = document.createElement("button");
+        download.type = "button";
+        download.className = "focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold";
+        download.textContent = "Download file";
+        download.addEventListener("click", () => {
+          try {
+            const base64 = file.data.replace(/-/g, "+").replace(/_/g, "/");
+            const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+            const binary = atob(padded);
+            const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+            const blob = new Blob([bytes], { type: "application/octet-stream" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = file.path.split("/").pop() || "shared-file";
+            anchor.click();
+            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+          } catch (error) {
+            document.getElementById("share-status").textContent = `Could not prepare this attachment: ${error.message}`;
+          }
+        });
+        item.append(description, download);
+        list.appendChild(item);
+      });
+    }
+
+    function normalizeIncomingAttachments(files) {
+      if (!Array.isArray(files)) return [];
+      return files.slice(0, 30).filter((file) =>
+        file && typeof file.path === "string" && typeof file.data === "string" &&
+                  file.path.length <= 500 && file.data.length <= 80000 && /^[A-Za-z0-9+/_=-]+$/.test(file.data)
+      ).map((file) => ({
+        path: file.path.replace(/^\\/+/, "").slice(0, 500),
+        size: Number.isFinite(file.size) ? Math.max(0, file.size) : 0,
+        data: file.data
+      })).filter((file) => file.path && !file.path.split("/").includes(".."));
+    }
+
+    function renderReplies() {
+      const list = document.getElementById("reply-list");
+      const empty = document.getElementById("reply-empty");
+      list.replaceChildren();
+      empty.classList.toggle("hidden", replies.length > 0);
+      document.getElementById("inbox-count").textContent = `${replies.length} repl${replies.length === 1 ? "y" : "ies"} saved in this browser`;
+      replies.slice().reverse().forEach((reply) => {
+        const card = document.createElement("article");
+        card.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4";
+        const title = document.createElement("h3");
+        title.className = "font-semibold";
+        title.textContent = `${reply.from || "A guest"} · reply to ${reply.inviterName || "your invitation"}`;
+        const date = document.createElement("p");
+        date.className = "mt-1 text-xs text-[var(--color-muted)]";
+        date.textContent = reply.receivedAt ? new Date(reply.receivedAt).toLocaleString() : "Imported reply";
+        const message = document.createElement("p");
+        message.className = "mt-3 whitespace-pre-wrap break-words text-sm leading-6";
+        message.textContent = reply.message;
+        card.append(title, date, message);
+        list.appendChild(card);
+      });
+    }
+
+    function persistReplies() {
+      localStorage.setItem(REPLIES_KEY, JSON.stringify(replies));
+      renderReplies();
+    }
+
+    async function resizeImage(file) {
+      if (!file) return normalizeProfile().icon;
+      if (!file.type.startsWith("image/")) throw new Error("Choose an image file for your profile icon.");
+      if (file.size > 12 * 1024 * 1024) throw new Error("That image is over 12 MB. Choose a smaller image.");
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("The image could not be read. Try choosing it again."));
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+      const image = await new Promise((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error("The selected image could not be opened."));
+        element.src = dataUrl;
+      });
+      const ratio = Math.min(1, 160 / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * ratio));
+      canvas.height = Math.max(1, Math.round(image.height * ratio));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image resizing is unavailable in this browser.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const result = canvas.toDataURL("image/jpeg", 0.68);
+      if (result.length > 80000) throw new Error("The resized icon is too large to share. Choose a simpler image.");
+      return result;
+    }
+
+    function createInviteLink() {
+      const profile = normalizeProfile();
+      if (!profile.name) {
+        document.getElementById("share-status").textContent = "Save your profile before creating an invite link.";
+        document.getElementById("profile-name").focus();
+        return;
+      }
+      const payload = {
+        kind: PROFILE_SHARE_KIND,
+        invitationId: globalThis.crypto?.randomUUID ? crypto.randomUUID() : `invite-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        profile,
+        prompt: safeText(document.getElementById("invite-prompt").value, 500),
+        attachments: stagedAttachments,
+        createdAt: new Date().toISOString()
+      };
+      const shareUrl = new URL(pageUrl);
+      shareUrl.hash = `invite=${encode(payload)}`;
+      if (shareUrl.href.length > 100000) {
+        document.getElementById("share-status").textContent = "This profile and its files make a link that is too large to share reliably. Return to Private archives and stage fewer or smaller files, or share the downloaded package JSON instead.";
+        return;
+      }
+      document.getElementById("share-link-output").value = shareUrl.toString();
+      document.getElementById("share-status").textContent = stagedAttachments.length
+        ? `Invite link ready with ${stagedAttachments.length} attached file${stagedAttachments.length === 1 ? "" : "s"}. Copy it into a message; anyone with the link can read the profile and files.`
+        : "Invite link ready. Copy it into a message; the person can respond and send a return link.";
+    }
+
+    function parseReplyInput(text) {
+      const clean = text.trim();
+      let payload;
+      if (clean.startsWith("{")) {
+        payload = JSON.parse(clean);
+      } else {
+        const parsedUrl = new URL(clean);
+        if (parsedUrl.origin !== window.location.origin || parsedUrl.pathname !== pageUrl.pathname) {
+          throw new Error("That link is not a reply link for this profile workspace.");
+        }
+        const encoded = new URLSearchParams(parsedUrl.hash.slice(1)).get("response");
+        if (!encoded) throw new Error("That link does not contain an invitation reply.");
+        payload = decode(encoded);
+      }
+      if (!payload || payload.kind !== REPLY_KIND || typeof payload.message !== "string" || !payload.message.trim()) {
+        throw new Error("Reply data needs a response message from this invitation workspace.");
+      }
+      return {
+        kind: REPLY_KIND,
+        invitationId: safeText(payload.invitationId, 120),
+        inviterName: safeText(payload.inviterName, 80),
+        from: safeText(payload.from, 80) || "A guest",
+        message: safeText(payload.message, 2000),
+        receivedAt: new Date().toISOString()
+      };
+    }
+
+    document.getElementById("profile-name").addEventListener("input", (event) => {
+      const slugField = document.getElementById("profile-slug");
+      if (!slugField.dataset.edited) slugField.value = suggestedSlug(event.target.value);
+    });
+    document.getElementById("profile-slug").addEventListener("input", (event) => {
+      event.target.dataset.edited = "true";
+    });
+
+    document.getElementById("profile-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const error = document.getElementById("profile-error");
+      error.classList.add("hidden");
+      const name = safeText(document.getElementById("profile-name").value, 80);
+      if (!name) {
+        error.textContent = "Enter your name or team name to save your profile.";
+        error.classList.remove("hidden");
+        return;
+      }
+      const slug = suggestedSlug(document.getElementById("profile-slug").value || name);
+      try {
+        const icon = await resizeImage(document.getElementById("profile-icon-file").files[0]);
+        saveWorkspaceProfile({
+          name,
+          slug,
+          note: safeText(document.getElementById("profile-note").value, 240),
+          icon
+        });
+        renderProfile();
+        document.getElementById("profile-icon-file").value = "";
+        document.getElementById("profile-slug").dataset.edited = "";
+        document.getElementById("profile-status").textContent = "Profile saved in this browser and ready to share.";
+      } catch (problem) {
+        error.textContent = problem.message || "Profile could not be saved. Try a smaller image.";
+        error.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("clear-profile-attachments").addEventListener("click", () => {
+      stagedAttachments = [];
+      localStorage.removeItem(ATTACHMENTS_KEY);
+      document.getElementById("share-link-output").value = "";
+      renderStagedAttachments();
+      document.getElementById("share-status").textContent = "Staged archive files cleared from this device. Previously created links still contain their own copies.";
+    });
+
+    document.getElementById("create-share-link").addEventListener("click", createInviteLink);
+    document.getElementById("copy-share-link").addEventListener("click", async () => {
+      const output = document.getElementById("share-link-output");
+      if (!output.value) createInviteLink();
+      if (!output.value) return;
+      try {
+        await navigator.clipboard.writeText(output.value);
+        document.getElementById("share-status").textContent = "Invite link copied. Paste it into your message; nothing was sent automatically.";
+      } catch (error) {
+        output.focus();
+        output.select();
+        document.getElementById("share-status").textContent = "Clipboard unavailable. The invite link is selected so you can copy it manually.";
+      }
+    });
+
+    document.getElementById("export-profile").addEventListener("click", () => {
+      const profile = normalizeProfile();
+      if (!profile.name) {
+        document.getElementById("share-status").textContent = "Save a profile before exporting it.";
+        return;
+      }
+      const data = JSON.stringify({
+        kind: PROFILE_SHARE_KIND,
+        profile,
+        exportedAt: new Date().toISOString()
+      }, null, 2);
+      const link = document.createElement("a");
+      const objectUrl = URL.createObjectURL(new Blob([data], {
+        type: "application/json;charset=utf-8"
+      }));
+      link.href = objectUrl;
+      link.download = "lodge-house-profile.json";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      document.getElementById("share-status").textContent = "Profile JSON export prepared. It contains the profile details and custom icon.";
+    });
+
+    document.getElementById("import-reply").addEventListener("click", () => {
+      const status = document.getElementById("reply-status");
+      try {
+        const reply = parseReplyInput(document.getElementById("reply-import").value);
+        const alreadySaved = replies.some((item) => item.invitationId && item.invitationId === reply.invitationId && item.message === reply.message && item.from === reply.from);
+        if (alreadySaved) {
+          status.textContent = "That reply is already in your local inbox.";
+          return;
+        }
+        replies.push(reply);
+        persistReplies();
+        document.getElementById("reply-import").value = "";
+        status.textContent = "Reply added to your local inbox.";
+      } catch (error) {
+        status.textContent = `Could not add reply: ${error.message}`;
+      }
+    });
+
+    function downloadReplies() {
+      const file = new Blob([JSON.stringify({
+        kind: "lodge-invitation-replies-v1",
+        replies
+      }, null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "lodge-house-invitation-replies.json";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      document.getElementById("reply-status").textContent = "Your local replies were exported as JSON.";
+    }
+    document.getElementById("export-replies").addEventListener("click", downloadReplies);
+
+    document.getElementById("reply-file").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        const incoming = data.kind === REPLY_KIND ? [data] : data.kind === "lodge-invitation-replies-v1" && Array.isArray(data.replies) ? data.replies : [];
+        if (!incoming.length) throw new Error("This file does not contain invitation reply data.");
+        incoming.forEach((item) => {
+          if (item.kind === REPLY_KIND && typeof item.message === "string" && item.message.trim()) {
+            replies.push({
+              kind: REPLY_KIND,
+              invitationId: safeText(item.invitationId, 120),
+              inviterName: safeText(item.inviterName, 80),
+              from: safeText(item.from, 80) || "A guest",
+              message: safeText(item.message, 2000),
+              receivedAt: new Date().toISOString()
+            });
+          }
+        });
+        persistReplies();
+        document.getElementById("reply-status").textContent = `Imported ${incoming.length} reply record(s).`;
+      } catch (error) {
+        document.getElementById("reply-status").textContent = `Could not import reply file: ${error.message}`;
+      }
+      event.target.value = "";
+    });
+
+    document.getElementById("response-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!incomingInvite) return;
+      const response = {
+        kind: REPLY_KIND,
+        invitationId: incomingInvite.invitationId,
+        inviterName: incomingInvite.profile.name,
+        from: safeText(document.getElementById("response-name").value, 80) || "A guest",
+        message: safeText(document.getElementById("response-message").value, 2000),
+        createdAt: new Date().toISOString()
+      };
+      const url = new URL(pageUrl);
+      url.hash = `response=${encode(response)}`;
+      outgoingReplyLink = url.toString();
+      document.getElementById("response-link-output").value = outgoingReplyLink;
+      document.getElementById("response-status").textContent = "Return link ready. Copy it and send it to the inviter in your message.";
+    });
+
+    document.getElementById("copy-response-link").addEventListener("click", async () => {
+      const output = document.getElementById("response-link-output");
+      if (!output.value) {
+        document.getElementById("response-status").textContent = "Write your reply first to create a return link.";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(output.value);
+        document.getElementById("response-status").textContent = "Return link copied. Send it to the inviter in your message.";
+      } catch (error) {
+        output.focus();
+        output.select();
+        document.getElementById("response-status").textContent = "Clipboard unavailable. The return link is selected for manual copying.";
+      }
+    });
+
+    document.getElementById("reply-import").addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") document.getElementById("import-reply").click();
+    });
+
+    try {
+      const fragment = new URLSearchParams(window.location.hash.slice(1));
+      const inviteData = fragment.get("invite");
+      const responseData = fragment.get("response");
+      if (inviteData) {
+        const payload = decode(inviteData);
+        if (payload.kind !== PROFILE_SHARE_KIND || !payload.profile || !payload.profile.name) throw new Error("This invitation link is not supported.");
+        incomingInvite = {
+          invitationId: safeText(payload.invitationId, 120),
+          profile: {
+            name: safeText(payload.profile.name, 80),
+            slug: safeText(payload.profile.slug, 40),
+            note: safeText(payload.profile.note, 240),
+            icon: typeof payload.profile.icon === "string" && payload.profile.icon.startsWith("data:image/") ? payload.profile.icon.slice(0, 100000) : "",
+            photos: Array.isArray(payload.profile.photos) ? payload.profile.photos
+              .filter((photo) => typeof photo === "string" && photo.startsWith("data:image/"))
+              
+              .map((photo) => photo.slice(0, 100000)) : []
+          },
+          prompt: safeText(payload.prompt, 500),
+          attachments: normalizeIncomingAttachments(payload.attachments)
+        };
+        document.getElementById("incoming-profile-name").textContent = incomingInvite.profile.name;
+        document.getElementById("incoming-profile-seat").textContent = incomingInvite.profile.slug ? `Seat · ${incomingInvite.profile.slug}` : "Profile invitation";
+        document.getElementById("incoming-profile-note").textContent = incomingInvite.profile.note;
+        const incomingPhotos = document.getElementById("incoming-profile-photos");
+        (incomingInvite.profile.photos || []).forEach((photo, index) => {
+          const image = document.createElement("img");
+          image.src = photo;
+          image.alt = `Shared profile photo ${index + 1}`;
+          image.className = "aspect-square w-full rounded-[var(--radius)] border border-[var(--color-line)] object-cover";
+          incomingPhotos.appendChild(image);
+        });
+        renderIncomingAttachments(incomingInvite.attachments);
+        document.getElementById("incoming-prompt").textContent = incomingInvite.prompt ? `Invitation: ${incomingInvite.prompt}` : "You can send a reply to this profile invitation.";
+        document.getElementById("incoming-invite").classList.remove("hidden");
+      } else if (responseData) {
+        const response = decode(responseData);
+        if (response.kind !== REPLY_KIND || typeof response.message !== "string") throw new Error("This link does not contain a supported reply.");
+        document.getElementById("reply-import").value = JSON.stringify(response, null, 2);
+        document.getElementById("reply-status").textContent = "Reply link opened. Add this response to your local inbox.";
+        document.getElementById("reply-heading").scrollIntoView({
+          block: "center"
+        });
+      }
+    } catch (error) {
+      document.getElementById("share-status").textContent = `Could not open shared data: ${error.message}`;
+    }
+
+    renderProfile();
+    renderReplies();
+    renderStagedAttachments();
+
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

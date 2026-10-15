@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Collect repository activity, site changes, and manually gathered search results in a structured local enrichment report.">
+  <title>Enrichment workspace — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap">Union backlog</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/search">Research bounties</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/union-roadmap/search/enrichment" aria-current="page">Enrichment workspace</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/forge-pipeline">Forge pipeline</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/union-roadmap/search">← Back to research bounties</a>
+
+    <section class="mt-8 grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Manual enrichment · structured report builder</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">Collect activity, add context, and shape a site-ready report.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Record updates for the two named repositories, note changes to the project overview, and paste in external search findings. The page organizes your entries into a JSON report aligned to the overview’s sections.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">No background monitor or search API</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">This page does not poll repositories, crawl the overview, run web searches, or send email. Paste results gathered elsewhere and keep the source and verification status with each claim. The twice-daily automation described separately is not controlled by this local page.</p>
+      </aside>
+    </section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="workflow-heading">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Suggested enrichment workflow</p>
+      <h2 id="workflow-heading" class="display-font mt-2 text-2xl font-semibold">Gather first. Attribute every finding. Export when reviewed.</h2>
+      <ol class="mt-5 grid gap-3 text-sm leading-6 text-[var(--color-muted)] sm:grid-cols-2 lg:grid-cols-4">
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">1. Monitor:</strong> collect commits, issues, pull requests, releases, and site changes from your approved sources.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">2. Enrich:</strong> run related searches with a tool you choose, then paste useful results with source details.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">3. Map:</strong> add concise, sourced notes to the matching overview section below.</li>
+        <li class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4"><strong class="text-[var(--color-text)]">4. Review:</strong> check URLs and claims, then export or copy the versioned JSON report.</li>
+      </ol>
+    </section>
+
+    <section class="mt-8 grid gap-5 lg:grid-cols-2" aria-label="Monitored source notes">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">GitHub activity · meta-introspector/lean-workers-union</p>
+        <label for="repo-one-summary" class="mt-4 block text-sm font-medium">New activity summary</label>
+        <textarea id="repo-one-summary" rows="5" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Paste a concise summary of new commits, issues, pull requests, and releases."></textarea>
+        <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">Repository identity is prefilled from the user's supplied owner/repo list. Add only activity you have actually observed.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">GitHub activity · meta-introspector/lean-worker</p>
+        <label for="repo-two-summary" class="mt-4 block text-sm font-medium">New activity summary</label>
+        <textarea id="repo-two-summary" rows="5" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Paste a concise summary of new commits, issues, pull requests, and releases."></textarea>
+        <p class="mt-2 text-xs leading-5 text-[var(--color-muted)]">Record the check date and evidence in the summary when available. This page does not verify activity.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6 lg:col-span-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Website changes · lean-workers-union.oneapp.dev</p>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The target overview layout described for this report has sections for Twin model, Protocol &amp; proxy, Plugins, Build inputs, and Build &amp; provenance. This is a practical output shape based on that description, not a published or validated schema.</p>
+        <label for="website-summary" class="mt-4 block text-sm font-medium">Observed website changes</label>
+        <textarea id="website-summary" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Describe what changed and when you checked. Do not infer changes you have not observed."></textarea>
+      </article>
+    </section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="section-notes-heading">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Overview-shaped report</p>
+      <h2 id="section-notes-heading" class="display-font mt-2 text-2xl font-semibold">Map source-backed notes to the site's interface sections.</h2>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-[var(--color-muted)]">These fields are editorial summaries for the resulting report. Keep evidence and uncertainty visible; a filled field is not itself a verified claim.</p>
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <label class="text-sm font-medium" for="twin-notes">Twin model
+          <textarea id="twin-notes" data-section="twinModel" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal text-[var(--color-text)]" placeholder="Identity, capabilities, constraints, memory, context, execution behavior."></textarea>
+        </label>
+        <label class="text-sm font-medium" for="protocol-notes">Protocol &amp; proxy
+          <textarea id="protocol-notes" data-section="protocolProxy" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal text-[var(--color-text)]" placeholder="Relevant protocol and proxy observations, with evidence scope."></textarea>
+        </label>
+        <label class="text-sm font-medium" for="plugin-notes">Plugins
+          <textarea id="plugin-notes" data-section="plugins" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal text-[var(--color-text)]" placeholder="Plugin catalog or maturity changes supported by sources."></textarea>
+        </label>
+        <label class="text-sm font-medium" for="build-inputs-notes">Build inputs
+          <textarea id="build-inputs-notes" data-section="buildInputs" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal text-[var(--color-text)]" placeholder="Toolchains, manifests, dependencies, or input changes."></textarea>
+        </label>
+        <label class="text-sm font-medium md:col-span-2" for="provenance-notes">Build &amp; provenance
+          <textarea id="provenance-notes" data-section="buildProvenance" rows="4" maxlength="5000" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm font-normal text-[var(--color-text)]" placeholder="Build evidence, source revisions, provenance, or stated limitations."></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="mt-8 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">External enrichment</p>
+        <h2 class="display-font mt-2 text-xl font-semibold">Add a search result</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Run searches outside this page. Paste the relevant result and attribution here; do not treat a search snippet as confirmation.</p>
+        <form id="result-form" class="mt-4 space-y-4">
+          <label class="block text-sm font-medium" for="result-topic">Topic / related section
+            <select id="result-topic" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]">
+              <option value="Twin model">Twin model</option>
+              <option value="Protocol & proxy">Protocol &amp; proxy</option>
+              <option value="Plugins">Plugins</option>
+              <option value="Build inputs">Build inputs</option>
+              <option value="Build & provenance">Build &amp; provenance</option>
+              <option value="General context">General context</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium" for="result-title">Result title
+            <input id="result-title" required maxlength="240" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Title as shown by the source">
+          </label>
+          <label class="block text-sm font-medium" for="result-source">Source label
+            <input id="result-source" required maxlength="240" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Publication, repository, or organization">
+          </label>
+          <label class="block text-sm font-medium" for="result-url">Source URL (optional)
+            <input id="result-url" type="url" maxlength="1200" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Paste the source URL you actually used">
+          </label>
+          <label class="block text-sm font-medium" for="result-date">Published or checked date (optional)
+            <input id="result-date" type="text" maxlength="80" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]" placeholder="Use the date shown by your source">
+          </label>
+          <label class="block text-sm font-medium" for="result-summary">Finding / pasted result
+            <textarea id="result-summary" required maxlength="5000" rows="5" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 text-sm text-[var(--color-text)]" placeholder="Summarize the relevant result and what it does—and does not—support."></textarea>
+          </label>
+          <label class="block text-sm font-medium" for="result-status">Review status
+            <select id="result-status" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)]">
+              <option value="Unreviewed">Unreviewed</option>
+              <option value="Source checked">Source checked</option>
+              <option value="Needs follow-up">Needs follow-up</option>
+            </select>
+          </label>
+          <button type="submit" class="focus-ring w-full rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-[var(--color-primary-contrast)]">Add finding to report</button>
+        </form>
+      </article>
+
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6" aria-labelledby="report-heading">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Local report</p>
+            <h2 id="report-heading" class="display-font mt-2 text-2xl font-semibold">Review the structured output</h2>
+            <p id="report-status" class="mt-2 text-sm text-[var(--color-muted)]" aria-live="polite">Draft is stored in this browser only.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="copy-report" type="button" class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-3 py-2 text-xs font-semibold text-[var(--color-primary-contrast)]">Copy JSON</button>
+            <button id="download-report" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Download JSON</button>
+            <label for="import-report" class="focus-ring cursor-pointer rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-2 text-xs font-semibold">Import JSON</label>
+            <input id="import-report" type="file" accept="application/json,.json" class="sr-only">
+          </div>
+        </div>
+        <div id="findings-list" class="mt-5 space-y-3"></div>
+        <label for="report-preview" class="mt-5 block text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">Overview-shaped JSON preview</label>
+        <textarea id="report-preview" readonly rows="22" class="focus-ring mt-2 w-full rounded-[var(--radius)] border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-3 py-3 font-mono text-xs leading-5 text-[var(--color-text)]"></textarea>
+        <p class="mt-3 text-xs leading-5 text-[var(--color-muted)]">Format version 1 is a practical local data contract based on the described interface sections, not an official site schema. Search results and notes remain attributed user input until independently reviewed.</p>
+      </article>
+    </section>
+
+    <section class="mt-8 rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="display-font text-xl font-semibold">Privacy and portability</h2>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[var(--color-muted)]">Drafts are stored in this browser's local storage. Export JSON for sneakernet or copy it into another workflow. No data is submitted to the monitored repositories or the overview site.</p>
+        </div>
+        <button id="clear-report" type="button" class="focus-ring rounded-[var(--radius)] border border-[var(--color-line-strong)] px-4 py-2.5 text-sm font-semibold">Clear local report</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-6 py-7 text-sm text-[var(--color-muted)] sm:flex-row lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/union-roadmap/search">Return to research bounties</a>
+      <span>Manual, source-attributed enrichment · no automated polling</span>
+    </div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "lean-worker-enrichment-report-v1";
+    const initialState = {
+      repoActivity: {
+        "meta-introspector/lean-workers-union": "",
+        "meta-introspector/lean-worker": ""
+      },
+      websiteChanges: "",
+      sections: {
+        twinModel: "",
+        protocolProxy: "",
+        plugins: "",
+        buildInputs: "",
+        buildProvenance: ""
+      },
+      findings: []
+    };
+    let state = loadState();
+
+    function createId(prefix) {
+      const suffix = globalThis.crypto?.randomUUID
+        ? globalThis.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      return `${prefix}-${suffix}`;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && typeof saved === "object") {
+          return {
+            repoActivity: {
+              ...initialState.repoActivity,
+              ...(saved.repoActivity || {})
+            },
+            websiteChanges: typeof saved.websiteChanges === "string" ? saved.websiteChanges : "",
+            sections: {
+              ...initialState.sections,
+              ...(saved.sections || {})
+            },
+            findings: Array.isArray(saved.findings) ? saved.findings : []
+          };
+        }
+      } catch (error) {
+        console.warn("Could not restore the local enrichment draft.", error);
+      }
+      return structuredClone(initialState);
+    }
+
+    function reportPayload() {
+      return {
+        formatVersion: 1,
+        schemaDescription: "Practical overview-shaped report based on the described site sections; not an official site schema.",
+        generatedAt: new Date().toISOString(),
+        sources: {
+          repositories: Object.entries(state.repoActivity).map(([repository, activitySummary]) => ({
+            repository,
+            activitySummary
+          })),
+          website: {
+            name: "lean-workers-union.oneapp.dev",
+            observedChanges: state.websiteChanges
+          }
+        },
+        sections: {
+          "Twin model": state.sections.twinModel,
+          "Protocol & proxy": state.sections.protocolProxy,
+          "Plugins": state.sections.plugins,
+          "Build inputs": state.sections.buildInputs,
+          "Build & provenance": state.sections.buildProvenance
+        },
+        enrichment: state.findings.map((finding) => ({
+          ...finding
+        }))
+      };
+    }
+
+    function saveState(message = "Draft saved in this browser only.", syncFields = false) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        document.getElementById("report-status").textContent = `${message} ${state.findings.length} search finding${state.findings.length === 1 ? "" : "s"} in report.`;
+      } catch (error) {
+        document.getElementById("report-status").textContent = "Could not save locally. Download or copy the report to keep your changes.";
+      }
+      render(syncFields);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function renderFindings() {
+      const container = document.getElementById("findings-list");
+      container.replaceChildren();
+      if (state.findings.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm text-[var(--color-muted)]";
+        empty.textContent = "No search findings added. Paste an externally gathered result using the form.";
+        container.appendChild(empty);
+        return;
+      }
+
+      state.findings.forEach((finding, index) => {
+        const card = document.createElement("article");
+        card.className = "rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4";
+        const title = document.createElement("h3");
+        title.className = "font-semibold text-[var(--color-text)]";
+        title.textContent = finding.title;
+        const metadata = document.createElement("p");
+        metadata.className = "mt-1 text-xs text-[var(--color-primary)]";
+        metadata.textContent = `${finding.topic} · ${finding.source} · ${finding.reviewStatus}`;
+        const summary = document.createElement("p");
+        summary.className = "mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--color-muted)]";
+        summary.textContent = finding.summary;
+        card.append(title, metadata, summary);
+        if (finding.sourceUrl) {
+          const sourceUrl = document.createElement("p");
+          sourceUrl.className = "mt-2 break-all text-xs text-[var(--color-muted)]";
+          sourceUrl.textContent = `Source URL supplied: ${finding.sourceUrl}`;
+          card.appendChild(sourceUrl);
+        }
+        if (finding.publishedOrChecked) {
+          const date = document.createElement("p");
+          date.className = "mt-1 text-xs text-[var(--color-muted)]";
+          date.textContent = `Published / checked: ${finding.publishedOrChecked}`;
+          card.appendChild(date);
+        }
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "focus-ring mt-3 rounded-[var(--radius)] border border-[var(--color-line-strong)] px-3 py-1.5 text-xs font-semibold";
+        remove.textContent = "Remove finding";
+        remove.addEventListener("click", () => {
+          state.findings.splice(index, 1);
+          saveState("Finding removed.");
+        });
+        card.appendChild(remove);
+        container.appendChild(card);
+      });
+    }
+
+    function render(syncFields = false) {
+      if (syncFields) {
+        document.getElementById("repo-one-summary").value = state.repoActivity["meta-introspector/lean-workers-union"] || "";
+        document.getElementById("repo-two-summary").value = state.repoActivity["meta-introspector/lean-worker"] || "";
+        document.getElementById("website-summary").value = state.websiteChanges;
+        document.querySelectorAll("[data-section]").forEach((field) => {
+          field.value = state.sections[field.dataset.section] || "";
+        });
+      }
+      document.getElementById("report-preview").value = JSON.stringify(reportPayload(), null, 2);
+      renderFindings();
+    }
+
+    function downloadReport() {
+      const blob = new Blob([JSON.stringify(reportPayload(), null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = "lean-worker-enrichment-report.json";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      document.getElementById("report-status").textContent = "JSON report download requested. The report remains local unless you share it.";
+    }
+
+    async function copyReport() {
+      const text = JSON.stringify(reportPayload(), null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById("report-status").textContent = "Structured JSON copied. Review it before using it elsewhere.";
+      } catch (error) {
+        const preview = document.getElementById("report-preview");
+        preview.focus();
+        preview.select();
+        document.getElementById("report-status").textContent = "Clipboard unavailable. JSON is selected in the preview for manual copying.";
+      }
+    }
+
+    function validateImported(payload) {
+      if (!payload || payload.formatVersion !== 1 || !payload.sources || !payload.sections || !Array.isArray(payload.enrichment)) {
+        throw new Error("Expected an overview-shaped report with formatVersion 1, sources, sections, and enrichment.");
+      }
+      const imported = structuredClone(initialState);
+      const repositories = Array.isArray(payload.sources.repositories) ? payload.sources.repositories : [];
+      for (const item of repositories) {
+        if (!item || typeof item.repository !== "string") continue;
+        if (Object.hasOwn(imported.repoActivity, item.repository)) {
+          imported.repoActivity[item.repository] = typeof item.activitySummary === "string" ? item.activitySummary.slice(0, 5000) : "";
+        }
+      }
+      imported.websiteChanges = typeof payload.sources.website?.observedChanges === "string" ? payload.sources.website.observedChanges.slice(0, 5000) : "";
+      imported.sections.twinModel = typeof payload.sections["Twin model"] === "string" ? payload.sections["Twin model"].slice(0, 5000) : "";
+      imported.sections.protocolProxy = typeof payload.sections["Protocol & proxy"] === "string" ? payload.sections["Protocol & proxy"].slice(0, 5000) : "";
+      imported.sections.plugins = typeof payload.sections.Plugins === "string" ? payload.sections.Plugins.slice(0, 5000) : "";
+      imported.sections.buildInputs = typeof payload.sections["Build inputs"] === "string" ? payload.sections["Build inputs"].slice(0, 5000) : "";
+      imported.sections.buildProvenance = typeof payload.sections["Build & provenance"] === "string" ? payload.sections["Build & provenance"].slice(0, 5000) : "";
+      imported.findings = payload.enrichment.slice(0, 500).map((finding) => {
+        if (!finding || typeof finding.title !== "string" || typeof finding.summary !== "string") {
+          throw new Error("Each enrichment entry needs a title and summary.");
+        }
+        return {
+          id: typeof finding.id === "string" ? finding.id : createId("import"),
+          topic: typeof finding.topic === "string" ? finding.topic.slice(0, 100) : "General context",
+          title: finding.title.slice(0, 240),
+          source: typeof finding.source === "string" ? finding.source.slice(0, 240) : "Unspecified source",
+          sourceUrl: typeof finding.sourceUrl === "string" ? finding.sourceUrl.slice(0, 1200) : "",
+          publishedOrChecked: typeof finding.publishedOrChecked === "string" ? finding.publishedOrChecked.slice(0, 80) : "",
+          summary: finding.summary.slice(0, 5000),
+          reviewStatus: typeof finding.reviewStatus === "string" ? finding.reviewStatus.slice(0, 80) : "Unreviewed"
+        };
+      });
+      return imported;
+    }
+
+    document.getElementById("repo-one-summary").addEventListener("input", (event) => {
+      state.repoActivity["meta-introspector/lean-workers-union"] = event.target.value;
+      saveState();
+    });
+    document.getElementById("repo-two-summary").addEventListener("input", (event) => {
+      state.repoActivity["meta-introspector/lean-worker"] = event.target.value;
+      saveState();
+    });
+    document.getElementById("website-summary").addEventListener("input", (event) => {
+      state.websiteChanges = event.target.value;
+      saveState();
+    });
+    document.querySelectorAll("[data-section]").forEach((field) => {
+      field.addEventListener("input", () => {
+        state.sections[field.dataset.section] = field.value;
+        saveState();
+      });
+    });
+
+    document.getElementById("result-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const urlValue = document.getElementById("result-url").value.trim();
+      if (urlValue) {
+        try {
+          const parsed = new URL(urlValue);
+          if (!(["http:", "https:"].includes(parsed.protocol))) throw new Error("Use an http(s) source URL.");
+        } catch (error) {
+          document.getElementById("report-status").textContent = `Please check the source URL: ${error.message}`;
+          return;
+        }
+      }
+      state.findings.unshift({
+        id: createId("finding"),
+        topic: document.getElementById("result-topic").value,
+        title: document.getElementById("result-title").value.trim(),
+        source: document.getElementById("result-source").value.trim(),
+        sourceUrl: urlValue,
+        publishedOrChecked: document.getElementById("result-date").value.trim(),
+        summary: document.getElementById("result-summary").value.trim(),
+        reviewStatus: document.getElementById("result-status").value
+      });
+      event.currentTarget.reset();
+      saveState("Finding added.");
+    });
+
+    document.getElementById("copy-report").addEventListener("click", copyReport);
+    document.getElementById("download-report").addEventListener("click", downloadReport);
+    document.getElementById("import-report").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const imported = validateImported(JSON.parse(await file.text()));
+        state = imported;
+        saveState(`Imported ${file.name}.`, true);
+      } catch (error) {
+        document.getElementById("report-status").textContent = `Could not import report: ${error.message}`;
+      }
+      event.target.value = "";
+    });
+    document.getElementById("clear-report").addEventListener("click", () => {
+      if (!window.confirm("Clear this browser's enrichment draft and findings? Export a copy first if you need one.")) return;
+      state = structuredClone(initialState);
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById("report-status").textContent = "Local report cleared.";
+      render();
+    });
+
+        render(true);
+  </script>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>

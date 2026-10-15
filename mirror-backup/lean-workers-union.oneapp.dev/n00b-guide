@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A beginner-friendly introduction to Lean 4, theorem proving, and the lean-worker project, with practical checks and clear evidence boundaries.">
+  <title>Beginner guide — lean-worker field guide</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem("lodge-high-contrast") === "on") {
+        document.documentElement.dataset.contrast = "high";
+      }
+    } catch (error) {
+      // Browser storage may be unavailable.
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="page-glow min-h-screen antialiased">
+  <header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-6 lg:px-10">
+    <a class="focus-ring flex items-center gap-3 rounded-[var(--radius)]" href="/" aria-label="lean-worker home">
+      <span class="grid h-10 w-10 place-items-center rounded-[var(--radius)] bg-[var(--color-primary)] font-bold text-[var(--color-primary-contrast)]">LW</span>
+      <span class="display-font text-lg font-semibold tracking-tight">Lean-Workers Union<span class="block text-sm font-normal text-[var(--color-muted)]">Lodge House · field guide</span></span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-muted)]" aria-label="Main navigation">
+      <a class="focus-ring rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-primary-contrast)]" href="/seats/share">My profile / Login</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/capabilities">Architecture</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/proof-model">Assurance limits</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/protocol">Protocols</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/plugins">Plugins</a>
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/repositories">Build & provenance</a>
+      <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)]" href="/n00b-guide" aria-current="page">Beginner guide</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-10 lg:pt-12">
+    <a class="focus-ring rounded-[var(--radius)] text-sm text-[var(--color-muted)] hover:text-[var(--color-primary)]" href="/">← Home</a>
+
+    <section class="mt-8 grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Start here · no Lean experience required</p>
+        <h1 class="display-font mt-4 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">A beginner’s guide to Lean and lean-worker.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-muted)]">Lean is a programming language and proof assistant. You write definitions and propositions, then ask Lean’s kernel to check that a proof term establishes a proposition. This page introduces the ideas without assuming that every project claim has already been independently verified.</p>
+      </div>
+      <aside class="rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-5 sm:p-6">
+        <h2 class="font-semibold text-[var(--color-primary)]">First, keep the claim in scope</h2>
+        <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">A checked Lean theorem is evidence about its stated definitions and assumptions. It is not, by itself, proof that an AI agent is deployed, that its real-world actions are captured, or that every operation is safe.</p>
+      </aside>
+    </section>
+
+    <section class="mt-10 grid gap-4 md:grid-cols-3" aria-label="Lean basics">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">01 · Definition</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Describe a thing</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A definition gives Lean a name for data or a computation. For example, a membership record might contain an identifier and a status.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">02 · Proposition</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">State what should hold</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A theorem states a proposition—for example, that looking up a newly registered identifier returns the record that was added.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">03 · Proof</p>
+        <h2 class="display-font mt-3 text-xl font-semibold">Ask Lean to check it</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">A proof explains why the proposition follows. Lean checks the resulting proof term, subject to the definitions, imports, axioms, and compiler/toolchain used.</p>
+      </article>
+    </section>
+
+    <section class="mt-12 grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">A tiny example</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Prove a simple fact</h2>
+        <pre class="mt-5 overflow-x-auto rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4 text-sm leading-6 text-[var(--color-text)]"><code>theorem add_zero_example (n : Nat) : n + 0 = n := by
+  rfl</code></pre>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]"><code>Nat</code> means natural numbers. The theorem says adding zero leaves a natural number unchanged. <code>rfl</code> works here because both sides reduce to the same expression by computation.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Learn by checking one file</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">A careful first workflow</h2>
+        <ol class="mt-5 list-decimal space-y-3 pl-5 text-sm leading-6 text-[var(--color-muted)]">
+          <li>Find the project’s toolchain and build instructions. In this supplied tree, the build page reports a Lean toolchain and Lake project under <code>minimal/</code>; this conflicts with the pasted N00b guide’s claim that no Lake project exists.</li>
+          <li>Open one small Lean file and identify its imports, definitions, theorem statement, and proof.</li>
+          <li>Use the build command documented for the exact project revision rather than assuming <code>lean *.lean</code> checks every file. Wildcards are not recursive and may not respect module dependencies.</li>
+          <li>Read the complete compiler output. A command that prints theorem counts is only counting matching text; it does not compile or validate those theorems.</li>
+          <li>Record the source revision and Lean version alongside any result so another person can repeat the check.</li>
+        </ol>
+        <a class="focus-ring mt-6 inline-block rounded-[var(--radius)] text-sm font-semibold text-[var(--color-primary)] underline" href="/repositories">Review build and provenance notes →</a>
+      </article>
+    </section>
+
+    <section class="mt-12 rounded-[var(--radius)] border border-[var(--color-primary)] bg-[var(--color-overlay)] p-6 sm:p-8" aria-labelledby="claims-heading">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Important: check before repeating</p>
+      <h2 id="claims-heading" class="display-font mt-3 text-2xl font-semibold">The pasted guide makes claims that need verification.</h2>
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <div class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h3 class="font-semibold">The theorem counts conflict</h3>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The pasted guide says both 78 and 82 theorems. A grep count can miss declarations, count the wrong files, or count text that is not a successful proof. Check the actual files and full build output for a specific revision.</p>
+        </div>
+        <div class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h3 class="font-semibold">“Every action is proved” is too broad</h3>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The formal models described in this field guide do not establish that a deployed agent’s real actions are intercepted, observed, or checked. See <a class="text-[var(--color-primary)] underline" href="/proof-model">assurance limits</a>.</p>
+        </div>
+        <div class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h3 class="font-semibold">Build instructions disagree</h3>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">The pasted guide says there is no Lake project and recommends <code>lean *.lean</code>; the supplied inventory includes a Lean toolchain and Lake configuration. Resolve the discrepancy against the exact checkout before building.</p>
+        </div>
+        <div class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-bg)] p-4">
+          <h3 class="font-semibold">Treat relay instructions as unverified</h3>
+          <p class="mt-2 text-sm leading-6 text-[var(--color-muted)]">Do not send secrets, task keys, private data, or proof material to a relay unless you have independently confirmed its endpoint, security design, access policy, and intended use. The protocol model described here is not a production cryptography or deployment guarantee.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12 grid gap-5 lg:grid-cols-2">
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Choose a small learning task</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Ask a precise question</h2>
+        <p class="mt-3 text-sm leading-6 text-[var(--color-muted)]">Start with a definition or theorem already present in the checked-out project. Try to explain its inputs and conclusion in plain language. Then make one small change and see whether the project’s documented build catches it.</p>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-muted)]">The pasted guide names task labels such as <code>agent-a-wave-vi</code>, but their availability and contents have not been verified here. Confirm task files and the current proof-work specification in your own checkout before choosing a task.</p>
+      </article>
+      <article class="rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">Next pages</p>
+        <h2 class="display-font mt-3 text-2xl font-semibold">Keep exploring</h2>
+        <div class="mt-5 flex flex-col gap-3 text-sm">
+          <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)] underline" href="/capabilities">Architecture: what the repository tree contains →</a>
+          <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)] underline" href="/proof-model">Assurance limits: what formal proofs do and don’t show →</a>
+          <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)] underline" href="/protocol">Protocols and runtime source →</a>
+          <a class="focus-ring rounded-[var(--radius)] text-[var(--color-primary)] underline" href="/repositories">Build inputs and provenance →</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)]">
+    <div class="mx-auto max-w-7xl px-6 py-7 text-sm text-[var(--color-muted)] lg:px-10">
+      <a class="focus-ring rounded-[var(--radius)] hover:text-[var(--color-primary)]" href="/">lean-worker field guide</a>
+      <span class="mx-2" aria-hidden="true">·</span>
+      <span>Beginner overview based on the supplied project descriptions; not an independently verified build.</span>
+    </div>
+  </footer>
+<script src="/workspace-nav.js"></script>
+</body>
+
+</html>
