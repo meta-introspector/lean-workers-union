@@ -9,7 +9,8 @@ namespace ChoirUnion.Authority
 
 /-- GateCondition specifies the trusted expectations for a receipt.
     
-    This is constructed by trusted local policy, never by an untrusted receipt producer.
+    This must be constructed by trusted local policy, never by an untrusted receipt
+    producer. This package does not enforce that; it is the caller's responsibility.
     The condition's allowedAxioms override any axiom list in the receipt.
 --/
 structure GateCondition where
@@ -29,8 +30,8 @@ def subjectMatches (condition : GateCondition) (receipt : Receipt) : Bool :=
 def claimMatches (condition : GateCondition) (receipt : Receipt) : Bool :=
   receipt.claim == condition.expectedClaim
 
-/-- Pure syntactic validation: if the receipt provides a witness,
-    it must be clean relative to the condition's allowed axioms.
+/-- Pure syntactic validation: the receipt must provide a witness, and that
+    witness must be clean relative to the condition's allowed axioms.
     A missing witness fails this check.
 --/
 def witnessAllows (condition : GateCondition) (receipt : Receipt) : Bool :=
@@ -42,16 +43,24 @@ def witnessAllows (condition : GateCondition) (receipt : Receipt) : Bool :=
     
     It does NOT claim that the receipt was independently verified.
     It only checks:
-    - receipt status indicates kernel checking was attempted
+    - receipt status is `kernelChecked`, i.e. the producer claims kernel checking
+      was performed (the status itself is not verified)
     - receipt subject matches the expected subject
     - receipt claim matches the expected claim
-    - receipt witness (if present) is clean relative to the condition's allowed axioms
+    - receipt witness is present and clean relative to the condition's allowed axioms
+      (a missing witness fails the gate)
+
+    It does not read `verdict`, `producerMemberId`, `claimCeiling` or `evidenceDigest`,
+    and it does not tie the witness to the claimed declaration.
     
     This is a pure function: Bool. It does not perform I/O, environment inspection,
     or verify anything external. It only validates the structural consistency
-    of the data.
+   of the data. The receipt fields are producer-supplied and are compared
+against trusted local gate conditions. Passing this gate checks local
+consistency; it does not establish independent kernel verification.
     
-    For actual evidence, the evaluating code must:
+    For actual evidence, the evaluating code must (none of this is provided by this
+    package):
     - synthesize a fresh witness from the current Lean environment
     - run an independent replay via lean4checker
     - verify cryptographic signatures (when implemented)

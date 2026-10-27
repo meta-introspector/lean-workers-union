@@ -16,8 +16,13 @@ namespace ChoirUnion.Authority
     foreign: A receipt received from an external source or untrusted producer.
     
     DO NOT interpret kernelChecked as "this receipt is trustworthy."
-    ReceiptStatus is just metadata about the receipt's origin and intent.
-    Trust is determined by ReceiptVerdict and external policy, not by status alone.
+    ReceiptStatus is just metadata about the receipt's origin and intent, written by
+    whoever constructs the receipt.
+    Trust is not determined by status, nor by the receipt's `verdict` field, which is
+    also written by the receipt's constructor and is not computed by this package.
+    Trust can only come from the consumer's own checks: `evaluateGate` is a local check
+    of the receipt data, and independent kernel verification (fresh witness synthesis
+    or external replay) is not provided by this package.
 --/
 inductive ReceiptStatus where
   | open
@@ -33,13 +38,17 @@ inductive ReceiptStatus where
     - claim: what is being asserted
     - claimCeiling: optional upper bound on the scope of the claim
     - producerMemberId: which union member produced this receipt (for authorization)
-    - witness: optional structured evidence (e.g., axioms used, sorry count)
+    - witness: optional structured metadata claimed by the producer
+      (e.g., axioms used, sorry count)
     - status: lifecycle status (open, sketch, kernelChecked, foreign)
-    - verdict: epistemic status after evaluation (attested, falsified, indeterminate)
+    - verdict: intended epistemic label after evaluation (attested, falsified,
+      indeterminate); a plain field, not computed by this package and not read
+      by `evaluateGate`
     - evidenceDigest: optional hash/digest of supporting evidence
     
-    A receipt is always just data. It is a claim, not proof, until validated
-    by a trusted local policy and environment.
+    A receipt is always just data. Every field, including status, verdict and
+    witness, is supplied by whoever constructs the receipt. It is a claim, not proof,
+    until validated by a trusted local policy and environment.
 --/
 structure Receipt where
   subject : Subject

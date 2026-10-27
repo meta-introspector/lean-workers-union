@@ -9,9 +9,12 @@ This API is the server-side formalization of those exact models.
 
 The site's own disclaimers are load-bearing: "browser-local notes, not live build or
 permission checks", "sharing links are readable, not encrypted, not access-controlled".
-The API keeps the same honesty: every response carries provenance, and nothing in the
-API asserts what was not checked. The ChoirUnion `Receipt`/`Witness` vocabulary is the
-status grammar.
+The API is meant to keep the same honesty: nothing in the API should assert what was not
+checked. The ChoirUnion `Receipt`/`Witness` vocabulary is the status grammar (see "Status
+grammar" below for what a receipt does and does not establish).
+
+This document is a specification. This repository contains no server implementing these
+endpoints; `LodgeHouse/Api.lean` is a pure model of the data and of the response receipt.
 
 ## Resources
 
@@ -113,12 +116,37 @@ tasks merge by id — contributions append dedup by id, collaborators dedup by n
 
 ## Status grammar (ChoirUnion alignment)
 
-Every mutating response carries a `Receipt`:
-- claim (Lean.Name of the declaration / resource id)
-- witness (ReplayWitness: declarationFound, isTheorem, sorryCount, usedAxioms)
+A mutating response is modelled as `ApiResponse` (`LodgeHouse/Api.lean`): the data plus a
+ChoirUnion `Receipt` with these fields:
+- subject (Subject: repository, commitHash, toolchain; identity labels, not a cryptographic binding)
+- claim (Claim: a Lean.Name naming a declaration or resource)
+- claimCeiling (optional)
+- producerMemberId (the member that produced the receipt)
+- witness (optional ReplayWitness: declarationFound, isTheorem, sorryCount, usedAxioms)
 - status: ReceiptStatus (open | sketch | kernelChecked | foreign)
 - verdict: ReceiptVerdict (attested | falsified | indeterminate)
+- evidenceDigest (optional)
 
-The API never upgrades a browser-local claim past `sketch` unless a witness was
-synthesized fresh (gokujo `axioms`/`check` gate) — per the README's critical
-distinction: a deserialized witness passing `clean()` is still a claim, not evidence.
+Every one of these fields is written by whoever constructs the receipt. A receipt is
+data, not proof: `status := kernelChecked`, `verdict := attested` or a clean-looking
+witness on a received receipt is the producer's claim, not evidence that any check ran.
+
+The only receipt the model constructs is `sketchReceipt`: status `sketch`, verdict
+`indeterminate`, no witness, claim `LodgeHouse.browserLocal`, empty `commitHash`. No code
+in this repository raises a browser-local claim past `sketch`. In particular there is no
+witness synthesis and no "gokujo gate" upgrade path here: `gokujo` is a tool in the
+separate `lean-worker` repository, and nothing in this repository invokes it or connects
+its output to these receipts.
+
+Three different things must not be confused:
+
+| Level | What it is | Provided here? |
+|---|---|---|
+| Producer claim | Any receipt field (`status`, `verdict`, `witness`, `subject`, `claim`, ...) as received | Carried as data only |
+| Local gate check | `ChoirUnion.Authority.evaluateGate`: a pure Boolean comparison of the receipt's fields against a trusted `GateCondition` (status is `kernelChecked`, subject and claim match, a witness is present and clean). It reads only producer-supplied data and ignores `verdict`. | Available as a library function; the API model does not call it |
+| Independent kernel verification | A witness synthesized fresh from the consumer's own Lean environment, or replay of the build by an external checker such as `lean4checker` | Not provided |
+
+Passing the local gate check is not independent kernel verification. As the README puts
+it, a deserialized witness passing `clean()` is still a claim, not evidence. Consumers
+should treat the `status`, `verdict` and `witness` of any receipt they did not construct
+themselves as claims.

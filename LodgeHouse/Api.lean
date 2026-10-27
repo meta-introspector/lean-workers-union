@@ -243,8 +243,10 @@ def memberHasSeat (reg : UnionRegistry) (p : Profile) : Bool :=
 /-! ## Receipts: the honesty layer -/
 
 /-- A mutating API response: data plus a ChoirUnion receipt.
-    Browser-local state is never more than `sketch` unless a fresh
-    witness was synthesized (gokujo gate). -/
+    Browser-local state is never more than `sketch`: the only receipt this
+    model constructs is `sketchReceipt`. No witness synthesis or gokujo-gate
+    upgrade path exists in this repository; a receipt claiming a higher status
+    is a producer claim, not verification. -/
 structure ApiResponse (α : Type) where
   data : α
   receipt : Receipt

@@ -22,11 +22,11 @@ ChoirUnion owns:
 - **ReplayWitness**: portable metadata (declarationFound, isTheorem, sorryCount, usedAxioms)
 - **Receipt**: envelope for claim + witness + status + metadata
 - **ReceiptStatus**: lifecycle (open, sketch, kernelChecked, foreign)
-- **ReceiptVerdict**: epistemic confidence (attested, falsified, indeterminate)
+- **ReceiptVerdict**: epistemic confidence label (attested, falsified, indeterminate); a plain receipt field, not computed by this package
 - **ClaimCeiling**: optional bounded-claim specification
 - **GateCondition**: expected subject, claim, and allowed axioms
 - **evaluateGate**: pure syntactic validation predicate
-- **ReplayProvenance**: audit metadata for builds and replay results
+- **ReplayProvenance**: audit metadata for builds and replay results (defined only; not a field of `Receipt` and not read by `evaluateGate`)
 - **ReceiptAuthorizationPolicy**: pure policy over member capabilities and roles
 
 ### The Consuming Project (Your Lean Repository)
@@ -65,7 +65,7 @@ The `Subject` structure holds:
 ```lean
 repository : String
 commitHash : String
-Toolchain : String
+toolchain : String
 ```
 
 `commitHash` is an identity claim, not a cryptographic binding. This package does not:
@@ -92,18 +92,20 @@ inductive ReceiptStatus where
 
 `ReceiptStatus.kernelChecked` means "this receipt asserts it was checked." It does not mean the receipt is trustworthy.
 
-Trust is determined by `ReceiptVerdict`:
+`ReceiptVerdict` is a separate label:
 ```lean
 inductive ReceiptVerdict where
-  | attested      -- passed local gate; accepted as evidence
-  | falsified     -- failed verification
-  | indeterminate -- not yet evaluated
+  | attested      -- intended: passed local gate; accepted as evidence
+  | falsified     -- intended: failed verification
+  | indeterminate -- intended: not yet evaluated (the default)
 ```
 
-The separation prevents the conceptual collapse:
+The separation is meant to prevent the conceptual collapse:
 ```
 kernelChecked ≠ attested
 ```
+
+However, trust is **not** determined by `ReceiptVerdict`. `verdict` is an ordinary field of `Receipt`, written by whoever constructs the receipt. No function in this package computes or updates it, and `evaluateGate` does not read it. A `verdict` read from a received receipt is a producer-supplied claim, exactly like `status`. It carries meaning only if the local evaluator sets it itself after its own checks; consumers should ignore or reset the `verdict` of any receipt they did not construct.
 
 ### 4. evaluateGate is Pure Syntactic Validation
 
@@ -111,28 +113,41 @@ kernelChecked ≠ attested
 def evaluateGate (condition : GateCondition) (receipt : Receipt) : Bool
 ```
 
-This checks only whether the receipt data structurally matches the condition:
-- subject matches
-- claim matches
-- witness (if present) is clean
+This checks only whether the receipt data structurally matches the condition. It returns `true` exactly when all four hold:
+- `status` is `kernelChecked`
+- `subject` equals `expectedSubject`
+- `claim` equals `expectedClaim`
+- a witness is **present** and is clean relative to the condition's `allowedAxioms` (a missing witness fails the gate)
+
+The allowed axiom list comes from the `GateCondition`, not from the receipt.
 
 It does **not**:
 - inspect the current Lean environment
 - run independent replay
 - verify signatures
 - perform I/O
+- read `verdict`, `producerMemberId`, `claimCeiling` or `evidenceDigest`
+- tie the witness to the claimed declaration (`ReplayWitness` has no declaration name field)
+
+Every value it compares — the status label, subject, claim and witness — is supplied by the receipt's producer. Passing `evaluateGate` is therefore **not** equivalent to independent kernel verification: a receipt whose producer simply writes `status := kernelChecked` and a clean-looking witness passes without any Lean environment being consulted. The theorem `evaluateGate_sound` only restates these Boolean checks.
 
 ### 5. Capabilities ≠ Authority
 
 ```lean
-def mayRequestReceipt (member : MemberState) (policy : ReceiptAuthorizationPolicy) : Bool
+def mayRequestReceipt
+    (memberId : String)
+    (memberCapabilities : List String)
+    (memberRole : String)
+    (policy : ReceiptAuthorizationPolicy) : Bool
 ```
 
 This evaluates whether a member satisfies the authorization policy. It determines who can request or publish receipts, not what is true.
 
 Authority requires both:
 1. `mayRequestReceipt = true` — the member is authorized to speak
-2. `evaluateGate condition receipt = true` — the evidence meets local trust criteria
+2. `evaluateGate condition receipt = true` — the receipt data matches the local gate condition
+
+No function in this package combines these two checks; consumers must call both. Neither check establishes that the claimed proof was actually checked.
 
 ### 6. ClaimCeiling Bounds the Claim
 
@@ -143,6 +158,22 @@ structure ClaimCeiling where
 ```
 
 Optionally attached to a receipt, `ClaimCeiling` specifies an upper bound on what the claim is allowed to assert. This enables the bounded-claim model: a receipt can assert a declaration, but only within the specification boundary the trusted policy permits.
+
+### 7. Producer-Supplied Claims vs. Independently Established Evidence
+
+Producer-supplied claims (everything inside a `Receipt`):
+- `subject`, `claim`, `claimCeiling`, `producerMemberId`
+- `witness` (`declarationFound`, `isTheorem`, `sorryCount`, `usedAxioms`)
+- `status` and `verdict`
+- `evidenceDigest`
+
+Established locally by this package:
+- whether those fields match a trusted `GateCondition` (`evaluateGate`), and whether a member ID, capability list and role satisfy a policy (`mayRequestReceipt`)
+
+Independently established evidence (not provided by this package):
+- a witness synthesized fresh from the consumer's own Lean environment
+- an independent replay by an external checker such as `lean4checker`
+- a binding of `subject` to actual artifact bytes, or a verified signature
 
 ## Architecture
 
@@ -177,8 +208,8 @@ Optionally attached to a receipt, `ClaimCeiling` specifies an upper bound on wha
 2. **Fresh Synthesis** (CoreM):  
    Call `synthesizeWitness : Lean.Name → CoreM ReplayWitness`
 
-3. **Local Verification**:  
-   Create fresh `Receipt` with the new witness, evaluate `evaluateGate`
+3. **Local Gate Check**:  
+   Create fresh `Receipt` with the new witness, evaluate `evaluateGate` (this checks data consistency only; the evidence value comes from step 2)
 
 4. **Independent Replay** (CI):  
    Run `lean4checker` over `.olean` artifacts
@@ -188,8 +219,10 @@ Optionally attached to a receipt, `ClaimCeiling` specifies an upper bound on wha
 
 6. **Remote Verification** (if needed):  
    Either:
-   - Re-run `synthesizeWitness` + `evaluateGate` locally, or
+   - Re-run your own `synthesizeWitness` + `evaluateGate` locally (`synthesizeWitness` is not provided by this package; see "Not Yet Implemented"), or
    - Verify a cryptographic signature (not yet implemented)
+
+   Running `evaluateGate` on a received receipt alone is not remote verification.
 
 ## Example: Pure Gate Test
 
@@ -204,7 +237,7 @@ def sampleCondition : GateCondition :=
 def sampleReceipt : Receipt :=
   { subject := sampleCondition.expectedSubject
     claim := sampleCondition.expectedClaim
-    producer := "copilot"
+    producerMemberId := "copilot"
     witness := some { declarationFound := true, isTheorem := true, sorryCount := 0, usedAxioms := [``propext] }
     status := ReceiptStatus.kernelChecked
     verdict := ReceiptVerdict.indeterminate
@@ -225,7 +258,7 @@ example : evaluateGate sampleCondition sampleReceipt = true := by decide
 
 ```
 lean-workers-union/
-├── lean-toolchain              # Pinned to leanprover/lean4:v4.22.0
+├── lean-toolchain              # Pinned to leanprover/lean4:v4.28.0
 ├── lakefile.toml               # Lake build config
 ├── Member.lean                 # Existing: member identity and role model
 ├── Union.lean                  # Existing: registry and lookup
@@ -244,9 +277,9 @@ lean-workers-union/
 ├── Test/
 │   └── AuthorityPure.lean      # Pure gate examples
 ├── scripts/
-│   └── check_kernel_replay.sh  # Replay validation (project-local)
+│   └── build-site.sh           # Site build (no replay script is included; replay is project-local)
 ├── .github/workflows/
-│   └── ci.yml                  # CI definition
+│   └── main.yml                # CI definition (builds and runs the pure tests; no replay checker)
 └── README.md
 ```
 
@@ -265,5 +298,5 @@ Defenses against these threats belong in:
 
 ## Compatibility
 
-- Lean 4.22.0 (pinned in `lean-toolchain`)
+- Lean 4.28.0 (pinned in `lean-toolchain`)
 - Portable to projects using the `ChoirUnion.Authority` namespace
